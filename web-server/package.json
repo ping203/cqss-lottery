@@ -1,0 +1,10 @@
+{
+  "name": "treasures",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "connect": "^3.6.1",
+    "express": "^4.15.2"
+  }
+}
