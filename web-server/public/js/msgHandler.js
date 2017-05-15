@@ -92,7 +92,7 @@ __resources__["/msgHandler.js"] = {
 
       // Handle disconect message, occours when the client is disconnect with servers
       pomelo.on('disconnect', function(reason) {
-        app.changeView("login");
+          console.log('disconnect' + reason);
       });
 
       // Handle user leave message, occours when players leave the area
@@ -102,6 +102,27 @@ __resources__["/msgHandler.js"] = {
         console.log('onUserLeave invoke!');
         area.removePlayer(playerId);
       });
+
+      pomelo.on('onEnter', function (data) {
+        console.log('onEnter' + data);
+          // var route = "chat.chatHandler.send";
+          // pomelo.request(route, {
+          //     roomId: 10001,
+          //     content: "helo",
+          //     type:0,
+          //     from: username,
+          // }, function(data) {
+          //       console.log('chat.chatHandler.send after:'+ data);
+          // });
+      });
+
+      pomelo.on('onLeave', function (data) {
+          console.log('onLeave' + data);
+      });
+
+      pomelo.on('onChat', function (data) {
+          console.log('onChat' + data);
+      })
 
     };
   }

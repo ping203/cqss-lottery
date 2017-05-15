@@ -16,14 +16,16 @@ var AreaService = function() {
   this.channel = null;
   this.actionManagerService = null;
   this.consts = null;
-}
+};
 
 /**
  * Init areas
  * @param {Object} opts
  * @api public
  */
-AreaService.prototype.init = function(opts) {
+AreaService.prototype.init = function() {
+
+  var opts  = this.dataApiUtil.area().findById(1);
   this.id = opts.id;
   this.width = opts.width;
   this.height = opts.height;
@@ -39,6 +41,7 @@ AreaService.prototype.run = function() {
 }
 
 AreaService.prototype.tick = function() {
+  return;
   //run all the action
   this.actionManagerService.update();
   this.entityUpdate();

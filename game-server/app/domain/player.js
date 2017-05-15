@@ -1,4 +1,4 @@
-var logger = require('pomelo-logger').getLogger('bearcat-treasures', 'Player');
+var logger = require('pomelo-logger').getLogger('bearcat-treasures');
 var bearcat = require('bearcat');
 var util = require('util');
 
@@ -13,15 +13,21 @@ var util = require('util');
 function Player(opts) {
   this.opts = opts;
   this.id = opts.id;
-  this.type = null;
-  this.name = opts.name;
-  this.walkSpeed = 240;
-  this.score = opts.score || 0;
-  this.target = null;
+  this.userId = opts.userId;
+  this.roleName = opts.roleName;
+  this.sex = opts.sex;
+  this.pinCode = opts.pinCode;
+  this.accountAmount = opts.accountAmount;
+  this.level = opts.level;
+  this.experience = opts.experience;
+  this.loginCount = opts.loginCount;
+  this.lastOnlineTime = opts.lastOnlineTime;
+  this.areaId = opts.areaId;
 }
 
 Player.prototype.init = function() {
   this.type = this.consts.EntityType.PLAYER;
+  logger.error('*************Player.prototype.init player');
   var Entity = bearcat.getFunction('entity');
   Entity.call(this, this.opts);
   this._init();

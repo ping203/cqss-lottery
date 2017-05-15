@@ -1,5 +1,5 @@
-var Code = require('../../../../../shared/code');
 var bearcat = require('bearcat');
+var Code = require('../../../../../shared/code');
 /**
  * Gate handler that dispatch user to connectors.
  */

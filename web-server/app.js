@@ -1,25 +1,43 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var path = require('path');
-var router = express.Router();
-var cookieParser = require('cookie-parser');
+const Koa = require('koa');
+const app = new Koa();
+const views = require('koa-views');
+const json = require('koa-json');
+const onerror = require('koa-onerror');
+const bodyparser = require('koa-bodyparser')();
+const logger = require('koa-logger');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(cookieParser());
+const mysql = require('./lib/dao/mysql/mysql');
+const daoUser = require('./lib/dao/daoUser');
 
-app.use(express.static(path.join(__dirname , 'public')));
-app.use('/', router);
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.set('view options', {layout: false});
+const index = require('./routes/index');
+const users = require('./routes/users');
 
-// Uncaught exception handler
-process.on('uncaughtException', function(err) {
-    console.error(' Caught exception: ' + err.stack);
+// error handler
+onerror(app);
+
+// middlewares
+app.use(bodyparser);
+app.use(json());
+app.use(logger());
+app.use(require('koa-static')(__dirname + '/public'));
+
+app.use(views(__dirname + '/views', {
+  extension: 'ejs'
+}));
+
+// logger
+app.use(async (ctx, next) => {
+  const start = new Date();
+  await next();
+  const ms = new Date() - start;
+  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
 });
 
-console.log("Web server has started.\n Please log on http://127.0.0.1:3001/");
+// routes
+app.use(index.routes(), index.allowedMethods());
+app.use(users.routes(), users.allowedMethods());
 
-app.listen(3001);
+//Init mysql
+mysql.init();
+
+module.exports = app;

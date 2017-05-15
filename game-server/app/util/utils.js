@@ -2,7 +2,7 @@ var util = require('util');
 
 var Utils = function() {
 
-}
+};
 
 // callback util
 Utils.prototype.invokeCallback = function(cb) {
@@ -25,6 +25,21 @@ Utils.prototype.clone = function(o) {
 	}
 
 	return n;
+};
+
+Utils.prototype.myPrint = function() {
+    if (isPrintFlag) {
+        var len = arguments.length;
+        if(len <= 0) {
+            return;
+        }
+        var stack = getStack();
+        var aimStr = '\'' + getFileName(stack) + '\' @' + getLineNumber(stack) + ' :\n';
+        for(var i = 0; i < len; ++i) {
+            aimStr += arguments[i] + ' ';
+        }
+        console.log('\n' + aimStr);
+    }
 };
 
 module.exports = {

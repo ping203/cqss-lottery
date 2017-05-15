@@ -1,7 +1,9 @@
 // require json files
 var area = require('../../config/data/area');
+var player = require('../../config/data/player');
 var role = require('../../config/data/role');
 var treasure = require('../../config/data/treasure');
+var room = require('../../config/data/room.json');
 
 /**
  * Data model `new Data()`
@@ -96,6 +98,8 @@ var DataApiUtil = function() {
   this.areaData = null;
   this.roleData = null;
   this.treasureData = null;
+  this.playerData = null;
+  this.roomData = null;
 }
 
 DataApiUtil.prototype.area = function() {
@@ -125,12 +129,25 @@ DataApiUtil.prototype.treasure = function() {
   return this.treasureData;
 }
 
+DataApiUtil.prototype.player = function () {
+  if(this.playerData){
+    return this.playerData;
+  }
+
+  this.playerData = new DataApi(player);
+  return this.playerData;
+}
+
+DataApiUtil.prototype.room = function () {
+    if(this.roomData){
+      return this.roomData;
+    }
+
+    this.roomData = new DataApi(room);
+    return this.roomData;
+}
+
 module.exports = {
   id: "dataApiUtil",
   func: DataApiUtil
 }
-// module.exports = {
-//   area: new DataApi(area),
-//   role: new DataApi(role),
-//   treasure: new DataApi(treasure)
-// };

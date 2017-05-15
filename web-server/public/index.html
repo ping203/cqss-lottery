@@ -9,12 +9,12 @@
     <meta name="keywords" content="pomelo" />
     <meta name="description" content="pomelo, pomelojs, game, demo" />
     <link type="text/css" rel="stylesheet" href="/css/base.css" />
-
+    <link type="text/css" rel="stylesheet" href="/css/client.css" />
     <script src="js/lib/build/build.js" type="text/javascript"></script>
     <script type="text/javascript">        
         require('boot');
     </script>
-
+    <script src="/js/lib/jquery/dist/jquery.js" ></script>
     <script src='/js/lib/colorbox/colorbox_header.js'></script>
     <script src='/js/lib/colorbox/Box2dWeb-2.1.a.3.js'></script>
     <script src='/js/lib/colorbox/JXGUtil.js'></script>
@@ -79,10 +79,26 @@
   <div id="main">
     <div id="login" class="panel current">
       <h1>Treasures</h1>
+
+      <div class="bd">
+        <!-- 注册输入 -->
+        Username <input id="reg-name" type="text" value="linyng"/><br>
+        Phone    <input id="reg-phone" type="text" value="18602842398"/><br>
+        InviteCode <input id="reg-inviteCode" type="text" value="zhangsan888"/><br>
+        Password <input id="reg-pwd" type="password" value="12345"/><br>
+        Confirm Password <input id="reg-cpwd" type="password" value="12345" /><br>
+        <button id="registerBtn" >注册</button>      <br>
+
+        Username <input id="loginUser" type="text" value="linyng"/><br>
+        Password <input id="loginPwd" type="password" value="12345"/><br>
+        <button id="loginBtn">登陆</button><br>
+      </div>
+
       <div>
         <input type="text" placeholder="type a name...">
         <button class="btn">Start Game</button>
       </div>
+
     </div>
     <div id="game" class="panel"></div>
     <div id="rank" class="hide">
