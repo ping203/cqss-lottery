@@ -34,7 +34,7 @@ RankService.prototype.winRateCalc = function (rankId, callback) {
         if(!!result && result.betCount >0){
             rankPlayer.betCount = result.betCount;
             rankPlayer.winCount = result.winCount;
-            rankPlayer.winRate = Number((result.winCount/result.betCount).toFixed(2));//Math.round((result.winCount/result.betCount)*100/100)
+            rankPlayer.winRate = Number(((result.winCount/result.betCount)*100).toFixed(2));//Math.round((result.winCount/result.betCount)*100/100)
         }
         self.utils.invokeCallback(callback, null, rankPlayer);
     });

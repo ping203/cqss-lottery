@@ -59,7 +59,7 @@ Lottery.prototype.publishLottery = function (result) {
 //发布最近一期开奖信息
 Lottery.prototype.publishCurLottery = function (uids) {
 	if(this.lastLottery){
-        this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:uids});
+        this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, preLottery:this.preLottery, uids:uids});
 	}
 };
 
