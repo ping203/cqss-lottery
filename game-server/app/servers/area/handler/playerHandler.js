@@ -30,7 +30,7 @@ PlayerHandler.prototype.enterScene = function (msg, session, next) {
 
     var playerId = session.get('playerId');
     var areaId = session.get('areaId');
-    
+
     this.daoUser.getPlayerAllInfo(session.get('playerId'), function (err, player) {
         
     });
