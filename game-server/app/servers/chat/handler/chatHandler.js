@@ -44,7 +44,7 @@ ChatHandler.prototype.enterRoom = function(msg, session, next){
 };
 
 ChatHandler.prototype.leaveRoom = function (msg, session, next) {
-    this.chatService.leave(session.uid, msg.roomId);
+    this.chatService.leave(session.uid, session.get('roomId'));
 };
 
 /**
@@ -55,37 +55,8 @@ ChatHandler.prototype.leaveRoom = function (msg, session, next) {
  * @param  {Function} next next stemp callback
  *
  */
-ChatHandler.prototype.send = function(msg, session, next) {
-    this.chatService.pushByRoomId(msg.roomId, msg, next);
-    /*
-
-     var param = {
-     route: 'onChat',
-     msg: msg.content,
-     from: username,
-     target: msg.target
-     };
-     channel = channelService.getChannel(rid, false);
-
-     //the target is all users
-     if(msg.target == '*') {
-     channel.pushMessage(param);
-     }
-     //the target is specific user
-     else {
-     var tuid = msg.target + '*' + rid;
-     var tsid = channel.getMember(tuid)['sid'];
-     channelService.pushMessageByUids(param, [{
-     uid: tuid,
-     sid: tsid
-     }]);
-     }
-     next(null, {
-     route: msg.route
-     });
-
-  */
-
+ChatHandler.prototype.sendChatMsg = function(msg, session, next) {
+    this.chatService.pushByRoomId(session.get('roomId'), msg, next);
 };
 
 module.exports = function (app) {

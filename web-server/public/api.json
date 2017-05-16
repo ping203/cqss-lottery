@@ -75,22 +75,23 @@
   ],
   "game": [
     {
-      "login":{
-        "router":"connector.entryHandler.login",
+      "connect":{
+        "router":"gate.gateHandler.connect",
         "msg":{
-          "token":{
-            "type":"string",
+          "uid":{
+            "type":"number",
             "required":true
           }
         }
       }
     },
     {
-      "queryEntry":{
-        "router":"gate.gateHandler.queryEntry",
+
+      "login":{
+        "router":"connector.entryHandler.login",
         "msg":{
-          "uid":{
-            "type":"number",
+          "token":{
+            "type":"string",
             "required":true
           }
         }
@@ -105,6 +106,11 @@
             "required":true
           }
         }
+      }
+    }, {
+      "leaveRoom": {
+        "router":"chat.chatHandler.leaveRoom",
+        "msg":null
       }
     },{
       "getRooms": {

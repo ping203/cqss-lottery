@@ -2,6 +2,15 @@ var logger = require('pomelo-logger').getLogger('bearcat-treasures', 'PlayerHand
 var bearcat = require('bearcat');
 var fs = require('fs');
 
+// 非常荣幸您选择我们作为您的开奖数据供应商！
+// 您的数据账号：33C9381371DE3848
+//
+// 您的校验密码：ED10513DF478
+//
+// 快速管理地址：http://face.opencai.net?token=33c9381371de3848&verify=ed10513df478
+//
+//     自助管理平台：(即将上线)
+
 var PlayerHandler = function(app) {
   this.app = app;
   this.consts = null;

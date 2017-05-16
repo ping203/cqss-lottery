@@ -11,6 +11,7 @@ const pomelo = require('pomelo');
 var ChatService = function () {
     this.app = pomelo.app;
     this.roomMap = new Map();
+    this.uidMap = new Map();
 };
 
 /**
@@ -77,6 +78,11 @@ ChatService.prototype.add = function (userId, sid, roleName, roomId) {
         return Code.OK;
     }
 
+    var enterRoomId = this.uidMap.get(userId);
+    if(enterRoomId){
+        this.leave(userId, enterRoomId);
+    }
+
     var channel = this.app.get('channelService').getChannel(roomId, true);
     if (!channel) {
         return Code.CHAT.FA_CHANNEL_CREATE;
@@ -86,8 +92,6 @@ ChatService.prototype.add = function (userId, sid, roleName, roomId) {
     logger.error('ChatService.prototype.add');
     channel.add(userId, sid);
     addRecord(this, userId, roleName, sid, roomId);
-
-
 };
 
 /**
@@ -201,6 +205,7 @@ var checkDuplicate = function (service, userId, roomId) {
 var addRecord = function (service, userId, roleName, sid, roomId) {
     var record = {uid: userId, name: roleName, sid: sid};
     service.roomMap.get(roomId).userMap.set(userId, record);
+    service.uidMap.set(userId, roomId);
 };
 
 /**
@@ -208,6 +213,7 @@ var addRecord = function (service, userId, roleName, sid, roomId) {
  */
 var removeRecord = function (service, userId, roomId) {
     service.roomMap.get(roomId).userMap.delete(userId);
+    service.uidMap.delete(userId);
 };
 
 module.exports = {

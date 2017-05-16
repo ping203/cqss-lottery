@@ -38,7 +38,7 @@ EntryHandler.prototype.createPlayer = function(userId, cb) {
  * @param  {Function} next    next stemp callback
  * @return {Void}
  */
-EntryHandler.prototype.entry = function (msg, session, next) {
+EntryHandler.prototype.login = function (msg, session, next) {
     var token = msg.token, self = this;
     if (!token) {
         next(new Error('invalid entry request: empty token'), {code: Code.FAIL});

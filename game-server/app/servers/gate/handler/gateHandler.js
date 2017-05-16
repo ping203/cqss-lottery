@@ -8,7 +8,7 @@ var GateHandler = function(app) {
 	this.dispatcher = null;
 };
 
-GateHandler.prototype.queryEntry = function(msg, session, next) {
+GateHandler.prototype.connect = function(msg, session, next) {
 	var uid = msg.uid;
 	if (!uid) {
 		next(null, {

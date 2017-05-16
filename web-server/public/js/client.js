@@ -10,6 +10,11 @@ var LOGIN_ERROR = "There is no server to log in, please wait.";
 var LENGTH_ERROR = "Name/Channel is too long or too short. 20 character max.";
 var NAME_ERROR = "Bad character in Name/Channel. Can only have letters, numbers, Chinese characters, and '_'";
 var DUPLICATE_ERROR = "Please change your name to login.";
+var CHATMSGTYPE = {
+    CHARACTERS:0,
+	IMAGE:1,
+	AUDIO:2
+}
 
 var httpHost = location.href.replace(location.hash, '');
 httpHost = httpHost.substr(0, httpHost.lastIndexOf('/')+1);
@@ -211,7 +216,7 @@ $(document).ready(function() {
 	pomelo.on('onAddRoom', function(data) {
         console.log('onAddRoom', data);
         var user = data;
-		tip('online', user);
+		tip('online', user.roleName);
 		addUser(user);
 	});
 
@@ -231,16 +236,16 @@ $(document).ready(function() {
 
 	//deal with chat mode.
 	$("#entry").keypress(function(e) {
-		var route = "chat.chatHandler.send";
+		var route = "chat.chatHandler.sendChatMsg";
 		var target = $("#usersList").val();
 		if(e.keyCode != 13 /* Return */ ) return;
 		var msg = $("#entry").attr("value").replace("\n", "");
 		if(!util.isBlank(msg)) {
 			pomelo.request(route, {
-				roomId: rid,
-				content: msg,
 				from: rolename,
-				target: target
+				target: target,
+				msgType:CHATMSGTYPE.CHARACTERS,
+                content: msg,
 			}, function(data) {
 				$("#entry").attr("value", ""); // clear the entry field.
 				if(target != '*' && target != username) {
@@ -304,7 +309,7 @@ $(document).ready(function() {
                     port: port,
                     log: true
                 }, function() {
-                    var route = "connector.entryHandler.entry";
+                    var route = "connector.entryHandler.login";
                     pomelo.request(route, {token: data.token}, function(data) {
                         if(data.error) {
                             showError(DUPLICATE_ERROR);
