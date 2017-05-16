@@ -17,7 +17,7 @@ var User = function(opts) {
     this.from = opts.from;
 	this.password = opts.password;
 	this.email = opts.email;
-    this.inviteAccount = opts.inviteAccount;
+    this.invitor = opts.invitor;
     this.phone = opts.phone;
 	this.regTime = opts.regTime;
 };

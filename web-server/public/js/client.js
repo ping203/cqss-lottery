@@ -292,6 +292,31 @@ $(document).ready(function() {
             return;
         }
 
+       //  function sendPostRequest(ServerLink,str,callback,errcall) {
+       //      var sendstr=JSON.stringify(str);
+       //      var xhr = new XMLHttpRequest();
+       //      xhr.open("POST", ServerLink);
+       //      //xhr.open("GET", ServerLink+link+"?"+parm,false);
+       // //     xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
+       //      xhr.setRequestHeader('Content-Type','application/json; charset=UTF-8');
+       //     // xhr.setRequestHeader("Charset","uft-8");
+       //      xhr.send(sendstr);
+       //      xhr.onreadystatechange = function () {
+       //          if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status <= 207)) {
+       //              var result = JSON.parse(xhr.responseText);
+       //              if(result["act"]=="erro") {
+       //                 // errcall(result["msg"]);
+       //                  return;
+       //              }
+       //             // callback(result);
+       //          }
+       //      };
+       //  }
+       //
+       //  sendPostRequest(httpHost + 'users/login', {username: username, password: pwd});
+       //
+       // return;
+
         $.post(httpHost + 'users/login', {username: username, password: pwd}, function(data) {
             if (data.code === 501) {
                 alert('Username or password is invalid!');

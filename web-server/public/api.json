@@ -140,6 +140,11 @@
           }
         }
       }
+    },{
+      "enterScene": {
+        "router":"area.playerHandler.enterScene",
+        "msg":null
+      }
     }
   ]
 }
