@@ -49,6 +49,7 @@ var Consts = function () {
         area:{
             playerLeave:'onPlayerLeave',
             playerBet:'onPlayerBet',
+            playerBets:'onPlayerBets',
             playerUnBet:'onPlayerUnBet',
             playerRename:'onPlayerRename',
             playerUpgrade:'onPlayerUpgrade',

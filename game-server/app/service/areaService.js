@@ -22,6 +22,8 @@ var AreaService = function () {
     this.consts = null;
     this.globalEntityId = 0;
     this.platformTypeBet = new Map();
+
+    this.latestBets = [];
 };
 
 /**
@@ -66,6 +68,12 @@ AreaService.prototype.tick = function () {
 
 AreaService.prototype.incomeScheduleTask = function () {
     this.calcIncome.calc();
+};
+
+AreaService.prototype.updateLatestBets = function (item) {
+    if(this.latestBets.push(item) > 10){
+        this.latestBets.shift();
+    }
 };
 
 AreaService.prototype.openLottery = function (numbers, period, opentime) {
@@ -165,6 +173,7 @@ AreaService.prototype.addEntity = function (e) {
 
         this.getLottery().publishCurLottery([{uid: e.id, sid: e.serverId}]);
         this.getLottery().initPublishParseResult([{uid: e.id, sid: e.serverId}]);
+        this.getLottery().initPublishLatestBets(this.latestBets,[{uid: e.id, sid: e.serverId}]);
     }
 
     this.added.push(e);
@@ -177,7 +186,7 @@ AreaService.prototype.addEntity = function (e) {
  */
 AreaService.prototype.countdown = function () {
 
-    if (this.countdownCount >= 5) {
+    if (this.countdownCount >= 8) {
         this.getLottery().countdown();
         this.countdownCount = 0;
     }

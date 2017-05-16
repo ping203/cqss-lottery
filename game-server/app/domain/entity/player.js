@@ -97,12 +97,43 @@ Player.prototype.setRoleName = function (name) {
 Player.prototype.setPinCode = function (pinCode) {
     this.pinCode = pinCode;
     this.save();
+    this.changeNotify();
 };
 
 Player.prototype.setImageId = function(imageId){
     this.imageId = imageId;
     this.save();
+    this.changeNotify();
 }
+
+Player.prototype.setPhone = function(phone){
+    this.phone = phone;
+    this.save();
+    this.changeNotify();
+}
+
+Player.prototype.setEmail = function(email){
+    this.email = email;
+    this.save();
+    this.changeNotify();
+}
+
+Player.prototype.recharge = function (money) {
+    this.accountAmount += money;
+    this.save();
+    this.changeNotify();
+    //todo 充值记录
+};
+
+Player.prototype.cast = function (money) {
+    if(this.accountAmount < money) return false;
+    this.accountAmount -= money;
+    this.save();
+    this.changeNotify();
+    //todo 提现记录
+    return true;
+
+};
 
 Player.prototype.getMyBets = function(skip, limit, cb){
     this.daoBets.getBets(this.id, skip, limit, cb);
@@ -159,6 +190,7 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
 
         betItem.setBetItems(betParseInfo.betItems);
         betItem.setBetTypeInfo(betParseInfo.betTypeInfo);
+        betItem.roleName = this.roleName;
         self.bets.addItem(betItem);
 
         for(var type in betParseInfo.betTypeInfo){
@@ -171,7 +203,7 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         }
 
         self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});
-        self.utils.invokeCallback(cb, null, null);
+        self.utils.invokeCallback(cb, null, betItem);
     });
 
 };

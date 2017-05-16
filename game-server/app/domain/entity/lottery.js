@@ -83,6 +83,11 @@ Lottery.prototype.initPublishParseResult = function (uids) {
     this.emit(this.consts.Event.area.parseLottery, {lottery: this, parseResult:this.lotteryCaches, uids:uids});
 };
 
+//发布最近10期开奖分析结果
+Lottery.prototype.initPublishLatestBets = function (betItems, uids) {
+    this.emit(this.consts.Event.area.parseLottery, {lottery: this, betItems:betItems, uids:uids});
+};
+
 Lottery.prototype.getNextPeriod = function () {
     return this.nextLottery.period;
 }
@@ -110,7 +115,7 @@ Lottery.prototype.countdown = function () {
 	}
     this.tickCount -= subTick;
 
-	if(Math.floor(this.tickCount) > this.lastTick && this.lastTick != 0){
+    if(Math.floor(this.tickCount) > this.lastTick && this.lastTick != 0){
         this.tickCount = this.lastTick;
     }
 	if(this.tickCount < 0) this.tickCount = 0;

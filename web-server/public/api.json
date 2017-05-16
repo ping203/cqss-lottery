@@ -193,16 +193,35 @@
       "setRoleName": {
         "router":"area.playerHandler.setRoleName",
         "msg":{
-          "skip":10,
-          "limit":10
+          "roleName":"linyn"
+        }
+      }
+    },{
+      "setImageId": {
+        "router":"area.playerHandler.setImageId",
+        "msg":{
+          "imageId":1
         }
       }
     },{
       "setPinCode": {
-        "router":"area.playerHandler.setImageId",
+        "router":"area.playerHandler.setPinCode",
         "msg":{
-          "skip":10,
-          "limit":10
+          "pinCode":11323
+        }
+      }
+    },{
+      "setEmail": {
+        "router":"area.playerHandler.setEmail",
+        "msg":{
+          "email":"linyn@126.com"
+        }
+      }
+    },{
+      "setPhone": {
+        "router":"area.playerHandler.setPhone",
+        "msg":{
+          "phone":"13355343423"
         }
       }
     },{

@@ -17,12 +17,13 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     var parseTypeInfo = msg.betParseInfo;
 
     var self = this;
-    player.bet(period, identify, msg.betData, parseTypeInfo, function (err, result) {
+    player.bet(period, identify, msg.betData, parseTypeInfo, function (err, betItem) {
         if(err){
             next(null, new Answer.NoDataResponse(err));
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
+        this.areaService.updateLatestBets(betItem);
     });
 };
 
@@ -36,6 +37,7 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
+        this.areaService.updateLatestBets(betItem);
     });
 };
 
@@ -94,6 +96,20 @@ PlayerHandler.prototype.setImageId = function (msg, session, next) {
     next(null, new Answer.NoDataResponse(Code.OK));
 };
 
+PlayerHandler.prototype.setPhone = function (msg, session, next) {
+    var playerId = session.uid;
+    var player = this.areaService.getPlayer(playerId);
+    player.setPhone(msg.phone);
+    next(null, new Answer.NoDataResponse(Code.OK));
+};
+
+PlayerHandler.prototype.setEmail = function (msg, session, next) {
+    var playerId = session.uid;
+    var player = this.areaService.getPlayer(playerId);
+    player.setEmail(msg.email);
+    next(null, new Answer.NoDataResponse(Code.OK));
+};
+
 PlayerHandler.prototype.getLotterys = function (msg, session, next) {
     var lottery =  this.areaService.getLottery();
     lottery.getLotterys(msg.skip, msg.limit, function (err, result) {
@@ -103,86 +119,6 @@ PlayerHandler.prototype.getLotterys = function (msg, session, next) {
             next(null, new Answer.DataResponse(Code.OK, result));
         }
     });
-};
-
-/**
- * Player moves. Player requests move with the given movePath.
- * Handle the request from client, and response result to client
- *
- * @param {Object} msg
- * @param {Object} session
- * @param {Function} next
- * @api public
- */
-PlayerHandler.prototype.move = function (msg, session, next) {
-    var endPos = msg.targetPos;
-    var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
-    if (!player) {
-        logger.error('Move without a valid player ! playerId : %j', playerId);
-        next(new Error('invalid player:' + playerId), {
-            code: this.consts.MESSAGE.ERR
-        });
-        return;
-    }
-
-    var target = this.areaService.getEntity(msg.target);
-    player.target = target ? target.entityId : null;
-
-    if (endPos.x > this.areaService.getWidth() || endPos.y > this.areaService.getHeight()) {
-        logger.warn('The path is illigle!! The path is: %j', msg.path);
-        next(new Error('fail to move for illegal path'), {
-            code: this.consts.MESSAGE.ERR
-        });
-
-        return;
-    }
-
-    var action = bearcat.getBean('move', {
-        entity: player,
-        endPos: endPos,
-    });
-
-    if (this.areaService.addAction(action)) {
-        next(null, {
-            code: this.consts.MESSAGE.RES,
-            sPos: player.getPos()
-        });
-
-        this.areaService.getChannel().pushMessage({
-            route: 'onMove',
-            entityId: player.entityId,
-            endPos: endPos
-        });
-    }
-};
-
-/**
- * Player pick up item.
- * Handle the request from client, and set player's target
- *
- * @param {Object} msg
- * @param {Object} session
- * @param {Function} next
- * @api public
- */
-PlayerHandler.pickItem = function(msg, session, next) {
-    var area = session.area;
-
-    var player = area.getPlayer(session.uid);
-    var target = area.getEntity(msg.targetId);
-    if(!player || !target || (target.type !== consts.EntityType.ITEM && target.type !== consts.EntityType.EQUIPMENT)){
-        next(null, {
-            route: msg.route,
-            code: consts.MESSAGE.ERR
-        });
-        return;
-    }
-
-    player.target = target.entityId;
-
-    // next();
-    next(null, {});
 };
 
 module.exports = function (app) {

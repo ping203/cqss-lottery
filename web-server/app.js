@@ -15,6 +15,7 @@ const daoUser = require('./lib/dao/daoUser');
 const index = require('./routes/index');
 const users = require('./routes/users');
 
+// sudo apt-get install okular        pdf reader
 // var mount_uploadify = require('koa-uploadify')
 //
 // mount_uploadify(app,{
@@ -64,5 +65,21 @@ app.use(users.routes(), users.allowedMethods());
 
 //Init mysql
 mysql.init();
+
+
+const uuidV4 = require('uuid/v4');
+//Init sys user
+function initSys() {
+    const uuid = uuidV4().replace(new RegExp(/(-)/g), '');
+    daoUser.createUser('sys', uuid, '', '', '', '',0, function (err, uid) {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log('initSys user was created! --' + 'sys');
+        }
+    });
+};
+
+initSys();
 
 module.exports = app;

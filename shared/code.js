@@ -47,5 +47,7 @@ module.exports = {
         FA_BET_MONEY_NOTZERO: {code:5012, desc:"投注金额不能为0"},
         FA_QUERY_INFO_IS_EMPTY: {code:5013, desc:"查詢不到指定信息"},
         FA_BET_CHANNEL_CLOSE: {code:5014, desc:"投注通道已经关闭，等待下期投注"},
+        FA_RECHARGE_UID_ERROR: {code:5015, desc:"充值用户ID无效"},
+        FA_CAST_ERROR: {code:5016, desc:"提现失败，余额不足"},
     }
 };

@@ -9,6 +9,81 @@ var EntryHandler = function (app) {
     this.serverId = app.get('serverId').split('-')[2];
 };
 
+//管理员登录
+EntryHandler.prototype.adminLogin = function (msg, session, next) {
+    var token = msg.token, self = this;
+    if (!token) {
+        next(new Error('invalid entry request: empty token'),new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    var _playerId;
+    async.waterfall([
+        function (cb) {
+            // auth token
+            self.app.rpc.auth.authRemote.auth(session, token, cb);
+        }, function (code, playerId, cb) {
+            if (code.code !== Code.OK.code) {
+                next(null, new Answer.NoDataResponse(code));
+                return;
+            }
+            _playerId = playerId;
+            self.app.get('sessionService').kick(playerId, cb);
+        },
+        function (cb) {
+            session.bind(_playerId, cb);
+        },function (cb) {
+            session.on('closed', onAdminLeave.bind(null, self.app));
+            session.pushAll(cb);
+        }
+    ], function (err) {
+        if (err) {
+            next(err, new Answer.NoDataResponse(Code.FAIL));
+            return;
+        }
+        next(err, new Answer.NoDataResponse(Code.OK));
+    });
+};
+
+EntryHandler.prototype.recharge = function (msg, session, next) {
+    if(!msg.money || !msg.uid){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    var money = parseInt(msg.money, 10);
+    if(isNaN(money)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    app.rpc.area.playerRemote.recharge(session, msg.uid, money, function (err, result) {
+        next(err, result);
+    });
+};
+
+EntryHandler.prototype.cash = function (msg, session, next) {
+    if(!msg.money || !msg.uid){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    var money = parseInt(msg.money, 10);
+    if(isNaN(money)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    app.rpc.area.playerRemote.cash(session, msg.uid, money, function (err, result) {
+        next(err, result);
+    });
+};
+
+EntryHandler.prototype.setConfig = function (msg, session, next) {
+    app.rpc.area.playerRemote.setConfig(session, msg.configs, function (err, result) {
+        next(err, result);
+    });
+};
 
 EntryHandler.prototype.login = function (msg, session, next) {
     var token = msg.token, self = this;
@@ -71,6 +146,12 @@ var onUserLeave = function (app, session, reason) {
         app.rpc.area.playerRemote.playerLeave(session, session.uid, null);
 
         app.rpc.chat.chatRemote.kick(session, session.uid, session.get('roomId'),null);
+    }
+};
+
+var onAdminLeave = function (app, session, reason) {
+    if (session && session.uid) {
+        self.app.get('sessionService').kick(session.uid, cb);
     }
 };
 

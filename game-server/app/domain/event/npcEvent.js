@@ -4,9 +4,6 @@ var NpcEvent = function () {
 
 };
 
-/**
- * Handler lottery event
- */
 NpcEvent.prototype.addEventForNPC = function (lottery){
     var self = this;
     /**
@@ -61,6 +58,22 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
             });
         }
 	});
+
+    lottery.on(this.consts.Event.area.playerBets, function(args) {
+        if (args.lottery) {
+            if(args.uids){
+                pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.playerBets,{
+                    entityId: args.lottery.entityId,
+                    betItems: args.betItems,
+                },args.uids);
+            }else {
+                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.playerBets,{
+                    entityId: args.lottery.entityId,
+                    betItems: args.betItems,
+                });
+            }
+        }
+    });
 };
 
 module.exports ={

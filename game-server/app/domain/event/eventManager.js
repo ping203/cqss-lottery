@@ -4,9 +4,6 @@ var EventManager = function () {
 
 };
 
-/**
- * Listen event for entity
- */
 EventManager.prototype.addEvent = function (entity) {
     switch (entity.type) {
         case this.consts.EntityType.PLAYER :
@@ -23,10 +20,6 @@ EventManager.prototype.addEvent = function (entity) {
     }
 };
 
-/**
- * Add save event for player
- * @param {Object} player The player to add save event for.
- */
 function addPlayerSaveEvent(player) {
     var app = pomelo.app;
     player.on('save', function () {

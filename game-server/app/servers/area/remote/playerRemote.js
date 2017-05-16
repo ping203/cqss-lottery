@@ -1,6 +1,7 @@
 var bearcat = require('bearcat');
 var Answer = require('../../../../../shared/answer');
 var Code = require('../../../../../shared/code');
+var async = require('async');
 
 var PlayerRemote = function(app) {
 	this.app = app;
@@ -35,7 +36,6 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
     });
 };
 
-
 PlayerRemote.prototype.playerLeave = function(playerId, cb) {
 	var player = this.areaService.getPlayer(playerId);
 	if (!player) {
@@ -50,6 +50,71 @@ PlayerRemote.prototype.playerLeave = function(playerId, cb) {
 	});
 	this.utils.invokeCallback(cb);
 };
+
+PlayerRemote.prototype.recharge = function (uid, money,cb) {
+    var player = this.areaService.getPlayer(uid);
+    if (player) {
+        player.recharge(money);
+        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+        return;
+    }
+
+    //离线用户充值
+    this.daoUser.updateAccountAmount(uid, money, function (err, success) {
+        if(!!err || !success){
+            this.utils.invokeCallback(cb,'充值失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
+            return;
+        }
+
+        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+    })
+}
+
+PlayerRemote.prototype.cast = function (uid, money, cb) {
+    var player = this.areaService.getPlayer(uid);
+    if (player) {
+        if(!player.cast(money)){
+            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
+        }
+        else {
+            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+        }
+        return;
+    }
+
+    //离线用户提现
+    async.waterfall([
+        function (callback) {
+            this.daoUser.getAccountAmount(uid, callback);
+        },
+        function (amount, callback) {
+            if(amount > money){
+                this.daoUser.updateAccountAmount(uid, -money, callback);
+            }
+            else {
+                this.utils.invokeCallback(cb, '提现失败', new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
+            }
+        },function (success, callback) {
+            if(!success){
+                cb('提现失败');
+            }else {
+                cb();
+            }
+        }
+    ],function (err) {
+        if(err){
+            this.utils.invokeCallback(cb, err, new Answer.NoDataResponse(Code.FAIL));
+            return;
+        }
+        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+    });
+}
+
+PlayerRemote.prototype.setConfig = function (configs,cb) {
+	//check config invalid
+	this.sysConfig.setConfigs(configs);
+    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+}
 
 module.exports = function(app) {
 	return bearcat.getBean({
@@ -71,6 +136,9 @@ module.exports = function(app) {
 		}, {
             name: "daoUser",
             ref: "daoUser"
+        }, {
+            name: "sysConfig",
+            ref: "sysConfig"
         }]
 	});
 };
