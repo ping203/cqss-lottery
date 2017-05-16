@@ -52,7 +52,7 @@ EntryHandler.prototype.entry = function (msg, session, next) {
             self.app.rpc.auth.authRemote.auth(session, token, cb);
         }, function (code, user, cb) {
             // query player info by user id
-            if (code !== Code.OK) {
+            if (code.code !== Code.OK.code) {
                 next(null, {code: code});
                 return;
             }
@@ -85,7 +85,7 @@ EntryHandler.prototype.entry = function (msg, session, next) {
             next(err, {code: Code.FAIL});
             return;
         }
-        next(null, {code: Code.OK, response:{player: _player, user:_user}});
+        next(null, {code: Code.OK.code, response:{player: _player, user:_user}});
     });
 };
 

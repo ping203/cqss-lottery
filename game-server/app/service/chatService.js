@@ -142,6 +142,9 @@ ChatService.prototype.kick = function (userId, roomId) {
         channel.leave(userId, record.sid);
     }
     removeRecord(this, userId, roomId);
+
+    channel.pushMessage(this.consts.Event.onLeave, {uid:userId});
+    logger.error('ChatService.prototype.kick');
 };
 
 /**

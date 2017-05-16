@@ -19,15 +19,16 @@ var DaoUser = function () {
  * @param {String} from Register source
  * @param {function} cb Call back function.
  */
-DaoUser.prototype.createUser = function (username, password, from, cb){
-    var sql = 'insert into User (name,password,phone,email,`from`,regTime,inviteAccount) values(?,?,?,?,?,?,?)';
+DaoUser.prototype.createUser = function (username, password, phone, inviter, from, cb){
+    var sql = 'insert into User (name,password,phone,email,`from`,regTime,inviter) values(?,?,?,?,?,?,?)';
     var regTime = Date.now();
-    var args = [username, password, phone,"", from, regTime,inviteId,];
+    var args = [username, password, phone,"", from, regTime,inviter];
+
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
         if(err !== null){
             this.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
         } else {
-            var user = new User({id: res.insertId, name: username, password: password, phone: phone, email:"", from:from,regTime:regTime,inviteAccount:inviteId});
+            var user = new User({id: res.insertId, name: username, password: password, phone: phone, email:"", from:from,regTime:regTime,inviter:inviter});
             this.utils.invokeCallback(cb, null, user);
         }
     });
@@ -68,7 +69,7 @@ DaoUser.prototype.getUserByName = function (username, cb){
         } else {
             if (!!res && res.length === 1) {
                 var rs = res[0];
-                var user = new User({id: rs.id, name: rs.name, password: rs.password, phone: rs.phone, email:rs.email, from:rs.from,regTime:rs.regTime,inviteAccount:rs.inviteAccount});
+                var user = new User({id: rs.id, name: rs.name, password: rs.password, phone: rs.phone, email:rs.email, from:rs.from,regTime:rs.regTime,inviter:rs.inviter});
                 this.utils.invokeCallback(cb, null, user);
             } else {
                 this.utils.invokeCallback(cb, ' user not exist ', null);
@@ -76,6 +77,26 @@ DaoUser.prototype.getUserByName = function (username, cb){
         }
     });
 };
+
+DaoUser.prototype.getUserByPhone = function(phone, cb){
+    var sql = 'select * from  User where phone = ?';
+    var args = [phone];
+
+    pomelo.app.get('dbclient').query(sql,args,function(err, res){
+        if(err !== null){
+            this.utils.invokeCallback(cb, err.message, null);
+        } else {
+            if (!!res && res.length === 1) {
+                var rs = res[0];
+                var user = new User({id: rs.id, name: rs.name, password: rs.password, phone: rs.phone, email:rs.email, from:rs.from,regTime:rs.regTime,inviter:rs.inviter});
+                this.utils.invokeCallback(cb, null, user);
+            } else {
+                this.utils.invokeCallback(cb, ' user not exist ', null);
+            }
+        }
+    });
+}
+
 
 /**
  * get user infomation by userId

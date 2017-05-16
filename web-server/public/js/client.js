@@ -1,5 +1,6 @@
 var pomelo = window.pomelo;
 var username;
+var rolename;
 var users;
 var rid;
 var base = 1000;
@@ -111,8 +112,8 @@ function initUserList(users) {
 // add user in user list
 function addUser(user) {
 	var slElement = $(document.createElement("option"));
-	slElement.attr("value", user);
-	slElement.text(user);
+	slElement.attr("value", user.userId);
+	slElement.text(user.roleName);
 	$("#usersList").append(slElement);
 };
 
@@ -202,14 +203,14 @@ $(document).ready(function() {
 	    console.log('onChat', data);
 		addMessage(data.from, data.target, data.content);
 		$("#chatHistory").show();
-		if(data.from !== username)
+		if(data.from !== rolename)
 			tip('message', data.from);
 	});
 
 	//update user list
 	pomelo.on('onAddRoom', function(data) {
         console.log('onAddRoom', data);
-        var user = data.roleName;
+        var user = data;
 		tip('online', user);
 		addUser(user);
 	});
@@ -238,7 +239,7 @@ $(document).ready(function() {
 			pomelo.request(route, {
 				roomId: rid,
 				content: msg,
-				from: username,
+				from: rolename,
 				target: target
 			}, function(data) {
 				$("#entry").attr("value", ""); // clear the entry field.
@@ -310,8 +311,9 @@ $(document).ready(function() {
                             return;
                         }
 
-                        var userData = data.response.user;
+						var userData = data.response.user;
                         var playerData = data.response.player;
+                        rolename = playerData.roleName;
                         console.log(userData);
                         console.log(playerData);
 
