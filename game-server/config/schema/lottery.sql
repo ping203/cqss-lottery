@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS `User` (
   `email` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '邮箱',
   `from` varchar(25) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '登录来源',
   `regTime` bigint(20) unsigned NOT NULL COMMENT '注册时间',
-  `inviteAccount` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '邀请人',
+  `inviter` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '邀请人',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `INDEX_ACCOUNT_NAME` (`name`)
+  UNIQUE KEY `INDEX_ACCOUNT_NAME` (`name`, `phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------

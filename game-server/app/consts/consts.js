@@ -27,8 +27,8 @@ var Consts = function () {
 
     this.Event = {
         onChat: 'onChat',
-        onEnter: 'onEnter',
-        onLeave: 'onLeave'
+        onEnter: 'onAddRoom',
+        onLeave: 'onLeaveRoom'
     };
 }
 

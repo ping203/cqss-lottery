@@ -29,11 +29,17 @@ ChatHandler.prototype.getRooms = function(msg, session, next){
  * @param next
  */
 ChatHandler.prototype.enterRoom = function(msg, session, next){
- //   frontendId = "connector-server-1"
-    console.log('**********************************************' + this.chatService);
     var roleName = session.get('roleName');
     var roomId = msg.roomId;
     this.chatService.add(session.uid, session.frontendId, roleName, roomId);
+
+    session.set('roomId', roomId);
+    session.push('roomId', function(err) {
+        if(err) {
+            console.error('set roomId for session service failed! error is : %j', err.stack);
+        }
+    });
+
     next(null, {code: Code.OK, response:this.chatService.getUsers(roomId)});
 };
 

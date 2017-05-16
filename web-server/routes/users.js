@@ -3,16 +3,18 @@
 const router = require('koa-router')()
 const Token = require('../../shared/token');
 const secret = require('../../shared/config/session').secret;
-var daoUser = require('../lib/dao/daoUser');
+const daoUser = require('../lib/dao/daoUser');
+const code = require('../../shared/code');
+var async = require('async');
 
 router.prefix('/users')
 
 router.get('/', function (ctx, next) {
-  ctx.body = 'this is a users response!'
+    ctx.body = 'this is a users response!'
 })
 
 router.get('/bar', function (ctx, next) {
-  ctx.body = 'this is a users/bar response'
+    ctx.body = 'this is a users/bar response'
 })
 
 
@@ -25,70 +27,183 @@ router.get('/bar', function (ctx, next) {
 //     }
 // });
 
-router.post('/login', function(ctx, next) {
+/**
+ * user login
+ *
+ * @param  {String}   username or phone
+ * @param  {String}   pwd
+ *
+ */
+
+router.post('/login', function (ctx, next) {
     let msg = ctx.request.body;
-    let username = msg.username;
-    let pwd = msg.password;
-    if (!username || !pwd) {
-        ctx.res.body = {code: 500};
+    let loginType = 0;
+    if (!!msg.phone) {
+        loginType = 1;
+    }
+    if (!(loginType == 0 ? msg.username : msg.phone) || !msg.password) {
+        ctx.body = code.PARAMERROR;
         return;
     }
 
-    return new Promise((resove, reject)=>{
-        daoUser.getUserByName(username, function(err, user) {
-            if (err || !user) {
-                console.log('username not exist!');
-                ctx.body = {code: 500};
-            }
-            else if (pwd !== user.password) {
-                // TODO code
-                // password is wrong
-                console.log('password incorrect!');
-                ctx.body = {code: 501};
-            }
-            else {
-                console.log(username + ' login!');
-                ctx.body = {code: 200, token: Token.create(user.id, Date.now(), secret), uid: user.id};
-            }
-            resove();
-        });
+    return new Promise((resove, reject) => {
+        if (loginType == 0) {
+            daoUser.getUserByName(msg.username, function (err, user) {
+                if (err || !user) {
+                    console.log('username not exist!');
+                    ctx.body = code.USER.FA_USER_LOGIN_ERROR;
+                }
+                else if (msg.password !== user.password) {
+                    console.log('password incorrect!');
+                    ctx.body = code.USER.FA_USER_LOGIN_ERROR;
+                }
+                else {
+                    console.log(msg.username + ' login!');
+                    ctx.body = {code: code.OK.code, token: Token.create(user.id, Date.now(), secret), uid: user.id};
+                }
+                resove();
+            });
+        }
+        else {
+            daoUser.getUserByPhone(msg.phone, function (err, user) {
+                if (err || !user) {
+                    console.log('phone not exist!');
+                    ctx.body = code.USER.FA_USER_LOGIN_ERROR;
+                }
+                else if (msg.password !== user.password) {
+                    console.log('password incorrect!');
+                    ctx.body = code.USER.FA_USER_LOGIN_ERROR;
+                }
+                else {
+                    console.log(msg.phone + ' login!');
+                    ctx.body = {code: code.OK.code, token: Token.create(user.id, Date.now(), secret), uid: user.id};
+                }
+                resove();
+            });
+        }
+
     });
 
 });
 
-router.post('/register', function(ctx, next) {
-    //console.log('req.params');
+/**
+ * check user is aready exist
+ *
+ * @param  {String}   username
+ */
+router.post('/checkUser', function (ctx, next) {
     let msg = ctx.request.body;
-    if (!msg.name || !msg.password) {
-        ctx.body = {code: 500};
+    if (!msg.username) {
+        ctx.body = code.PARAMERROR;
         return;
     }
 
-    return new Promise((resolve, reject)=>{
-        daoUser.getUserByName(msg.name, function (err, user) {
-            if(!err){ //todo test !err ,should modify if(err)
-                ctx.body = {code: 500, err:err};
-                resolve();
+    return new Promise((resolve, reject) => {
+        daoUser.getUserByName(msg.username, function (err, user) {
+            if (err) {
+                ctx.body = code.DBFAIL;
             }
             else {
-                daoUser.createUser(msg.name, msg.password, msg.phone, msg.inviteId, ctx.request.ip, function(err, user) {
+                if (user) {
+                    ctx.body = code.USER.FA_USER_AREADY_EXIST;
+                }
+                else {
+                    ctx.body = code.OK;
+                }
+            }
+            resolve();
+        });
+    });
+});
+
+/**
+ * check phone has be used.
+ *
+ * @param  {String}   phone
+ */
+router.post('/checkPhone', function (ctx, next) {
+    let msg = ctx.request.body;
+    if (!msg.phone) {
+        ctx.body = code.PARAMERROR;
+        return;
+    }
+
+    return new Promise((resolve, reject) => {
+        daoUser.getUserByPhone(msg.phone, function (err, user) {
+            if (err) {
+                ctx.body = code.DBFAIL;
+            }
+            else {
+                if (user) {
+                    ctx.body = code.USER.FA_PHONE_AREADY_EXIST;
+                }
+                else {
+                    ctx.body = code.OK;
+                }
+            }
+            resolve();
+        });
+    });
+});
+
+router.post('/register', function (ctx, next) {
+    //console.log('req.params');
+    let msg = ctx.request.body;
+    let from = ctx.request.ip;
+    from = from.replace('::ffff:','');
+    if (!msg.username || !msg.password || !msg.phone || !msg.inviter) {
+        ctx.body = code.PARAMERROR;
+        return;
+    }
+
+    return new Promise((resolve, reject) => {
+
+        async.waterfall([
+            function (cb) {
+                daoUser.getUserByName(msg.username, cb);
+            },function (user, cb) {
+                if(user){
+                    cb(code.USER.FA_USER_AREADY_EXIST)
+                }
+                else {
+                    daoUser.getUserByPhone(msg.phone, cb);
+                }
+            },
+            function (user, cb) {
+                if(user){
+                    cb(code.USER.FA_PHONE_AREADY_EXIST)
+                }
+                else {
+                    daoUser.getUserByName(msg.inviter, cb);
+                }
+            },function (invitor, cb) {
+                if(invitor){
+                    cb(null, null);
+                }else {
+                    cb(code.USER.FA_INVITOR_NOT_EXIST);
+                }
+            }
+        ], function (err) {
+            if(err){
+                ctx.body = err;
+                resolve();
+            }else {
+                daoUser.createUser(msg.username, msg.password, msg.phone, msg.inviter, from, function (err, user) {
                     if (err || !user) {
                         console.error(err);
-                        if (err && err.code === 1062) {
-                            ctx.body = {code: 501};
-                        } else {
-                            ctx.body = {code: 500};
-                        }
+                        ctx.body = code.DBFAIL;
                     } else {
                         console.log('A new user was created! --' + msg.name);
-                        ctx.body = {code: 200, token: Token.create(user.id, Date.now(), secret), uid: user.id};
+                        ctx.body = {
+                            code: code.OK.code,
+                            token: Token.create(user.id, Date.now(), secret),
+                            uid: user.id
+                        };
                     }
                     resolve();
                 });
             }
         });
-
-
     });
 
 });

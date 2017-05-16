@@ -66,7 +66,7 @@ ChatRemote.prototype.get = function(name, flag) {
  * @param {String} uid unique id for user
  *
  */
-ChatRemote.prototype.kick = function(userId, roomId, rcb) {
+ChatRemote.prototype.kick = function(userId, roomId, cb) {
     this.chatService.kick(userId, roomId);
     cb();
     //
@@ -94,7 +94,8 @@ module.exports = function (app) {
         }],
         props: [
             {name:"consts", ref:"consts"},
-            {name:"utils", ref:"utils"}
+            {name:"utils", ref:"utils"},
+            {name:"chatService",ref:"chatService"}
         ]
     });
 };

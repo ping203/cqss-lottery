@@ -82,17 +82,12 @@ ChatService.prototype.add = function (userId, sid, roleName, roomId) {
         return Code.CHAT.FA_CHANNEL_CREATE;
     }
 
+    channel.pushMessage(this.consts.Event.onEnter, {uid:userId,roleName:roleName});
+    logger.error('ChatService.prototype.add');
     channel.add(userId, sid);
     addRecord(this, userId, roleName, sid, roomId);
 
-    var param = {
-        route: this.consts.Event.onEnter,
-        roleName: roleName,
-        uid:userId
-    };
-    channel.pushMessage(param);
 
-  //  channel.pushMessage(this.consts.Event.onEnter, {uid:userId,roleName:roleName});
 };
 
 /**
@@ -108,9 +103,10 @@ ChatService.prototype.leave = function (userId, roomId) {
     if (channel && record) {
         channel.leave(userId, record.sid);
     }
-    removeRecord(this, userId, channelName);
+    removeRecord(this, userId, roomId);
 
-    channel.pushMessage(this.consts.Event.onLeave, {uid:userId}, cb);
+    channel.pushMessage(this.consts.Event.onLeave, {uid:userId});
+    logger.error('ChatService.prototype.leave');
 };
 
 function strMapToObj(strMap) {
@@ -145,7 +141,7 @@ ChatService.prototype.kick = function (userId, roomId) {
     if (channel && record) {
         channel.leave(userId, record.sid);
     }
-    removeRecord(this, userId, channelName);
+    removeRecord(this, userId, roomId);
 };
 
 /**

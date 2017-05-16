@@ -1,14 +1,79 @@
 {
-  [
+  "web":[
     {
       "login": {
         "method": "post",
         "url": "/users/login",
         "body":{
-
+          "username":{
+            "type":"string",
+            "required":true
+          },
+          "phone":{
+            "type":"string",
+            "required":true
+          },
+          "password":{
+            "type":"string",
+            "required":true
+          }
+        }
+      }
+    },
+    {
+      "registe":{
+        "method": "post",
+        "url": "/users/register",
+        "body":{
+          "username":{
+            "type":"string",
+            "required":true
+          },
+          "phone":{
+            "type":"string",
+            "required":true
+          },
+          "password":{
+            "type":"string",
+            "required":true
+          },
+          "inviter":{
+            "type":"string",
+            "required":true
+          },
+          "email":{
+            "type":"string",
+            "required":false
+          }
+        }
+      }
+    },
+    {
+      "checkPhone":{
+        "method": "post",
+        "url": "/users/checkPhone",
+        "body":{
+          "phone":{
+            "type":"string",
+            "required":true
+          }
+        }
+      }
+    },
+    {
+      "checkUser":{
+        "method": "post",
+        "url": "/users/checkUser",
+        "body":{
+          "username":{
+            "type":"string",
+            "required":true
+          }
         }
       }
     }
-  ]
+  ],
+  "game":[
 
+  ]
 }
