@@ -1,4 +1,4 @@
-var logger = require('pomelo-logger').getLogger('bearcat-treasures', 'AreaService');
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'AreaService');
 var EventEmitter = require('events').EventEmitter;
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');
@@ -30,7 +30,7 @@ AreaService.prototype.init = function() {
   this.width = opts.width;
   this.height = opts.height;
 
-  this.generateTreasures(40);
+  this.generateNPC();
 
   //area run
   this.run();
@@ -41,7 +41,6 @@ AreaService.prototype.run = function() {
 }
 
 AreaService.prototype.tick = function() {
-  return;
   //run all the action
   this.actionManagerService.update();
   this.entityUpdate();
@@ -218,21 +217,17 @@ AreaService.prototype.getAllPlayers = function() {
   return _players;
 };
 
-AreaService.prototype.generateTreasures = function(n) {
-  if (!n) {
-    return;
+AreaService.prototype.generateNPC = function() {
+  var npc_data = this.dataApiUtil.npc().data;
+  for (var key in npc_data){
+      var t = bearcat.getBean('npc', {
+          kindId: npc_data[key].id,
+          kindName: npc_data[key].name,
+          imgId: npc_data[key].imgId,
+      });
+      this.addEntity(t);
   }
-  for (var i = 0; i < n; i++) {
-    var d = this.dataApiUtil.treasure().random();
-    var t = bearcat.getBean('treasure', {
-      kindId: d.id,
-      kindName: d.name,
-      imgId: d.imgId,
-      score: parseInt(d.heroLevel, 10)
-    });
 
-    this.addEntity(t);
-  }
 };
 
 AreaService.prototype.getAllEntities = function() {

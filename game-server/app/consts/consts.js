@@ -17,7 +17,6 @@ var Consts = function () {
 
     this.EntityType = {
         PLAYER: 'player',
-        TREASURE: 'treasure',
         NPC: 'npc',
         MOB: 'mob',
         EQUIPMENT: 'equipment',
@@ -26,9 +25,24 @@ var Consts = function () {
     };
 
     this.Event = {
-        onChat: 'onChat',
-        onEnter: 'onAddRoom',
-        onLeave: 'onLeaveRoom'
+        chat:{
+            chatMessage: 'onChatMessage',
+            enterRoom: 'onEnterRoom',
+            leaveRoom: 'onLeaveRoom'
+        },
+        area:{
+            playerLeave:'onPlayerLeave',
+            playerBet:'onPlayerBet',
+            addEntities:'onAddEntities',
+            removeEntities:'onRemoveEntities',
+        }
+    };
+
+    this.TaskState = {
+        COMPLETED:2,
+        COMPLETED_NOT_DELIVERY:1,
+        NOT_COMPLETED:0,
+        NOT_START:-1
     };
 }
 

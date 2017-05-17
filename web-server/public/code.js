@@ -6,20 +6,20 @@ module.exports = {
     PARAMERROR:{code:700, desc:'参数错误'},
 
     ENTRY: {
-        FA_TOKEN_INVALID: 	1001,
-        FA_TOKEN_EXPIRE: 	1002,
-        FA_USER_NOT_EXIST: 	1003
+        FA_TOKEN_INVALID: 	{code:1001,desc:"token无效"},
+        FA_TOKEN_EXPIRE: 	{code:1002,desc:"token过期"},
+        FA_USER_NOT_EXIST: 	{code:1003,desc:"用户不存在"}
     },
 
     GATE: {
-        FA_NO_SERVER_AVAILABLE: 2001
+        FA_NO_SERVER_AVAILABLE: {code:2001,desc:"没有可用的connector服务器"}
     },
 
     CHAT: {
-        FA_CHANNEL_CREATE:      3001,
-        FA_CHANNEL_NOT_EXIST: 	3002,
-        FA_UNKNOWN_CONNECTOR: 	3003,
-        FA_USER_NOT_ONLINE: 	3004
+        FA_CHANNEL_CREATE:      {code:3001,desc:"通道创建"},
+        FA_CHANNEL_NOT_EXIST: 	{code:3002,desc:"通道不存在"},
+        FA_UNKNOWN_CONNECTOR: 	{code:3003,desc:"未知连接服务器"},
+        FA_USER_NOT_ONLINE: 	{code:3004,desc:"用户不在线"}
     },
     USER:{
         FA_USER_AREADY_EXIST:   {code:4001,desc:'用户名已经被使用'},

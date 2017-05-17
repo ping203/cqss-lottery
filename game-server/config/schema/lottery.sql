@@ -17,6 +17,21 @@ CREATE TABLE IF NOT EXISTS `User` (
   UNIQUE KEY `INDEX_ACCOUNT_NAME` (`name`, `phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+# Dump of table Task(任务表)
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `Task` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `playerId` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `kindId` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `taskState` smallint(6) unsigned DEFAULT '0',
+  `startTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `taskData` varchar(1000) COLLATE utf8_unicode_ci DEFAULT '{}',
+  PRIMARY KEY (`id`),
+  KEY `INDEX_TASK_ID` (`playerId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
 # ------------------------------------------------------------
 # Dump of table Player(玩家表)
 # ------------------------------------------------------------

@@ -9,22 +9,21 @@ var util = require('util');
  * @api public
  */
 
-function Treasure(opts) {
-	this.opts = opts;
-	this.type = null;
-	this.imgId = opts.imgId;
-	this.score = opts.score || 0;
-	this.consts = null;
+function NPC(opts) {
+    this.opts = opts;
+    this.type = null;
+    this.imgId = opts.imgId;
+    this.consts = null;
 }
 
-Treasure.prototype.init = function() {
-	this.type = this.consts.EntityType.TREASURE;
+NPC.prototype.init = function() {
+	this.type = this.consts.EntityType.NPC;
 	var Entity = bearcat.getFunction('entity');
 	Entity.call(this, this.opts);
 	this._init();
 }
 
-Treasure.prototype.toJSON = function() {
+NPC.prototype.toJSON = function() {
 	var r = this._toJSON();
 	r['type'] = this.type;
 	r['imgId'] = this.imgId;
@@ -34,8 +33,8 @@ Treasure.prototype.toJSON = function() {
 }
 
 module.exports = {
-	id: "treasure",
-	func: Treasure,
+	id: "npc",
+	func: NPC,
 	scope: "prototype",
 	parent: "entity",
 	init: "init",

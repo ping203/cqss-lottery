@@ -88,7 +88,7 @@ ChatService.prototype.add = function (userId, sid, roleName, roomId) {
         return Code.CHAT.FA_CHANNEL_CREATE;
     }
 
-    channel.pushMessage(this.consts.Event.onEnter, {uid:userId,roleName:roleName});
+    channel.pushMessage(this.consts.Event.chat.enterRoom, {uid:userId,roleName:roleName});
     logger.error('ChatService.prototype.add');
     channel.add(userId, sid);
     addRecord(this, userId, roleName, sid, roomId);
@@ -109,7 +109,7 @@ ChatService.prototype.leave = function (userId, roomId) {
     }
     removeRecord(this, userId, roomId);
 
-    channel.pushMessage(this.consts.Event.onLeave, {uid:userId});
+    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
     logger.error('ChatService.prototype.leave');
 };
 
@@ -147,7 +147,7 @@ ChatService.prototype.kick = function (userId, roomId) {
     }
     removeRecord(this, userId, roomId);
 
-    channel.pushMessage(this.consts.Event.onLeave, {uid:userId});
+    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
     logger.error('ChatService.prototype.kick');
 };
 
@@ -165,7 +165,7 @@ ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
         return;
     }
 
-    channel.pushMessage(this.consts.Event.onChat, msg, cb);
+    channel.pushMessage(this.consts.Event.chat.chatMessage, msg, cb);
 };
 
 /**
@@ -182,7 +182,7 @@ ChatService.prototype.pushByUID = function (userId, msg, cb) {
         return;
     }
 
-    this.app.get('channelService').pushMessageByUids(this.consts.Event.chat, msg, [{
+    this.app.get('channelService').pushMessageByUids(this.consts.Event.chat.chatMessage, msg, [{
         uid: record.uid,
         sid: record.sid
     }], cb);

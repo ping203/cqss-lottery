@@ -17,16 +17,18 @@
          
          require('boot');
         </script> 
-        <script src="js/client.js">
-                		
-        </script>
-        <script src="js/pop.js" type="text/javascript">
-
-        </script>
+        <script src="js/client.js"></script>
+        <script src="js/pop.js" type="text/javascript"></script>
+        <script src="js/gameMsgHandler.js" type="text/javascript"></script>
     </head>
     
     <body>
         <div id="app">
+            <div id="game" class="panel"></div>
+            <div id="rank" class="hide">
+                <div class="header">High Scores</div>
+                <ul></ul>
+            </div>
 
             <div id="registeView">
                 <table>
@@ -88,7 +90,7 @@
                         </td>
                         <tr>
                             <td>
-                                <input id="join" type='button' value="join" />
+                                <input id="joinGame" type='button' value="joinGame" />
                             </td>
                         </tr>
                     </tr>

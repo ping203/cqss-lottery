@@ -3,7 +3,7 @@ var async = require('async');
 var bearcat = require('bearcat');
 var logger = require('pomelo-logger').getLogger(__filename);
 var random_name = require('node-random-name')
-
+var Answer = require('../../../../../shared/answer');
 
 var EntryHandler = function (app) {
     this.app = app;
@@ -41,7 +41,7 @@ EntryHandler.prototype.createPlayer = function(userId, cb) {
 EntryHandler.prototype.login = function (msg, session, next) {
     var token = msg.token, self = this;
     if (!token) {
-        next(new Error('invalid entry request: empty token'), {code: Code.FAIL});
+        next(new Error('invalid entry request: empty token'),new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
 
@@ -53,11 +53,11 @@ EntryHandler.prototype.login = function (msg, session, next) {
         }, function (code, user, cb) {
             // query player info by user id
             if (code.code !== Code.OK.code) {
-                next(null, {code: code});
+                next(null, new Answer.NoDataResponse(code));
                 return;
             }
             if (!user) {
-                next(null, {code: Code.ENTRY.FA_USER_NOT_EXIST});
+                next(null,new Answer.NoDataResponse(Code.ENTRY.FA_USER_NOT_EXIST));
                 return;
             }
             self.daoUser.getPlayersByUid(user.id, cb);
@@ -82,10 +82,10 @@ EntryHandler.prototype.login = function (msg, session, next) {
         }
     ], function (err) {
         if (err) {
-            next(err, {code: Code.FAIL});
+            next(err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
-        next(null, {code: Code.OK.code, response:{player: _player, user:_user}});
+        next(null, new Answer.DataResponse(Code.OK, {player: _player, user:_user}));
     });
 };
 

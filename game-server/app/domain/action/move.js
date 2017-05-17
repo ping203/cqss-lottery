@@ -1,4 +1,4 @@
-var logger = require('pomelo-logger').getLogger('bearcat-treasures', 'Move');
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'Move');
 var bearcat = require('bearcat');
 var util = require('util');
 

@@ -1,5 +1,6 @@
 var bearcat = require('bearcat');
 var Code = require('../../../../../shared/code');
+var Answer = require('../../../../../shared/answer');
 /**
  * Gate handler that dispatch user to connectors.
  */
@@ -11,26 +12,18 @@ var GateHandler = function(app) {
 GateHandler.prototype.connect = function(msg, session, next) {
 	var uid = msg.uid;
 	if (!uid) {
-		next(null, {
-			code: Code.FAIL
-		});
+		next(null, new Answer.NoDataResponse(Code.FAIL));
 		return;
 	}
 
 	var connectors = this.app.getServersByType('connector');
 	if (!connectors || connectors.length === 0) {
-		next(null, {
-			code: Code.GATE.NO_SERVER_AVAILABLE
-		});
+		next(null, new Answer.NoDataResponse(Code.GATE.FA_NO_SERVER_AVAILABLE));
 		return;
 	}
 
 	var res = this.dispatcher.dispatch(uid, connectors);
-	next(null, {
-		code: Code.OK,
-		host: res.host,
-		port: res.clientPort
-	});
+	next(null, new Answer.DataResponse(Code.OK,{host: res.host, port: res.clientPort}));
 };
 
 module.exports = function(app) {

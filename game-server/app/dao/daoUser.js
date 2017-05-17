@@ -266,15 +266,15 @@ DaoUser.prototype.getPlayersByUid = function(uid, cb){
 DaoUser.prototype.getPlayer = function(playerId, cb){
     var sql = 'select * from Player where id = ?';
     var args = [playerId];
-
+    var self = this;
     pomelo.app.get('dbclient').query(sql,args,function(err, res){
         if(err !== null){
-            this.utils.invokeCallback(cb, err.message, null);
+            self.utils.invokeCallback(cb, err.message, null);
         } else if (!res || res.length <= 0){
-            this.utils.invokeCallback(cb,null,[]);
+            self.utils.invokeCallback(cb,null,[]);
             return;
         } else{
-            this.utils.invokeCallback(cb,null, bearcat.getBean("player",res[0]));
+            self.utils.invokeCallback(cb,null, bearcat.getBean("player",res[0]));
         }
     });
 };
@@ -305,41 +305,19 @@ DaoUser.prototype.getPlayerByName = function(name, cb){
  * @param {function} cb
  */
 DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
+    var self = this;
     async.parallel([
             function(callback){
-                daoUser.getPlayer(playerId, function(err, player) {
+                self.getPlayer(playerId, function(err, player) {
                     if(!!err || !player) {
                         logger.error('Get user for daoUser failed! ' + err.stack);
                     }
+                    player.rank = self.dataApiUtil.rank().findById(player.level);
                     callback(err,player);
                 });
             },
-            function(callback) {
-                equipmentsDao.getEquipmentsByPlayerId(playerId, function(err, equipments) {
-                    if(!!err || !equipments) {
-                        logger.error('Get equipments for eqipmentDao failed! ' + err.stack);
-                    }
-                    callback(err,equipments);
-                });
-            },
-            function(callback) {
-                bagDao.getBagByPlayerId(playerId, function(err, bag) {
-                    if(!!err || !bag) {
-                        logger.error('Get bag for bagDao failed! ' + err.stack);
-                    }
-                    callback(err,bag);
-                });
-            },
-            function(callback) {
-                fightskillDao.getFightSkillsByPlayerId(playerId, function(err, fightSkills) {
-                    if(!!err || !fightSkills){
-                        logger.error('Get skills for skillDao failed! ' + err.stack);
-                    }
-                    callback(err, fightSkills);
-                });
-            },
             function(callback){
-                taskDao.getCurTasksByPlayId(playerId, function(err, tasks) {
+                self.daoTask.getCurTasksByPlayId(playerId, function(err, tasks) {
                     if(!!err) {
                         logger.error('Get task for taskDao failed!');
                     }
@@ -349,19 +327,13 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
         ],
         function(err, results) {
             var player = results[0];
-            var equipments = results[1];
-            var bag = results[2];
-            var fightSkills = results[3];
-            var tasks = results[4];
-            player.bag = bag;
-            player.setEquipments(equipments);
-            player.addFightSkills(fightSkills);
+            var tasks = results[1];
             player.curTasks = tasks || {};
 
             if (!!err){
-                this.utils.invokeCallback(cb,err);
+                self.utils.invokeCallback(cb,err);
             }else{
-                this.utils.invokeCallback(cb,null,player);
+                self.utils.invokeCallback(cb,null,player);
             }
         });
 };
@@ -371,7 +343,8 @@ module.exports ={
     func:DaoUser,
     props:[
         {name:"utils", ref:"utils"},
-        {name:"dataApiUtil", ref:"dataApiUtil"}
+        {name:"dataApiUtil", ref:"dataApiUtil"},
+        {name:"daoTask", ref:"daoTask"}
     ]
 }
 

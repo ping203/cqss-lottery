@@ -1,0 +1,7 @@
+[
+  ["id","name","host","port","path"],
+  ["id","名称","主机","端口","路径"],
+  ["1","彩票接口1","a.apiplus.net",80,"/newly.do?token=33c9381371de3848&code=cqssc&rows=1&format=json&extend=true"],
+  ["2","彩票接口2","a.apiplus.net",80,"/newly.do?token=33c9381371de3848&code=cqssc&rows=1&format=json&extend=true"],
+  ["3","彩票接口3","a.apiplus.net",80,"/newly.do?token=33c9381371de3848&code=cqssc&rows=1&format=json&extend=true"]
+]

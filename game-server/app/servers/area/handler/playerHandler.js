@@ -1,6 +1,8 @@
-var logger = require('pomelo-logger').getLogger('bearcat-treasures', 'PlayerHandler');
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'PlayerHandler');
 var bearcat = require('bearcat');
 var fs = require('fs');
+var Answer = require('../../../../../shared/answer');
+var Code = require('../../../../../shared/code');
 
 // 非常荣幸您选择我们作为您的开奖数据供应商！
 // 您的数据账号：33C9381371DE3848
@@ -30,65 +32,77 @@ PlayerHandler.prototype.enterScene = function (msg, session, next) {
 
     var playerId = session.get('playerId');
     var areaId = session.get('areaId');
+    var self = this;
 
     this.daoUser.getPlayerAllInfo(session.get('playerId'), function (err, player) {
-        
-    });
+        if (err || !player) {
+            logger.error('Get user for userDao failed! ' + err.stack);
+            next(new Error('fail to get user from dao'), {
+                route: msg.route,
+                result: this.consts.MESSAGE.ERR
+            });
+            return;
+        }
+        player.serverId = session.frontendId;
+        if (!self.areaService.addEntity(player)) {
+            logger.error("Add player to area faild! areaId : " + player.areaId);
+            next(new Error('fail to add user into area'), {
+                route: msg.route,
+                result: this.consts.MESSAGE.ERR
+            });
+            return;
+        }
 
-    var role = this.dataApiUtil.role().random();
-    var player = bearcat.getBean('player', {
-        id: msg.playerId,
-        name: msg.name,
-        kindId: role.id
+        next(null, new Answer.DataResponse(Code.OK, {
+            area: self.areaService.getAreaInfo(),
+            playerId: player.id
+        }));
     });
+};
 
-    player.serverId = session.frontendId;
-    if (!this.areaService.addEntity(player)) {
-        logger.error("Add player to area faild! areaId : " + player.areaId);
-        next(new Error('fail to add user into area'), {
-            route: msg.route,
+//Change area
+PlayerHandler.prototype.changeArea = function(msg, session, next) {
+
+};
+
+/**
+ * lottery bet
+ * @param msg
+ * @param session
+ * @param next
+ */
+PlayerHandler.prototype.bet = function (msg, session, next) {
+    var playerId = session.get('playerId');
+    var player = this.areaService.getPlayer(playerId);
+    if (!player) {
+        logger.error('player is invalid ! playerId : %j', playerId);
+        next(new Error('invalid player:' + playerId), {
             code: this.consts.MESSAGE.ERR
         });
         return;
     }
-
-    var r = {
-        code: this.consts.MESSAGE.RES,
-        data: {
-            area: this.areaService.getAreaInfo(),
-            playerId: player.id
-        }
-    };
-
-    next(null, r);
+    var status = player.bet(msg);
+    next(null, {status: status});
 };
 
 /**
- * Get player's animation data.
- *
- * @param {Object} msg
- * @param {Object} session
- * @param {Function} next
- * @api public
+ * cancle lottery bet
+ * @param msg
+ * @param session
+ * @param next
  */
-var animationData = null;
-PlayerHandler.prototype.getAnimation = function (msg, session, next) {
-    var path = '../../../../config/animation_json/';
-    if (!animationData) {
-        var dir = './config/animation_json';
-        var name, reg = /\.json$/;
-        animationData = {};
-        fs.readdirSync(dir).forEach(function (file) {
-            if (reg.test(file)) {
-                name = file.replace(reg, '');
-                animationData[name] = require(path + file);
-            }
+PlayerHandler.prototype.unBet = function (msg, session, next) {
+    var playerId = session.get('playerId');
+    var player = this.areaService.getPlayer(playerId);
+    if (!player) {
+        logger.error('Move without a valid player ! playerId : %j', playerId);
+        next(new Error('invalid player:' + playerId), {
+            code: this.consts.MESSAGE.ERR
         });
+        return;
     }
-    next(null, {
-        code: this.consts.MESSAGE.RES,
-        data: animationData
-    });
+    var status = player.unBet(msg);
+    next(null, {status: status});
 };
 
 /**
@@ -143,6 +157,56 @@ PlayerHandler.prototype.move = function (msg, session, next) {
     }
 };
 
+/**
+ * Player pick up item.
+ * Handle the request from client, and set player's target
+ *
+ * @param {Object} msg
+ * @param {Object} session
+ * @param {Function} next
+ * @api public
+ */
+PlayerHandler.pickItem = function(msg, session, next) {
+    var area = session.area;
+
+    var player = area.getPlayer(session.get('playerId'));
+    var target = area.getEntity(msg.targetId);
+    if(!player || !target || (target.type !== consts.EntityType.ITEM && target.type !== consts.EntityType.EQUIPMENT)){
+        next(null, {
+            route: msg.route,
+            code: consts.MESSAGE.ERR
+        });
+        return;
+    }
+
+    player.target = target.entityId;
+
+    // next();
+    next(null, {});
+};
+
+PlayerHandler.npcTalk = function(msg, session, next) {
+    var player = session.area.getPlayer(session.get('playerId'));
+    player.target = msg.targetId;
+    next();
+};
+
+//Player  learn skill
+PlayerHandler.learnSkill = function(msg, session, next) {
+    var player = session.area.getPlayer(session.get('playerId'));
+    var status = player.learnSkill(msg.skillId);
+
+    next(null, {status: status, skill: player.fightSkills[msg.skillId]});
+};
+
+//Player upgrade skill
+PlayerHandler.upgradeSkill = function(msg, session, next) {
+    var player = session.area.getPlayer(session.get('playerId'));
+    var status = player.upgradeSkill(msg.skillId);
+
+    next(null, {status: status});
+};
+
 module.exports = function (app) {
     return bearcat.getBean({
         id: "playerHandler",
@@ -160,6 +224,9 @@ module.exports = function (app) {
         }, {
             name: "consts",
             ref: "consts"
-        }, {name: "daoUser", ref: "daoUser"}]
+        }, {
+            name: "daoUser",
+            ref: "daoUser"
+        }]
     });
 };

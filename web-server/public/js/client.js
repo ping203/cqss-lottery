@@ -3,7 +3,7 @@ var username;
 var rolename;
 var users;
 var rid;
-var base = 1000;
+var base = 1500;
 var increase = 25;
 var reg = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/;
 var LOGIN_ERROR = "There is no server to log in, please wait.";
@@ -174,9 +174,18 @@ function showChat() {
 	scrollDown(base);
 };
 
+// show game panel
+function showGame() {
+    $("#loginView").hide();
+    $("#loginError").hide();
+    $("#toolbar").hide();
+    // $("entry").focus();
+    scrollDown(base);
+};
+
 // query connector
 function queryEntry(uid, callback) {
-	var route = 'gate.gateHandler.queryEntry';
+	var route = 'gate.gateHandler.connect';
 	pomelo.init({
 		host: window.location.hostname,
 		port: 3014,
@@ -184,13 +193,13 @@ function queryEntry(uid, callback) {
 	}, function() {
 		pomelo.request(route, {
 			uid: uid
-		}, function(data) {
+		}, function(res) {
 			pomelo.disconnect();
-			if(data.code === 500) {
+			if(res.result.code === 500) {
 				showError(LOGIN_ERROR);
 				return;
 			}
-			callback(data.host, data.port);
+			callback(res.data.host, res.data.port);
 		});
 	});
 };
@@ -200,12 +209,13 @@ $(document).ready(function() {
 	showLogin();
 
 	$('#login').on('click', login);
-	$('#join').on('click', join);
+	$('#joinRoom').on('click', joinRoom);
+	$('#joinGame').on('click', joinGame);
 	$('#registe').on('click', register);
 
 	//wait message from the server.
-	pomelo.on('onChat', function(data) {
-	    console.log('onChat', data);
+	pomelo.on('onChatMessage', function(data) {
+	    console.log('onChatMessage', data);
 		addMessage(data.from, data.target, data.content);
 		$("#chatHistory").show();
 		if(data.from !== rolename)
@@ -213,8 +223,8 @@ $(document).ready(function() {
 	});
 
 	//update user list
-	pomelo.on('onAddRoom', function(data) {
-        console.log('onAddRoom', data);
+	pomelo.on('onEnterRoom', function(data) {
+        console.log('onEnterRoom', data);
         var user = data;
 		tip('online', user.roleName);
 		addUser(user);
@@ -257,21 +267,45 @@ $(document).ready(function() {
 	});
 
     /**
-     * join
+     * join room
      */
 
-    function join() {
+    function joinRoom(callback) {
         rid = Number($('#roomList').val());
         pomelo.request("chat.chatHandler.enterRoom", {
             roomId: rid,
-        }, function (data) {
-            console.log('chat.chatHandler.enterRoom' + data.response);
+        }, function (res) {
 
-            setName();
-            setRoom();
-            showChat();
+            if(res.result.code != 200){
+            	callback('Enter room fail');
+            	return;
+			}
+			callback(null);
+            initUserList(res.data);
+        });
+    }
 
-            initUserList(data.response);
+    function joinGame() {
+
+        joinRoom(function (err) {
+			if(err){
+				console.log(err);
+				return;
+			}
+
+            pomelo.request("area.playerHandler.enterScene", null, function (res) {
+                if(res.result.code != 200){
+                	alert('进入游戏失败');
+					return;
+                }
+
+                gameMsgInit();
+
+                setName();
+                setRoom();
+                showChat();
+            });
+
         });
     }
 
@@ -317,45 +351,45 @@ $(document).ready(function() {
        //
        // return;
 
-        $.post(httpHost + 'users/login', {username: username, password: pwd}, function(data) {
-            if (data.code === 501) {
+        $.post(httpHost + 'users/login', {username: username, password: pwd}, function(res) {
+            if (res.code === 501) {
                 alert('Username or password is invalid!');
                 return;
             }
-            if (data.code !== 200) {
+            if (res.code !== 200) {
                 alert('Username is not exists!');
                 return;
             }
 
             //query entry of connection
-            queryEntry(data.uid, function(host, port) {
+            queryEntry(res.uid, function(host, port) {
                 pomelo.init({
                     host: host,
                     port: port,
                     log: true
                 }, function() {
                     var route = "connector.entryHandler.login";
-                    pomelo.request(route, {token: data.token}, function(data) {
-                        if(data.error) {
+                    pomelo.request(route, {token: res.token}, function(res) {
+                        if(res.result.code != 200) {
                             showError(DUPLICATE_ERROR);
                             return;
                         }
 
-						var userData = data.response.user;
-                        var playerData = data.response.player;
+						var userData = res.data.user;
+                        var playerData = res.data.player;
                         rolename = playerData.roleName;
                         console.log(userData);
                         console.log(playerData);
 
                         var route = "chat.chatHandler.getRooms";
-                        pomelo.request(route, null, function(data) {
-                            if(data.error) {
+                        pomelo.request(route, null, function(res) {
+                            if(res.result.code != 200) {
                                 showError(DUPLICATE_ERROR);
                                 return;
                             }
 
                             var roomIdList = [];
-                            for (var key in data.response){
+                            for (var key in res.data){
                                 console.log(key);
                                 roomIdList.push(key);
                             }

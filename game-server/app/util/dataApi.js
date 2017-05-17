@@ -2,8 +2,11 @@
 var area = require('../../config/data/area');
 var player = require('../../config/data/player');
 var role = require('../../config/data/role');
-var treasure = require('../../config/data/treasure');
+var npc = require('../../config/data/npc');
 var room = require('../../config/data/room.json');
+var task = require('../../config/data/talk.json');
+var rank = require('../../config/data/rank.json');
+var lotteryApi = require('../../config/data/lotteryApi.json');
 
 /**
  * Data model `new Data()`
@@ -97,9 +100,12 @@ DataApi.prototype.all = function() {
 var DataApiUtil = function() {
   this.areaData = null;
   this.roleData = null;
-  this.treasureData = null;
+  this.npcData = null;
   this.playerData = null;
   this.roomData = null;
+  this.taskData = null;
+  this.rankData = null;
+  this.lotteryApiData = null;
 }
 
 DataApiUtil.prototype.area = function() {
@@ -120,13 +126,13 @@ DataApiUtil.prototype.role = function() {
   return this.roleData;
 }
 
-DataApiUtil.prototype.treasure = function() {
-  if (this.treasureData) {
-    return this.treasureData;
+DataApiUtil.prototype.npc = function() {
+  if (this.npcData) {
+    return this.npcData;
   }
 
-  this.treasureData = new DataApi(treasure);
-  return this.treasureData;
+  this.npcData = new DataApi(npc);
+  return this.npcData;
 }
 
 DataApiUtil.prototype.player = function () {
@@ -145,6 +151,33 @@ DataApiUtil.prototype.room = function () {
 
     this.roomData = new DataApi(room);
     return this.roomData;
+}
+
+DataApiUtil.prototype.task = function () {
+    if(this.taskData){
+      return this.taskData;
+    }
+
+    this.taskData = new DataApi(task);
+    return this.taskData;
+}
+
+DataApiUtil.prototype.rank = function () {
+    if(this.rankData){
+      return this.rankData;
+    }
+
+    this.rankData = new DataApi(rank);
+    return this.rankData;
+}
+
+DataApiUtil.prototype.lotteryApi = function () {
+    if(this.lotteryApiData){
+      return this.lotteryApiData;
+    }
+
+    this.lotteryApiData = new DataApi(lotteryApi);
+    return this.lotteryApiData;
 }
 
 module.exports = {

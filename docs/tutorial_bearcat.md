@@ -12,7 +12,7 @@ npm install bearcat --save
 context.json
 ```
 {
-	"name": "bearcat-treasures",
+	"name": "bearcat-lottery",
 	"scan": "app",
 	"beans": []
 }
@@ -126,7 +126,7 @@ module.exports = {
 
 player.js
 ```
-var logger = require('pomelo-logger').getLogger('bearcat-treasures', 'Player');
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'Player');
 var bearcat = require('bearcat');
 var util = require('util');
 

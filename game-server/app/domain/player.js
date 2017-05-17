@@ -1,4 +1,4 @@
-var logger = require('pomelo-logger').getLogger('bearcat-treasures');
+var logger = require('pomelo-logger').getLogger('bearcat-lottery');
 var bearcat = require('bearcat');
 var util = require('util');
 
@@ -35,6 +35,20 @@ Player.prototype.init = function() {
 
 Player.prototype.addScore = function(score) {
   this.score += score;
+};
+
+Player.prototype.bet = function (msg) {
+    
+};
+
+
+Player.prototype.unBet = function (msg) {
+    
+};
+
+// Emit the event 'save'.
+Player.prototype.save = function() {
+    this.emit('save');
 };
 
 /**

@@ -1,4 +1,4 @@
-var logger = require('pomelo-logger').getLogger('bearcat-treasures', 'ActionManagerService');
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'ActionManagerService');
 var Queue = require('pomelo-collection').queue;
 
 /**

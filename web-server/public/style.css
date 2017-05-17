@@ -214,3 +214,42 @@ body, table {
     color: #f00;
     cursor: pointer;
 }
+
+.panel {
+    display: none;
+}
+.panel.current {
+    display: block;
+}
+#rank{
+    position: absolute;
+    width: 190px;
+    /*opacity: 0.75;*/
+    /*background-color: #333;*/
+    color: #fff;
+    padding:12px;
+    border: 1px solid green;
+    top: 35px;
+    right: 32px;
+    border-radius: 8px;
+    -webkit-box-shadow: 0 0 6px #000;
+    overflow: hidden;
+}
+#rank .header{
+    text-align: center;
+    border-bottom: solid 1px white;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+#rank li{
+    padding: 2px 8px;
+}
+#rank li span{
+    width: 50%;
+    text-align: left;
+    display: inline-block;
+}
+#rank li span:last-child{
+    text-align: right;
+}

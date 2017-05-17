@@ -1,6 +1,6 @@
 var Code = require('../../../../../shared/code');
+var Answer = require('../../../../../shared/answer');
 var logger = require('pomelo-logger').getLogger(__filename);
-var SCOPE = {PRI:'private', TEAM:'team', ALL:'*'};
 var pomelo = require('pomelo');
 var bearcat = require("bearcat");
 
@@ -18,8 +18,7 @@ function setContent(str) {
 }
 
 ChatHandler.prototype.getRooms = function(msg, session, next){
-    next(null, {code: Code.OK, response:this.chatService.getRoomList()});
-   // this.chatService.init();
+    next(null, new Answer.DataResponse(Code.OK, this.chatService.getRoomList()));
 }
 
 /**
@@ -40,7 +39,7 @@ ChatHandler.prototype.enterRoom = function(msg, session, next){
         }
     });
 
-    next(null, {code: Code.OK, response:this.chatService.getUsers(roomId)});
+    next(null, new Answer.DataResponse(Code.OK, this.chatService.getUsers(roomId)));
 };
 
 ChatHandler.prototype.leaveRoom = function (msg, session, next) {

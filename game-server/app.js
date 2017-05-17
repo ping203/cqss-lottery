@@ -16,7 +16,7 @@ var Configure = function () {
         "use strict";
         let dbclient = require('./app/dao/mysql/mysql').init(app);
         app.set('dbclient', dbclient);
-        //app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient}});
+        app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient}});
 
         //Set areasIdMap, a map from area id to serverId.
         // if (app.serverType !== 'master') {
@@ -51,23 +51,22 @@ var Configure = function () {
     });
 
     app.configure('production|development', 'area', function () {
-        let areaId = app.get('curServer').areaId;
+        app.filter(pomelo.filters.serial());
+        app.before(bearcat.getBean('playerFilter'));
+
+        var areaId = app.get('curServer').areaId;
         if (!areaId || areaId < 0) {
             throw new Error('load area config failed');
         }
 
-        var areaService = bearcat.getBean('areaService');
-         areaService.init();
-        // app.set("areaService", areaService)
+        app.areaService = bearcat.getBean('areaService');
+        app.areaService.init();
     });
 
     // Configure for chat server
     app.configure('production|development', 'chat', function() {
         var chatService = bearcat.getBean('chatService');
         chatService.init();
- //       console.log(chatService);
-       // app.set('chatService', chatService);
-
     });
 }
 
