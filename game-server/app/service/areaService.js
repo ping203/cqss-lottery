@@ -8,14 +8,15 @@ var AreaService = function() {
   this.width = 0;
   this.height = 0;
   this.tickCount = 0; // player score rank
-  this.treasureCount = 0;
   this.added = []; // the added entities in one tick
   this.reduced = []; // the reduced entities in one tick
   this.players = {};
   this.entities = {};
   this.channel = null;
   this.actionManagerService = null;
+  this.lotteryManagerService = null;
   this.consts = null;
+  this.globalEntityId = 0;
 };
 
 /**
@@ -27,11 +28,8 @@ AreaService.prototype.init = function() {
 
   var opts  = this.dataApiUtil.area().findById(1);
   this.id = opts.id;
-  this.width = opts.width;
-  this.height = opts.height;
-
-  this.generateNPC();
-
+  this.generateGlobalNPC();
+  this.lotteryManagerService.init();
   //area run
   this.run();
 };
@@ -68,25 +66,6 @@ AreaService.prototype.getChannel = function() {
   return this.channel;
 };
 
-AreaService.prototype.addEvent = function(player) {
-  var self = this;
-  player.on('pickItem', function(args) {
-    var player = self.getEntity(args.entityId);
-    var treasure = self.getEntity(args.target);
-    player.target = null;
-    if (treasure) {
-      player.addScore(treasure.score);
-      self.removeEntity(args.target);
-      self.getChannel().pushMessage({
-        route: 'onPickItem',
-        entityId: args.entityId,
-        target: args.target,
-        score: treasure.score
-      });
-    }
-  });
-}
-
 AreaService.prototype.entityUpdate = function() {
   if (this.reduced.length > 0) {
     this.getChannel().pushMessage({
@@ -95,6 +74,7 @@ AreaService.prototype.entityUpdate = function() {
     });
     this.reduced = [];
   }
+
   if (this.added.length > 0) {
     var added = this.added;
     var r = [];
@@ -119,17 +99,15 @@ AreaService.prototype.addEntity = function(e) {
   }
 
   this.entities[e.entityId] = e;
+  this.eventManager.addEvent(e);
 
   if (e.type === this.consts.EntityType.PLAYER) {
     this.getChannel().add(e.id, e.serverId);
-    this.addEvent(e);
 
     if (!!this.players[e.id]) {
       logger.error('add player twice! player : %j', e);
     }
     this.players[e.id] = e.entityId;
-  } else if (e.type === this.consts.EntityType.TREASURE) {
-    this.treasureCount++;
   }
 
   this.added.push(e);
@@ -156,6 +134,20 @@ AreaService.prototype.rankUpdate = function() {
 };
 
 /**
+ * The lottery countdown
+ */
+AreaService.prototype.countdown = function () {
+
+}
+
+/**
+ *
+ */
+AreaService.prototype.lotteryResult = function () {
+    
+}
+
+/**
  * Remove Entity form area
  * @param {Number} entityId The entityId to remove
  * @return {boolean} remove result
@@ -171,11 +163,6 @@ AreaService.prototype.removeEntity = function(entityId) {
     this.actionManagerService.abortAllAction(entityId);
 
     delete this.players[e.id];
-  } else if (e.type === this.consts.EntityType.TREASURE) {
-    this.treasureCount--;
-    if (this.treasureCount < 25) {
-      this.generateTreasures(15);
-    }
   }
 
   delete this.entities[entityId];
@@ -217,18 +204,18 @@ AreaService.prototype.getAllPlayers = function() {
   return _players;
 };
 
-AreaService.prototype.generateNPC = function() {
-  var npc_data = this.dataApiUtil.npc().data;
-  for (var key in npc_data){
-      var t = bearcat.getBean('npc', {
-          kindId: npc_data[key].id,
-          kindName: npc_data[key].name,
-          imgId: npc_data[key].imgId,
-      });
-      this.addEntity(t);
-  }
+AreaService.prototype.generateGlobalNPC = function() {
+  var npcData = this.dataApiUtil.npc().data;
+  var t = bearcat.getBean('npc', {
+      kindId: npcData["1"].id,
+      kindName: npcData["1"].name,
+      imgId: npcData["1"].imgId,
+  });
 
+  this.globalEntityId = t.entityId;
+  this.addEntity(t);
 };
+
 
 AreaService.prototype.getAllEntities = function() {
   var r = {};
@@ -269,14 +256,6 @@ AreaService.prototype.getAreaInfo = function() {
   };
 };
 
-AreaService.prototype.getWidth = function() {
-  return this.width;
-};
-
-AreaService.prototype.getHeight = function() {
-  return this.height;
-};
-
 AreaService.prototype.entities = function() {
   return this.entities;
 };
@@ -291,11 +270,17 @@ module.exports = {
   props: [{
     name: "actionManagerService",
     ref: "actionManagerService"
-  }, {
+  },{
+    name:"lotteryManagerService",
+    ref:"lotteryManagerService"
+  },{
     name: "dataApiUtil",
     ref: "dataApiUtil"
   }, {
     name: "consts",
     ref: "consts"
+  }, {
+    name: "eventManager",
+    ref: "eventManager"
   }]
 }

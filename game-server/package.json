@@ -13,6 +13,7 @@
     "npm": "^4.5.0",
     "pomelo": "^2.2.5",
     "pomelo-collection": "^0.1.0",
-    "pomelo-logger": "^0.1.7"
+    "pomelo-logger": "^0.1.7",
+    "pomelo-sync-plugin": "0.0.2"
   }
 }

@@ -75,14 +75,30 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
     if (!player) {
-        logger.error('player is invalid ! playerId : %j', playerId);
+        logger.error('Move without a valid player ! playerId : %j', playerId);
         next(new Error('invalid player:' + playerId), {
             code: this.consts.MESSAGE.ERR
         });
         return;
     }
-    var status = player.bet(msg);
-    next(null, {status: status});
+
+    var action = bearcat.getBean('bet', {
+        entity: player,
+        betInfo: msg.betInfo,
+    });
+
+    if (this.areaService.addAction(action)) {
+        next(null, {
+            code: this.consts.MESSAGE.RES,
+            sPos: player.getPos()
+        });
+
+        this.areaService.getChannel().pushMessage({
+            route: 'onMove',
+            entityId: player.entityId,
+            endPos: endPos
+        });
+    }
 };
 
 /**
@@ -101,8 +117,6 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
         });
         return;
     }
-    var status = player.unBet(msg);
-    next(null, {status: status});
 };
 
 /**

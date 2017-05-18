@@ -15,7 +15,7 @@ var Bet = function(opts) {
 
     this.time = Date.now();
     this.entity = opts.entity;
-    this.endPos = opts.endPos;
+    this.betInfo = opts.betInfo;
 };
 
 Bet.prototype.init = function() {
@@ -24,24 +24,11 @@ Bet.prototype.init = function() {
 }
 
 Bet.prototype.update = function() {
-    var time = Date.now() - this.time;
-    var speed = this.entity.walkSpeed;
-    var moveLength = speed * time / 1000;
-    var dis = getDis(this.entity.getPos(), this.endPos);
-    if (dis <= moveLength / 2) {
-        this.finished = true;
-        this.entity.setPos(this.endPos.x, this.endPos.y);
-        return;
-    } else if (dis < 55 && this.entity.target) {
-        this.entity.emit('pickItem', {
-            entityId: this.entity.entityId,
-            target: this.entity.target
-        });
-    }
-    var curPos = getPos(this.entity.getPos(), this.endPos, moveLength, dis);
-    this.entity.setPos(curPos.x, curPos.y);
 
-    this.time = Date.now();
+    this.entity.emit(this.consts.Event.area.playerBet, {
+        entityId: this.entity.entityId,
+        betInfo: betInfo
+    });
 };
 
 function getDis(pos1, pos2) {
@@ -69,5 +56,8 @@ module.exports = {
     }],
     scope: "prototype",
     parent: "action",
-    init: "init"
+    init: "init",
+    props:[
+        {name: "consts",ref: "consts"}
+    ]
 };

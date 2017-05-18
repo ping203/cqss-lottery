@@ -1,42 +1,63 @@
 var api = require('../../util/dataApi');
-var consts = require('../../consts/consts');
-var messageService = require('./../messageService');
 
-var exp = module.exports;
+var NpcEvent = function () {
+
+};
 
 /**
  * Handler npc event
  */
-exp.addEventForNPC = function (npc){
+NpcEvent.prototype.addEventForNPC = function (npc){
+    var self = this;
+    /**
+     * Publish the lottery tick free seconds.
+     */
+	npc.on(this.consts.Event.area.countdown, function (data) {
+        var npc = self.getEntity(args.entityId);
+        if (npc) {
+            self.areaService.getChannel().pushMessage({
+                route: self.consts.Event.area.countdown,
+                entityId: args.entityId,
+                tick: args.tick
+            });
+        }
+    });
+
+    /**
+     * Publish the lottery result
+     */
+	npc.on(this.consts.Event.area.lottery, function (data) {
+        var npc = self.getEntity(args.entityId);
+        if (npc) {
+            self.areaService.getChannel().pushMessage({
+                route: self.consts.Event.area.lottery,
+                entityId: args.entityId,
+                lotteryResult: args.lotteryResult,
+            });
+        }
+    });
+
 	/**
-	 * Hanlde npc talk event
+	 * Publish notice
 	 */
-	npc.on('onNPCTalk', function(data){
-		var npc = data.npc;
-		var player = data.player;
-		var talk = api.talk;
-		var npcTalks = talk.findBy('npc', npc.kindId);
-		var npcword = 'Welcome to see you!';
-		var myword = 'Me too!';
-
-		if(!!npcTalks && npcTalks.length > 0){
-			npcword = npcTalks[0].npcword;
-			myword = npcTalks[0].myword;
-		}
-
-		var msg = {
-			npc : npc.entityId,
-			npcword : npcword,
-			myword: myword,
-			player : player.entityId,
-			kindId : npc.kindId
-		};
-
-		if (consts.TraverseNpc[npc.kindId]) {
-			npc.traverse('onNPCTalk', msg);
-			return;
-		}
-
-		messageService.pushMessageToPlayer({uid:player.userId, sid: player.serverId}, 'onNPCTalk', msg);
+	npc.on(this.consts.Event.area.notice, function(data){
+        var npc = self.getEntity(args.entityId);
+        if (npc) {
+            self.areaService.getChannel().pushMessage({
+                route: self.consts.Event.area.notice,
+                entityId: args.entityId,
+                lotteryResult: args.lotteryResult,
+            });
+        }
 	});
 };
+
+
+module.exports ={
+	id:"npcEvent",
+	func:NpcEvent,
+	props:[
+        {name:"areaService",ref:"areaService"},
+		{name:"consts", ref:"consts"}
+	]
+}

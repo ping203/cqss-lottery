@@ -104,7 +104,7 @@ DaoUser.prototype.getUserByPhone = function(phone, cb){
  * @param {function} cb Callback function
  */
 DaoUser.prototype.getUserById = function (uid, cb){
-    var sql = 'select * from	User where id = ?';
+    var sql = 'select * from User where id = ?';
     var args = [uid];
     var self = this;
 

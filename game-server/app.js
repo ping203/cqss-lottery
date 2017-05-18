@@ -1,5 +1,6 @@
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');
+var sync = require('pomelo-sync-plugin');
 
 /**
  * Init app for client.

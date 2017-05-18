@@ -21,7 +21,19 @@ NPC.prototype.init = function() {
 	var Entity = bearcat.getFunction('entity');
 	Entity.call(this, this.opts);
 	this._init();
-}
+};
+
+NPC.prototype.publishNotice = function () {
+    this.emit(this.consts.Event.area.notice, {npc: this});
+};
+
+NPC.prototype.publishLottery = function () {
+    this.emit(this.consts.Event.area.lottery, {npc: this});
+};
+
+NPC.prototype.countdown = function () {
+    this.emit(this.consts.Event.area.countdown, {npc: this});
+};
 
 NPC.prototype.toJSON = function() {
 	var r = this._toJSON();

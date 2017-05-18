@@ -1,26 +1,20 @@
-var EntityType = require('../../consts/consts').EntityType;
 var pomelo = require('pomelo');
-var npcEvent = require('./npcEvent');
-var characterEvent = require('./characterEvent');
-var playerEvent = require('./playerEvent');
 
-var exp = module.exports;
+var EventManager = function () {
+
+};
 
 /**
  * Listen event for entity
  */
-exp.addEvent = function(entity){
+EventManager.prototype.addEvent = function(entity){
 	switch(entity.type){
-		case EntityType.PLAYER :
-			playerEvent.addEventForPlayer(entity);
-			characterEvent.addEventForCharacter(entity);
-			addSaveEvent(entity);
+		case this.consts.EntityType.PLAYER :
+			this.playerEvent.addEventForPlayer(entity);
+			//addSaveEvent(entity);
 			break;
-		case EntityType.MOB :
-			characterEvent.addEventForCharacter(entity);
-			break;
-		case EntityType.NPC :
-			npcEvent.addEventForNPC(entity);
+		case this.consts.EntityType.NPC :
+			this.npcEvent.addEventForNPC(entity);
 			break;
 	}
 };
@@ -35,12 +29,22 @@ function addSaveEvent(player) {
 		app.get('sync').exec('playerSync.updatePlayer', player.id, player.strip());
 	});
 
-	player.bag.on('save', function() {
-		app.get('sync').exec('bagSync.updateBag', player.bag.id, player.bag);
-	});
+	player.bet.on('save', function () {
+        app.get('sync').exec('betSync.updateBet', player.bet.id, player.bet);
+    });
 
-	player.equipments.on('save', function() {
-		app.get('sync').exec('equipmentsSync.updateEquipments', player.equipments.id, player.equipments);
-	});
+    player.bet.on('save', function () {
+        app.get('sync').exec('taskSync.updateTask', player.task.id, player.task);
+    })
+}
+
+module.exports ={
+	id:"eventManager",
+	func:EventManager,
+    props: [
+    	{name: "consts", ref: "consts"},
+		{name:"playerEvent", ref:"playerEvent"},
+		{name:"npcEvent", ref:"npcEvent"}
+	]
 }
 

@@ -1,7 +1,5 @@
 [
-  ["编号","名字","英文名","类型","图片文件"],
-  ["id","name","englishName","kindType","imgId"],
-  [1,"开奖计时器","Lottery timer","1",301304],
-  [2,"开奖发布人","Lottery publisher","1",301305],
-  [3,"新闻发布人","News publisher","1",301306]
+  ["编号","名字","英文名","图片文件"],
+  ["id","name","englishName","imgId"],
+  ["1","新闻发言人","publisher","301304"]
 ]
