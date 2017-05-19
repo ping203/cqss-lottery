@@ -2,7 +2,7 @@
 var area = require('../../config/data/area');
 var player = require('../../config/data/player');
 var role = require('../../config/data/role');
-var npc = require('../../config/data/npc');
+var lottery = require('../../config/data/lottery');
 var room = require('../../config/data/room.json');
 var task = require('../../config/data/talk.json');
 var rank = require('../../config/data/rank.json');
@@ -100,7 +100,7 @@ DataApi.prototype.all = function() {
 var DataApiUtil = function() {
   this.areaData = null;
   this.roleData = null;
-  this.npcData = null;
+  this.timeLotteryData = null;
   this.playerData = null;
   this.roomData = null;
   this.taskData = null;
@@ -126,12 +126,12 @@ DataApiUtil.prototype.role = function() {
   return this.roleData;
 }
 
-DataApiUtil.prototype.npc = function() {
+DataApiUtil.prototype.lottery = function() {
   if (this.npcData) {
     return this.npcData;
   }
 
-  this.npcData = new DataApi(npc);
+  this.npcData = new DataApi(lottery);
   return this.npcData;
 }
 

@@ -28,8 +28,8 @@ AreaService.prototype.init = function() {
 
   var opts  = this.dataApiUtil.area().findById(1);
   this.id = opts.id;
-  this.generateGlobalNPC();
-  this.lotteryManagerService.init();
+  this.generateGlobalLottery();
+  this.lotteryManagerService.init(this);
   //area run
   this.run();
 };
@@ -41,7 +41,7 @@ AreaService.prototype.run = function() {
 AreaService.prototype.tick = function() {
   //run all the action
   this.actionManagerService.update();
-  this.entityUpdate();
+  //this.entityUpdate();
   this.rankUpdate();
 }
 
@@ -102,7 +102,7 @@ AreaService.prototype.addEntity = function(e) {
   this.eventManager.addEvent(e);
 
   if (e.type === this.consts.EntityType.PLAYER) {
-    this.getChannel().add(e.id, e.serverId);
+    this.getChannel().add(e.userId, e.serverId);
 
     if (!!this.players[e.id]) {
       logger.error('add player twice! player : %j', e);
@@ -119,17 +119,24 @@ AreaService.prototype.rankUpdate = function() {
   this.tickCount++;
   if (this.tickCount >= 10) {
     this.tickCount = 0;
-    var player = this.getAllPlayers();
-    player.sort(function(a, b) {
-      return a.score < b.score;
-    });
-    var ids = player.slice(0, 10).map(function(a) {
-      return a.entityId;
-    });
-    this.getChannel().pushMessage({
-      route: 'rankUpdate',
-      entities: ids
-    });
+
+      this.countdown();
+
+   //  var player = this.getAllPlayers();
+   //  player.sort(function(a, b) {
+   //    return a.score < b.score;
+   //  });
+   //  var ids = player.slice(0, 10).map(function(a) {
+   //    return a.entityId;
+   //  });
+   //
+   // //   channel.pushMessage(this.consts.Event.chat.chatMessage, msg, cb);
+   //  this.getChannel().pushMessage('rankUpdate', {
+   //    route: 'rankUpdate',
+   //    entities: ids
+   //  },{},function (err, res) {
+   //      console.log('sdfdsfdsf');
+   //  });
   }
 };
 
@@ -138,6 +145,8 @@ AreaService.prototype.rankUpdate = function() {
  */
 AreaService.prototype.countdown = function () {
 
+//    logger.error('AreaService.prototype.generateGlobalLottery:',this.getLottery());
+  this.getLottery().countdown();
 }
 
 /**
@@ -159,7 +168,7 @@ AreaService.prototype.removeEntity = function(entityId) {
   }
 
   if (e.type === this.consts.EntityType.PLAYER) {
-    this.getChannel().leave(e.id, e.serverId);
+    this.getChannel().leave(e.userId, e.serverId);
     this.actionManagerService.abortAllAction(entityId);
 
     delete this.players[e.id];
@@ -204,18 +213,21 @@ AreaService.prototype.getAllPlayers = function() {
   return _players;
 };
 
-AreaService.prototype.generateGlobalNPC = function() {
-  var npcData = this.dataApiUtil.npc().data;
-  var t = bearcat.getBean('npc', {
-      kindId: npcData["1"].id,
-      kindName: npcData["1"].name,
-      imgId: npcData["1"].imgId,
+AreaService.prototype.generateGlobalLottery = function() {
+  var lotteryData = this.dataApiUtil.lottery().data;
+  var t = bearcat.getBean('lottery', {
+      kindId: lotteryData["1"].id,
+      kindName: lotteryData["1"].name,
+      imgId: lotteryData["1"].imgId,
   });
-    t.areaService = this;
+  t.areaService = this;
   this.globalEntityId = t.entityId;
   this.addEntity(t);
 };
 
+AreaService.prototype.getLottery = function () {
+    return this.entities[this.globalEntityId];
+}
 
 AreaService.prototype.getAllEntities = function() {
   var r = {};

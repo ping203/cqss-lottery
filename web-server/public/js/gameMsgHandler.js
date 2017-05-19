@@ -10,6 +10,14 @@ function gameMsgInit() {
 
     });
 
+    pomelo.on('onCountdown', function (data) {
+        console.log('onCountdown data:', data);
+    });
+
+    pomelo.on('onLottery', function (data) {
+        console.log('onLottery data:', data);
+    });
+
     //Handle remove entities message
     pomelo.on('removeEntities', function(data) {
 
@@ -31,16 +39,17 @@ function gameMsgInit() {
     });
 
     pomelo.on('rankUpdate', function(data) {
-        var ul = document.querySelector('#rank ul');
-        var area = app.getCurArea();
-        var li = "";
-        // data.entities.forEach(function(id) {
-        //     var e = area.getEntity(id);
-        //     if (e) {
-        //         li += '<li><span>' + e.name + '</span><span>' + e.score + '</span></li>';
-        //     }
-        // });
-        ul.innerHTML = li;
+        console.log('rankUpdate data:', data);
+        // var ul = document.querySelector('#rank ul');
+        // var area = app.getCurArea();
+        // var li = "";
+        // // data.entities.forEach(function(id) {
+        // //     var e = area.getEntity(id);
+        // //     if (e) {
+        // //         li += '<li><span>' + e.name + '</span><span>' + e.score + '</span></li>';
+        // //     }
+        // // });
+        // ul.innerHTML = li;
     });
 
     // Handle kick out messge, occours when the current player is kicked out

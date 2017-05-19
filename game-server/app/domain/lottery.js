@@ -1,0 +1,78 @@
+var bearcat = require('bearcat');
+var util = require('util');
+
+/**
+ * Initialize a new 'Treasure' with the given 'opts'.
+ * Item inherits Entity
+ *
+ * @param {Object} opts
+ * @api public
+ */
+
+function Lottery(opts) {
+    this.opts = opts;
+    this.type = null;
+    this.imgId = opts.imgId;
+    this.consts = null;
+    this.tickCount = 0;
+    this.lastTickTime = 0;
+    this.lotteryHistory = new Map();
+}
+
+Lottery.prototype.init = function() {
+	this.type = this.consts.EntityType.LOTTERY;
+	var Entity = bearcat.getFunction('entity');
+	Entity.call(this, this.opts);
+	this._init();
+};
+
+// proof tick timer
+Lottery.prototype.setTickCount = function(tick) {
+    this.tickCount = tick;
+};
+
+Lottery.prototype.publishNotice = function () {
+    this.emit(this.consts.Event.area.notice, {lottery: this});
+};
+
+Lottery.prototype.publishLottery = function (result) {
+    this.lotteryHistory.set(result.period, result);
+    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:result});
+};
+
+Lottery.prototype.countdown = function () {
+	var subTick = 0;
+	if(this.lastTickTime != 0){
+        subTick = (Date.now() - this.lastTickTime)%1000;
+	}
+    this.tickCount -= subTick;
+	if(this.tickCount < 0) this.tickCount = 0;
+    this.emit(this.consts.Event.area.countdown, {lottery: this, tickCount:this.tickCount});
+
+    this.lastTickTime = Date.now();
+};
+
+Lottery.prototype.toJSON = function() {
+	var r = this._toJSON();
+	r['type'] = this.type;
+	r['imgId'] = this.imgId;
+	r['score'] = this.score;
+
+	return r;
+}
+
+module.exports = {
+	id: "lottery",
+	func: Lottery,
+	scope: "prototype",
+	parent: "entity",
+	init: "init",
+	args: [{
+		name: "opts",
+		type: "Object"
+	}],
+	props: [{
+		name: "consts",
+		ref: "consts"
+	}]
+};

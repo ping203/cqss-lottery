@@ -17,7 +17,7 @@ var Consts = function () {
 
     this.EntityType = {
         PLAYER: 'player',
-        NPC: 'npc',
+        LOTTERY: 'lottery',
         MOB: 'mob',
         EQUIPMENT: 'equipment',
         ITEM: 'item',

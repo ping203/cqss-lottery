@@ -238,6 +238,7 @@ $(document).ready(function() {
 		removeUser(user);
 	});
 
+     gameMsgInit();
 
 	//handle disconect message, occours when the client is disconnect with servers
 	pomelo.on('disconnect', function(reason) {
@@ -286,7 +287,6 @@ $(document).ready(function() {
     }
 
     function joinGame() {
-
         joinRoom(function (err) {
 			if(err){
 				console.log(err);
@@ -298,8 +298,6 @@ $(document).ready(function() {
                 	alert('进入游戏失败');
 					return;
                 }
-
-                gameMsgInit();
 
                 setName();
                 setRoom();

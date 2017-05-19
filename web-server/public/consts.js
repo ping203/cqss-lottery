@@ -17,14 +17,14 @@ var Consts = function () {
 
     this.EntityType = {
         PLAYER: 'player',
-        NPC: 'npc',
+        LOTTERY: 'lottery',
         MOB: 'mob',
         EQUIPMENT: 'equipment',
         ITEM: 'item',
         BAG: 'bag',
         COUNTDOWN:'countdown',
         NOTICEBOARD:'noticeboard',
-        LOTTERY:'lottery'
+        OPENLOTTERY:'openlottery'
     };
 
     this.Event = {
@@ -37,6 +37,7 @@ var Consts = function () {
             playerLeave:'onPlayerLeave',
             playerBet:'onPlayerBet',
             playerUnBet:'onPlayerUnBet',
+            playerUpgrade:'onPlayerUpgrade',
             addEntities:'onAddEntities',
             removeEntities:'onRemoveEntities',
             countdown:'onCountdown',

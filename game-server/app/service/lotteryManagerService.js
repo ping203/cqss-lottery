@@ -19,9 +19,10 @@ var async = require('async');
 
 function LotteryManagerService() {
     this.addrIndex = 0;
+    this.latestLotteryInfo = null;
 }
 
-var lotteryResult = {
+var lotteryResultSample = {
     "rows": 1,
     "code": "cqssc",
     "remain": "498hrs",
@@ -30,30 +31,51 @@ var lotteryResult = {
     "time": "2017-05-18 10:01:31"
 };
 
-LotteryManagerService.prototype.init = function () {
+LotteryManagerService.prototype.init = function (service) {
     this.lotteryData = this.dataApiUtil.lotteryApi().data;
     this.lotteryIds = this.dataApiUtil.lotteryApi().ids;
+    this.areaService = service;
 
-    setInterval(this.tick.bind(this), 500);
+    setInterval(this.tick.bind(this), 2000);
 };
 
 LotteryManagerService.prototype.nextAddr = function () {
     if(this.lotteryIds.length <=0) return null;
 
-    var index = (this.addrIndex + 1) % this.lotteryIds.length;
-    var addr = this.lotteryData[index];
-
-    return {header:{host:addr.host, port:addr.port,path:addr.path,method:addr.method},type:addr.type};
+    this.addrIndex = (this.addrIndex + 1) % this.lotteryIds.length;
+    var addr = this.lotteryData[this.addrIndex];
+    var retVal = {header:{host:addr.host, port:addr.port,path:addr.path,method:addr.method},type:addr.type};
+    return retVal;
 };
 
 LotteryManagerService.prototype.tick = function () {
 
+    var self = this;
     this.getLotteryInfo(this.nextAddr(), function (err, result) {
         if(err || !result){
             return;
         }
 
+        var lottery = self.areaService.getLottery();
+        if(!lottery){
+            return;
+        }
+
+        if(!!self.latestLotteryInfo && self.latestLotteryInfo.next.period == result.last.period){
+            lottery.publishLottery(result.last);
+        }
+        lottery.publishLottery(result.last);
+        var sysTickTime = new Date(result.tickTime);
+        var nextOpenTime = new Date(result.next.opentime);
+
+        var tick = (nextOpenTime - sysTickTime);
+        lottery.setTickCount(tick);
+
+        this.latestLotteryInfo = result.last;
+        logger.info(this.latestLotteryInfo);
+
         // 使用结果
+        //self.areaService.addAction();
     });
 };
 
@@ -104,43 +126,47 @@ LotteryManagerService.prototype.parse = function (type, result) {
 
 LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
 
-    if(!!options){
+    if(!options){
         callback('Request err', null);
         return;
     }
 
+    var self = this;
+
     var req = http.request(options.header, function (res) {
         if(res.statusCode != 200){
-            this.getLotteryInfo(this.nextAddr(), callback);
+            self.getLotteryInfo(this.nextAddr(), callback);
             return;
         }
 
-        var resData;
+        var resData = "";
         res.on('data', function (chunk) {
             console.log('BODY: ' + chunk);
-            resData += chunk;
+            if(chunk){
+                resData += chunk;
+            }
         });
 
         res.on("end", function () {
             var jsData = JSON.parse(resData);
             if(!jsData){
-                this.getLotteryInfo(this.nextAddr(), callback);
+                self.getLotteryInfo(self.nextAddr(), callback);
                 return;
             }
 
-            var parseResult = this.parse(jsData)
+            var parseResult = self.parse(options.type, jsData)
             if(parseResult){
                 callback(null, parseResult);
             }
             else {
-                this.getLotteryInfo(this.nextAddr(), callback);
+                self.getLotteryInfo(self.nextAddr(), callback);
             }
         });
     });
 
     req.on('error', function (e) {
         console.log('problem with request: ' + e.message);
-        this.getLotteryInfo(this.nextAddr(), callback);
+        self.getLotteryInfo(self.nextAddr(), callback);
     });
 
     req.end();

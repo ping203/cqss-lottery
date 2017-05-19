@@ -5,20 +5,20 @@ var NpcEvent = function () {
 };
 
 /**
- * Handler npc event
+ * Handler lottery event
  */
-NpcEvent.prototype.addEventForNPC = function (npc){
+NpcEvent.prototype.addEventForNPC = function (lottery){
     var self = this;
     /**
      * Publish the lottery tick free seconds.
      */
-	npc.on(this.consts.Event.area.countdown, function (data) {
-        var npc = self.getEntity(args.entityId);
-        if (npc) {
-            npc.areaService.getChannel().pushMessage({
+	lottery.on(this.consts.Event.area.countdown, function (args) {
+      //  var lottery = self.getEntity(args.entityId);
+        if (args.lottery) {
+            args.lottery.areaService.getChannel().pushMessage({
                 route: self.consts.Event.area.countdown,
-                entityId: args.entityId,
-                tick: args.tick
+                entityId: args.lottery.entityId,
+                tickCount: args.lottery.tickCount
             });
         }
     });
@@ -26,10 +26,9 @@ NpcEvent.prototype.addEventForNPC = function (npc){
     /**
      * Publish the lottery result
      */
-	npc.on(this.consts.Event.area.lottery, function (data) {
-        var npc = self.getEntity(args.entityId);
-        if (npc) {
-            npc.areaService.getChannel().pushMessage({
+	lottery.on(this.consts.Event.area.lottery, function (args) {
+        if (args.lottery) {
+            args.lottery.areaService.getChannel().pushMessage({
                 route: self.consts.Event.area.lottery,
                 entityId: args.entityId,
                 lotteryResult: args.lotteryResult,
@@ -40,10 +39,10 @@ NpcEvent.prototype.addEventForNPC = function (npc){
 	/**
 	 * Publish notice
 	 */
-	npc.on(this.consts.Event.area.notice, function(data){
-        var npc = self.getEntity(args.entityId);
-        if (npc) {
-            npc.areaService.getChannel().pushMessage({
+	lottery.on(this.consts.Event.area.notice, function(data){
+        var lottery = self.getEntity(args.entityId);
+        if (lottery) {
+            lottery.areaService.getChannel().pushMessage({
                 route: self.consts.Event.area.notice,
                 entityId: args.entityId,
                 lotteryResult: args.lotteryResult,

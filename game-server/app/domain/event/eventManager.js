@@ -13,7 +13,7 @@ EventManager.prototype.addEvent = function(entity){
 			this.playerEvent.addEventForPlayer(entity);
 			//addSaveEvent(entity);
 			break;
-		case this.consts.EntityType.NPC :
+		case this.consts.EntityType.LOTTERY :
 			this.npcEvent.addEventForNPC(entity);
 			break;
 	}
