@@ -4,9 +4,9 @@ var Dispatcher = function() {
 
 }
 
-Dispatcher.prototype.dispatch = function(uid, connectors) {
-	var index = Math.abs(parseInt(crc.crc32(uid.toString())), 16) % connectors.length;
-	return connectors[index];
+Dispatcher.prototype.dispatch = function(uid, servers) {
+	var index = Math.abs(parseInt(crc.crc32(uid.toString())), 16) % servers.length;
+	return servers[index];
 };
 
 module.exports = {

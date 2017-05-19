@@ -211,7 +211,7 @@ AreaService.prototype.generateGlobalNPC = function() {
       kindName: npcData["1"].name,
       imgId: npcData["1"].imgId,
   });
-
+    t.areaService = this;
   this.globalEntityId = t.entityId;
   this.addEntity(t);
 };

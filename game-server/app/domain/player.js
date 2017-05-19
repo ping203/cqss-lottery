@@ -33,17 +33,53 @@ Player.prototype.init = function() {
   this._init();
 }
 
+Player.prototype.upgrade = function() {
+    while (this.experience >= this.nextLevelExp) {
+        //logger.error('player.upgrade ' + this.experience + ' nextLevelExp: ' + this.nextLevelExp);
+        this._upgrade();
+    }
+    this.emit('upgrade');
+};
+
+//Upgrade, update player's state
+Player.prototype._upgrade = function() {
+    this.level += 1;
+    this.maxHp += Math.round(this.characterData.upgradeParam * this.characterData.hp);
+    this.maxMp += Math.round(this.characterData.upgradeParam * this.characterData.mp);
+    this.hp = this.maxHp;
+    this.mp = this.maxMp;
+    this.attackValue += Math.round(this.characterData.upgradeParam * this.characterData.attackValue);
+    this.defenceValue += Math.round(this.characterData.upgradeParam * this.characterData.defenceValue);
+    this.experience -= this.nextLevelExp;
+    this.skillPoint += 1;
+    this.nextLevelExp = dataApi.experience.findById(this.level+1).exp;
+    this.setTotalAttackAndDefence();
+    this.updateTeamMemberInfo();
+};
+
+// update team member info
+Player.prototype.updateTeamMemberInfo = function() {
+    if (this.teamId > consts.TEAM.TEAM_ID_NONE) {
+        utils.myPrint('UpdateTeamMemberInfo is running ...');
+        var memberInfo = this.toJSON4TeamMember();
+        memberInfo.needNotifyElse = true;
+        pomelo.app.rpc.manager.teamRemote.updateMemberInfo(null, memberInfo,
+            function(err, ret) {
+            });
+    }
+};
+
 Player.prototype.addScore = function(score) {
   this.score += score;
 };
 
 Player.prototype.bet = function (msg) {
-    
+    this.emit(this.consts.Event.area.playerBet);
 };
 
 
 Player.prototype.unBet = function (msg) {
-    
+    this.emit(this.consts.Event.area.playerUnBet);
 };
 
 // Emit the event 'save'.

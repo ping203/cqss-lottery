@@ -44,6 +44,7 @@ PlayerHandler.prototype.enterScene = function (msg, session, next) {
             return;
         }
         player.serverId = session.frontendId;
+        player.areaService = self.areaService;
         if (!self.areaService.addEntity(player)) {
             logger.error("Add player to area faild! areaId : " + player.areaId);
             next(new Error('fail to add user into area'), {

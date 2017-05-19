@@ -15,7 +15,7 @@ NpcEvent.prototype.addEventForNPC = function (npc){
 	npc.on(this.consts.Event.area.countdown, function (data) {
         var npc = self.getEntity(args.entityId);
         if (npc) {
-            self.areaService.getChannel().pushMessage({
+            npc.areaService.getChannel().pushMessage({
                 route: self.consts.Event.area.countdown,
                 entityId: args.entityId,
                 tick: args.tick
@@ -29,7 +29,7 @@ NpcEvent.prototype.addEventForNPC = function (npc){
 	npc.on(this.consts.Event.area.lottery, function (data) {
         var npc = self.getEntity(args.entityId);
         if (npc) {
-            self.areaService.getChannel().pushMessage({
+            npc.areaService.getChannel().pushMessage({
                 route: self.consts.Event.area.lottery,
                 entityId: args.entityId,
                 lotteryResult: args.lotteryResult,
@@ -43,7 +43,7 @@ NpcEvent.prototype.addEventForNPC = function (npc){
 	npc.on(this.consts.Event.area.notice, function(data){
         var npc = self.getEntity(args.entityId);
         if (npc) {
-            self.areaService.getChannel().pushMessage({
+            npc.areaService.getChannel().pushMessage({
                 route: self.consts.Event.area.notice,
                 entityId: args.entityId,
                 lotteryResult: args.lotteryResult,
@@ -57,7 +57,6 @@ module.exports ={
 	id:"npcEvent",
 	func:NpcEvent,
 	props:[
-        {name:"areaService",ref:"areaService"},
 		{name:"consts", ref:"consts"}
 	]
 }

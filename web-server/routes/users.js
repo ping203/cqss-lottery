@@ -174,7 +174,9 @@ router.post('/register', function (ctx, next) {
                     cb(code.USER.FA_PHONE_AREADY_EXIST)
                 }
                 else {
-                    daoUser.getUserByName(msg.inviter, cb);
+                    //todo: cancle invitor limite
+                   // daoUser.getUserByName(msg.inviter, cb);
+                    cb(null, {name:'ok'});
                 }
             },function (invitor, cb) {
                 if(invitor){

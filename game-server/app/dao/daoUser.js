@@ -184,7 +184,7 @@ DaoUser.prototype.createPlayer = function (uid, roleName, sex, cb){
                 lastOnlineTime:loginTime,
                 areaId:playerData.areaId
             });
-            self.utils.invokeCallback(cb,null,player);
+            self.utils.invokeCallback(cb,null,[player]);
         }
     });
 };

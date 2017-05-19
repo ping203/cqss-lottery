@@ -31,8 +31,8 @@ var lotteryResult = {
 };
 
 LotteryManagerService.prototype.init = function () {
-    this.lotteryData = this.dataApiUtil.lottery.data;
-    this.lotteryIds = this.dataApiUtil.lottery.ids;
+    this.lotteryData = this.dataApiUtil.lotteryApi().data;
+    this.lotteryIds = this.dataApiUtil.lotteryApi().ids;
 
     setInterval(this.tick.bind(this), 500);
 };
@@ -49,7 +49,7 @@ LotteryManagerService.prototype.nextAddr = function () {
 LotteryManagerService.prototype.tick = function () {
 
     this.getLotteryInfo(this.nextAddr(), function (err, result) {
-        if(err){
+        if(err || !result){
             return;
         }
 

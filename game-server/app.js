@@ -1,6 +1,7 @@
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');
 var sync = require('pomelo-sync-plugin');
+var RouteUtil = require('./app/util/routeUtil');
 
 /**
  * Init app for client.
@@ -19,15 +20,8 @@ var Configure = function () {
         app.set('dbclient', dbclient);
         app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient}});
 
-        //Set areasIdMap, a map from area id to serverId.
-        // if (app.serverType !== 'master') {
-        //     var areas = app.get('servers').area;
-        //     var areaIdMap = {};
-        //     for(var id in areas){
-        //         areaIdMap[areas[id].area] = areas[id].id;
-        //     }
-        //     app.set('areaIdMap', areaIdMap);
-        // }
+        app.route('area', RouteUtil.area);
+        app.route('chat', RouteUtil.chat);
     });
 
     // configure for gate
@@ -55,19 +49,14 @@ var Configure = function () {
         app.filter(pomelo.filters.serial());
         app.before(bearcat.getBean('playerFilter'));
 
-        var areaId = app.get('curServer').areaId;
-        if (!areaId || areaId < 0) {
-            throw new Error('load area config failed');
-        }
-
         app.areaService = bearcat.getBean('areaService');
         app.areaService.init();
     });
 
     // Configure for chat server
     app.configure('production|development', 'chat', function() {
-        var chatService = bearcat.getBean('chatService');
-        chatService.init();
+        app.chatService = bearcat.getBean('chatService');
+        app.chatService.init();
     });
 }
 

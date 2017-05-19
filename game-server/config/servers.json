@@ -12,7 +12,7 @@
     "connector": [
       {
         "id": "connector-server-1",
-        "host": "192.168.0.117",
+        "host": "127.0.0.1",
         "port": 3150,
         "clientPort": 3010,
         "frontend": true,
@@ -22,7 +22,7 @@
     "area": [
       {
         "id": "area-server-1",
-        "host": "192.168.0.117",
+        "host": "127.0.0.1",
         "port": 3250,
         "areaId": 1,
         "args": "--debug=10012"
@@ -31,7 +31,7 @@
     "auth": [
       {
         "id": "auth-server-1",
-        "host": "192.168.0.117",
+        "host": "127.0.0.1",
         "port": 3350,
         "args": "--debug=10013"
       }
@@ -39,7 +39,7 @@
     "chat": [
       {
         "id": "chat-server-1",
-        "host": "192.168.0.117",
+        "host": "127.0.0.1",
         "port": 3450,
         "args":"--debug=10014"
       }
@@ -83,6 +83,16 @@
         "id": "chat-server-1",
         "host": "127.0.0.1",
         "port": 3450
+      },
+      {
+        "id": "chat-server-2",
+        "host": "127.0.0.1",
+        "port": 3451
+      },
+      {
+        "id": "chat-server-3",
+        "host": "127.0.0.1",
+        "port": 3452
       }
     ]
   }
