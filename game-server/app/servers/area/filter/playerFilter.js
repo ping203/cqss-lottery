@@ -12,7 +12,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
 	if(!player){
 		var route = msg.__route__;
 
-		if(route.search(/^area\.resourceHandler/i) == 0 || route.search(/enterScene$/i) >= 0){
+		if(route.search(/^area\.resourceHandler/i) == 0 || route.search(/enterGame$/i) >= 0){
 			next();
 			return;
 		}else{

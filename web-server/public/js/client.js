@@ -292,8 +292,7 @@ $(document).ready(function() {
 				console.log(err);
 				return;
 			}
-
-            pomelo.request("area.playerHandler.enterScene", null, function (res) {
+            pomelo.request("area.playerHandler.enterGame", null, function (res) {
                 if(res.result.code != 200){
                 	alert('进入游戏失败');
 					return;

@@ -61,17 +61,18 @@ LotteryManagerService.prototype.tick = function () {
             return;
         }
 
-        if(!!self.latestLotteryInfo && self.latestLotteryInfo.next.period == result.last.period){
+        if(!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period === result.last.period)){
             lottery.publishLottery(result.last);
         }
-        lottery.publishLottery(result.last);
+      //  lottery.publishCurLottery(result.last,[{uid:4,sid:'connector-server-1'}]);
+        
         var sysTickTime = new Date(result.tickTime);
         var nextOpenTime = new Date(result.next.opentime);
 
-        var tick = (nextOpenTime - sysTickTime);
-        lottery.setTickCount(tick);
+        var tick = (nextOpenTime - sysTickTime)/1000;
+        lottery.setTickCount(result.next.period, tick);
 
-        this.latestLotteryInfo = result.last;
+        self.latestLotteryInfo = result;
         logger.info(this.latestLotteryInfo);
 
         // 使用结果

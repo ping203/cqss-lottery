@@ -1,4 +1,4 @@
-var api = require('../../util/dataApi');
+var pomelo = require('pomelo');
 
 var NpcEvent = function () {
 
@@ -15,10 +15,10 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 	lottery.on(this.consts.Event.area.countdown, function (args) {
       //  var lottery = self.getEntity(args.entityId);
         if (args.lottery) {
-            args.lottery.areaService.getChannel().pushMessage({
-                route: self.consts.Event.area.countdown,
+            args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.countdown,{
                 entityId: args.lottery.entityId,
-                tickCount: args.lottery.tickCount
+                tickCount: Math.floor(args.lottery.tickCount),
+                period:args.lottery.tickPeriod
             });
         }
     });
@@ -28,11 +28,17 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
      */
 	lottery.on(this.consts.Event.area.lottery, function (args) {
         if (args.lottery) {
-            args.lottery.areaService.getChannel().pushMessage({
-                route: self.consts.Event.area.lottery,
-                entityId: args.entityId,
-                lotteryResult: args.lotteryResult,
-            });
+            if(args.uids){
+                pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.lottery,{
+                    entityId: args.entityId,
+                    lotteryResult: args.lotteryResult,
+                },args.uids);
+            }else {
+                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.lottery,{
+                    entityId: args.entityId,
+                    lotteryResult: args.lotteryResult,
+                });
+            }
         }
     });
 
@@ -42,8 +48,7 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 	lottery.on(this.consts.Event.area.notice, function(data){
         var lottery = self.getEntity(args.entityId);
         if (lottery) {
-            lottery.areaService.getChannel().pushMessage({
-                route: self.consts.Event.area.notice,
+            lottery.areaService.getChannel().pushMessage(self.consts.Event.area.notice,{
                 entityId: args.entityId,
                 lotteryResult: args.lotteryResult,
             });

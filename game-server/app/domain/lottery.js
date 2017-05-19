@@ -15,7 +15,9 @@ function Lottery(opts) {
     this.imgId = opts.imgId;
     this.consts = null;
     this.tickCount = 0;
+    this.tickPeriod = 0;
     this.lastTickTime = 0;
+    this.lastLottery = null;
     this.lotteryHistory = new Map();
 }
 
@@ -27,7 +29,8 @@ Lottery.prototype.init = function() {
 };
 
 // proof tick timer
-Lottery.prototype.setTickCount = function(tick) {
+Lottery.prototype.setTickCount = function(period, tick) {
+    this.tickPeriod = period;
     this.tickCount = tick;
 };
 
@@ -35,19 +38,27 @@ Lottery.prototype.publishNotice = function () {
     this.emit(this.consts.Event.area.notice, {lottery: this});
 };
 
-Lottery.prototype.publishLottery = function (result) {
+Lottery.prototype.publishLottery = function (result, uids) {
+    this.lastLottery = result;
     this.lotteryHistory.set(result.period, result);
-    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:result});
+    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:result, uids:uids});
+};
+
+Lottery.prototype.publishCurLottery = function (uids) {
+	if(this.lastLottery){
+        this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:uids});
+	}
 };
 
 Lottery.prototype.countdown = function () {
 	var subTick = 0;
 	if(this.lastTickTime != 0){
-        subTick = (Date.now() - this.lastTickTime)%1000;
+        subTick = (Date.now() - this.lastTickTime)/1000;
 	}
     this.tickCount -= subTick;
 	if(this.tickCount < 0) this.tickCount = 0;
-    this.emit(this.consts.Event.area.countdown, {lottery: this, tickCount:this.tickCount});
+
+    this.emit(this.consts.Event.area.countdown, {lottery: this});
 
     this.lastTickTime = Date.now();
 };

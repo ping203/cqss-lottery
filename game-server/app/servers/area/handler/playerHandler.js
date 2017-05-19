@@ -28,7 +28,7 @@ var PlayerHandler = function (app) {
  * @param {Function} next
  * @api public
  */
-PlayerHandler.prototype.enterScene = function (msg, session, next) {
+PlayerHandler.prototype.enterGame = function (msg, session, next) {
 
     var playerId = session.get('playerId');
     var areaId = session.get('areaId');

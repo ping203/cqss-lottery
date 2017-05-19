@@ -12,10 +12,14 @@ function gameMsgInit() {
 
     pomelo.on('onCountdown', function (data) {
         console.log('onCountdown data:', data);
+        $('#countdown').html('period: ' +data.period +' countdown: ' + Math.floor(data.tickCount) + 's');
+
+       // document.getElementById('countdown').innerHTML='one'+ String(data.tickCount);
     });
 
     pomelo.on('onLottery', function (data) {
         console.log('onLottery data:', data);
+        $('#lottery').html('period: '+ data.lotteryResult.period + '  lottery: '+ data.lotteryResult.numbers);
     });
 
     //Handle remove entities message

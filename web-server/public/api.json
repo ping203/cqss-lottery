@@ -142,7 +142,7 @@
       }
     },{
       "enterScene": {
-        "router":"area.playerHandler.enterScene",
+        "router":"area.playerHandler.enterGame",
         "msg":null
       }
     }
