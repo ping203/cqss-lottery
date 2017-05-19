@@ -37,6 +37,7 @@ var Consts = function () {
             playerLeave:'onPlayerLeave',
             playerBet:'onPlayerBet',
             playerUnBet:'onPlayerUnBet',
+            playerRename:'onPlayerRename',
             playerUpgrade:'onPlayerUpgrade',
             addEntities:'onAddEntities',
             removeEntities:'onRemoveEntities',

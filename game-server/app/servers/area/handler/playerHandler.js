@@ -53,14 +53,34 @@ PlayerHandler.prototype.enterGame = function (msg, session, next) {
     });
 };
 
-PlayerHandler.prototype.modifyRoleName = function (msg, session, next) {
+PlayerHandler.prototype.setRoleName = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
     if (!player) {
         next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
         return;
     }
-}
+    player.setRoleName(msg.roleName);
+
+    var action = bearcat.getBean('rename', {
+        entity: player,
+        roleName: roleName,
+    });
+
+    if (this.areaService.addAction(action)) {
+        next(null, {
+            code: this.consts.MESSAGE.RES,
+            sPos: player.getPos()
+        });
+
+        this.areaService.getChannel().pushMessage({
+            route: 'onMove',
+            entityId: player.entityId,
+            endPos: endPos
+        });
+    }
+
+};
 
 /**
  * lottery bet

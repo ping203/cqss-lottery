@@ -10,32 +10,32 @@ var PlayerEvent = function () {
  */
 PlayerEvent.prototype.addEventForPlayer = function (player){
 
-	var self = this;
-
     player.on(this.consts.Event.area.playerBet, function(args) {
         var player = self.getEntity(args.entityId);
         if (player) {
-            player.addScore(treasure.score);
-            player.areaService.removeEntity(args.target);
-            player.areaService.getChannel().pushMessage({
-                route: self.consts.Event.area.playerBet,
+            player.areaService.getChannel().pushMessage(self.consts.Event.area.playerBet,{
                 entityId: args.entityId,
-                target: args.target,
-                score: treasure.score
+                betRecord: args.betRecord
             });
         }
     });
 
     player.on(this.consts.Event.area.playerUnBet, function(args) {
-        var player = self.areaService.getEntity(args.entityId);
+        var player = self.getEntity(args.entityId);
         if (player) {
-            player.addScore(treasure.score);
-            player.areaService.removeEntity(args.target);
-            player.areaService.getChannel().pushMessage({
-                route: self.consts.Event.area.playerUnBet,
+            player.areaService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
                 entityId: args.entityId,
-                target: args.target,
-                score: treasure.score
+                betRecord: args.betRecord
+            });
+        }
+    });
+
+    player.on(this.consts.Event.area.playerRename, function(args) {
+        var player = self.getEntity(args.entityId);
+        if (player) {
+            player.areaService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
+                entityId: args.entityId,
+                roleName: args.roleName
             });
         }
     });

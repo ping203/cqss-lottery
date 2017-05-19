@@ -1,36 +1,36 @@
 /**
- * Created by linyng on 17-5-17.
+ * Created by linyng on 2017/5/19.
  */
+
 
 var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'Move');
 var bearcat = require('bearcat');
 var util = require('util');
 
 // Move action, which is used to preserve and update user position
-var Bet = function(opts) {
+var Rename = function(opts) {
     this.opts = opts;
-    opts.type = 'bet';
+    opts.type = 'rename';
     opts.id = opts.entity.entityId;
-    opts.singleton = false;
-    this.betRecord = opts.betRecord;//{period:'20170519054',time:143432432423423,info:'5/2/100'}
+    opts.singleton = true;
+    this.roleName = opts.roleName;
 };
 
-Bet.prototype.init = function() {
+Rename.prototype.init = function() {
     var Action = bearcat.getFunction('action');
     Action.call(this, this.opts);
 }
 
-Bet.prototype.update = function() {
-
+Rename.prototype.update = function() {
     this.entity.emit(this.consts.Event.area.playerBet, {
         entityId: this.entity.entityId,
-        betRecord: this.betRecord
+        roleName: this.roleName
     });
 };
 
 module.exports = {
-    id: "bet",
-    func: Bet,
+    id: "rename",
+    func: Rename,
     args: [{
         name: "opts",
         type: "Object"

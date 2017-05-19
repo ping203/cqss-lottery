@@ -22,7 +22,6 @@ function Player(opts) {
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastOnlineTime = opts.lastOnlineTime;
-
 }
 
 Player.prototype.init = function () {
@@ -85,11 +84,7 @@ Player.prototype._upgrade = function () {
     this.setNextLevelExp();
 };
 
-Player.prototype.addScore = function (score) {
-    this.score += score;
-};
-
-Player.prototype.changeRoleName = function (name) {
+Player.prototype.setRoleName = function (name) {
   this.roleName = name;
   this.save();
 };

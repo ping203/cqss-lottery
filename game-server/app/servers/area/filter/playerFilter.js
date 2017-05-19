@@ -1,5 +1,6 @@
 var logger = require('pomelo-logger').getLogger(__filename);
 var pomelo = require('pomelo');
+var Code = require('../../../../../shared/code');
 
 var PlayerFilter = function() {
 };
@@ -9,21 +10,20 @@ var PlayerFilter = function() {
  */
 PlayerFilter.prototype.before = function(msg, session, next){
 	var player = pomelo.app.areaService.getPlayer(session.get('playerId'));
-	if(!player){
-		var route = msg.__route__;
+    var route = msg.__route__;
 
+	if(!player){
 		if(route.search(/^area\.resourceHandler/i) == 0 || route.search(/enterGame$/i) >= 0){
 			next();
 			return;
 		}else{
-			next(new Error('No player exist!'));
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
 			return;
 		}
 	}
 
-	if(player.died){
-		next(new Error("You can't move a dead man!!!"));
-		return;
+	if(route.search(/bet$/i)){
+		//parse bet info, check bet info is valid.
 	}
 
 	next();
