@@ -36,21 +36,13 @@ PlayerHandler.prototype.enterGame = function (msg, session, next) {
 
     this.daoUser.getPlayerAllInfo(session.get('playerId'), function (err, player) {
         if (err || !player) {
-            logger.error('Get user for userDao failed! ' + err.stack);
-            next(new Error('fail to get user from dao'), {
-                route: msg.route,
-                result: this.consts.MESSAGE.ERR
-            });
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_PLAYER_INFO_ERROR));
             return;
         }
         player.serverId = session.frontendId;
         player.areaService = self.areaService;
         if (!self.areaService.addEntity(player)) {
-            logger.error("Add player to area faild! areaId : " + player.areaId);
-            next(new Error('fail to add user into area'), {
-                route: msg.route,
-                result: this.consts.MESSAGE.ERR
-            });
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_ADD_ENTITY_ERROR));
             return;
         }
 
@@ -61,19 +53,11 @@ PlayerHandler.prototype.enterGame = function (msg, session, next) {
     });
 };
 
-//Change area
-PlayerHandler.prototype.changeArea = function(msg, session, next) {
-
-};
-
-PlayerHandler.prototype.changePrivateInfo = function (msg, session, next) {
+PlayerHandler.prototype.modifyRoleName = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
     if (!player) {
-        logger.error('Move without a valid player ! playerId : %j', playerId);
-        next(new Error('invalid player:' + playerId), {
-            code: this.consts.MESSAGE.ERR
-        });
+        next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
         return;
     }
 }
@@ -88,10 +72,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
     if (!player) {
-        logger.error('Move without a valid player ! playerId : %j', playerId);
-        next(new Error('invalid player:' + playerId), {
-            code: this.consts.MESSAGE.ERR
-        });
+        next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
         return;
     }
 
@@ -124,10 +105,7 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
     if (!player) {
-        logger.error('Move without a valid player ! playerId : %j', playerId);
-        next(new Error('invalid player:' + playerId), {
-            code: this.consts.MESSAGE.ERR
-        });
+        next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
         return;
     }
 };
@@ -210,28 +188,6 @@ PlayerHandler.pickItem = function(msg, session, next) {
 
     // next();
     next(null, {});
-};
-
-PlayerHandler.npcTalk = function(msg, session, next) {
-    var player = session.area.getPlayer(session.get('playerId'));
-    player.target = msg.targetId;
-    next();
-};
-
-//Player  learn skill
-PlayerHandler.learnSkill = function(msg, session, next) {
-    var player = session.area.getPlayer(session.get('playerId'));
-    var status = player.learnSkill(msg.skillId);
-
-    next(null, {status: status, skill: player.fightSkills[msg.skillId]});
-};
-
-//Player upgrade skill
-PlayerHandler.upgradeSkill = function(msg, session, next) {
-    var player = session.area.getPlayer(session.get('playerId'));
-    var status = player.upgradeSkill(msg.skillId);
-
-    next(null, {status: status});
 };
 
 module.exports = function (app) {

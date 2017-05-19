@@ -27,5 +27,10 @@ module.exports = {
         FA_USER_NOT_EXIST:      {code:4003,desc:'用户不存在'},
         FA_USER_LOGIN_ERROR:    {code:4004,desc:'用户或密码错误'},
         FA_INVITOR_NOT_EXIST:   {code:4005,desc:'推荐人不存在'}
+    },
+    GAME:{
+        FA_ADD_ENTITY_ERROR: {code:5001, desc:"加入对象失败"},
+        FA_PLAYER_NOT_FOUND: {code:5002, desc:"玩家不存在"},
+        FA_QUERY_PLAYER_INFO_ERROR: {code:5003, desc:"查询玩家信息失败"},
     }
 };

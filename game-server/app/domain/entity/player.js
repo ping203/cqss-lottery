@@ -12,6 +12,7 @@ var util = require('util');
 
 function Player(opts) {
     this.opts = opts;
+    this.id = opts.id;
     this.userId = opts.userId;
     this.roleName = opts.roleName;
     this.sex = opts.sex;
@@ -21,6 +22,7 @@ function Player(opts) {
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastOnlineTime = opts.lastOnlineTime;
+
 }
 
 Player.prototype.init = function () {
