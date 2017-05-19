@@ -159,11 +159,11 @@ DaoUser.prototype.getUserInfo = function (username, passwd, cb) {
  */
 DaoUser.prototype.createPlayer = function (uid, roleName, sex, cb){
     var self = this;
-    var sql = 'insert into Player (userId, roleName, sex, pinCode,accountAmount,level,experience,loginCount,lastOnlineTime,areaId) values(?,?,?,?,?,?,?,?,?,?)';
+    var sql = 'insert into Player (userId, roleName, sex, pinCode,accountAmount,level,rank,experience,loginCount,lastOnlineTime,areaId) values(?,?,?,?,?,?,?,?,?,?,?)';
     var loginTime = Date.now();
     var playerData = this.dataApiUtil.player().findById(211);
 
-    var args = [uid, roleName, sex, playerData.pinCode,playerData.accountAmount,playerData.level,playerData.experience,playerData.loginCount,loginTime,playerData.areaId];
+    var args = [uid, roleName, sex, playerData.pinCode,playerData.accountAmount,playerData.level,playerData.rank,playerData.experience,playerData.loginCount,loginTime,playerData.areaId];
 
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
         if(err !== null){
@@ -195,8 +195,8 @@ DaoUser.prototype.createPlayer = function (uid, roleName, sex, cb){
  * @param {function} cb Callback function.
  */
 DaoUser.prototype.updatePlayer = function (player, cb){
-    var sql = 'update Player set x = ? ,y = ? , hp = ?, mp = ? , maxHp = ?, maxMp = ?, country = ?, rank = ?, level = ?, experience = ?, areaId = ?, attackValue = ?, defenceValue = ?, walkSpeed = ?, attackSpeed = ? , skillPoint = ? where id = ?';
-    var args = [player.x, player.y, player.hp, player.mp, player.maxHp, player.maxMp, player.country, player.rank, player.level, player.experience, player.areaId, player.attackValue, player.defenceValue, player.walkSpeed, player.attackSpeed, player.skillPoint, player.id];
+    var sql = 'update Player set roleName = ? ,rank = ? , sex = ?, pinCode = ? , accountAmount = ?, level = ?, experience = ?, loginCount = ?, lastOnlineTime = ?, areaId = ? where id = ?';
+    var args = [player.roleName, player.rank, player.sex, player.pinCode, player.accountAmount, player.level, player.experience, player.loginCount, player.lastOnlineTime, player.areaId, player.id];
 
     pomelo.app.get('dbclient').query(sql,args,function(err, res){
         if(err !== null){
@@ -272,7 +272,6 @@ DaoUser.prototype.getPlayer = function(playerId, cb){
             self.utils.invokeCallback(cb, err.message, null);
         } else if (!res || res.length <= 0){
             self.utils.invokeCallback(cb,null,[]);
-            return;
         } else{
             self.utils.invokeCallback(cb,null, bearcat.getBean("player",res[0]));
         }
@@ -312,7 +311,6 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
                     if(!!err || !player) {
                         logger.error('Get user for daoUser failed! ' + err.stack);
                     }
-                    player.rank = self.dataApiUtil.rank().findById(player.level);
                     callback(err,player);
                 });
             },

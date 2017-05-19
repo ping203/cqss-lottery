@@ -11,7 +11,7 @@ EventManager.prototype.addEvent = function(entity){
 	switch(entity.type){
 		case this.consts.EntityType.PLAYER :
 			this.playerEvent.addEventForPlayer(entity);
-			//addSaveEvent(entity);
+			addPlayerSaveEvent(entity);
 			break;
 		case this.consts.EntityType.LOTTERY :
 			this.npcEvent.addEventForNPC(entity);
@@ -29,13 +29,20 @@ function addPlayerSaveEvent(player) {
 		app.get('sync').exec('playerSync.updatePlayer', player.id, player.strip());
 	});
 
-	player.bet.on('save', function () {
-        app.get('sync').exec('betSync.updateBet', player.bet.id, player.bet);
-    });
+    // player.bet.on('save', function () {
+    //     app.get('sync').exec('betSync.updateBet', player.bet.id, player.bet);
+    // });
+    //
+    // player.task.on('save', function () {
+    //     app.get('sync').exec('taskSync.updateTask', player.task.id, player.task);
+    // })
+}
 
-    player.bet.on('save', function () {
-        app.get('sync').exec('taskSync.updateTask', player.task.id, player.task);
-    })
+function addLotterySaveEvent(lottery) {
+    var app = pomelo.app;
+    lottery.on('save', function() {
+        app.get('sync').exec('lotterySync.updateLottery', player.id, player.strip());
+    });
 }
 
 module.exports ={

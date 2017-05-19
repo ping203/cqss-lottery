@@ -298,6 +298,8 @@ $(document).ready(function() {
 					return;
                 }
 
+                console.log(res.data.player);
+
                 setName();
                 setRoom();
                 showChat();

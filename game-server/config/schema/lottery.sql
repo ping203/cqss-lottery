@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `Player` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `userId` bigint(20) unsigned NOT NULL COMMENT '用户id',
   `roleName` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '角色名称',
+  `rank` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT 'rank',
   `sex` smallint(6) unsigned NOT NULL COMMENT '性别 1男 2女',
   `pinCode` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '取款密码',
   `accountAmount` smallint(6) unsigned NOT NULL COMMENT '账户金额',

@@ -5,8 +5,8 @@
 //https://github.com/youyudehexie/lordofpomelo/wiki
 module.exports =  {
     updatePlayer:function(client, player, cb) {
-        var sql = 'update Player set x = ? ,y = ? , hp = ?, mp = ? , maxHp = ?, maxMp = ?, country = ?, rank = ?, level = ?, experience = ?, areaId = ?, attackValue = ?, defenceValue = ?, walkSpeed = ?, attackSpeed = ? where id = ?';
-        var args = [player.x, player.y, player.hp, player.mp, player.maxHp, player.maxMp, player.country, player.rank, player.level, player.experience, player.areaId, player.attackValue, player.defenceValue, player.walkSpeed, player.attackSpeed, player.id];
+        var sql = 'update Player set roleName = ? ,rank = ? , sex = ?, pinCode = ? , accountAmount = ?, level = ?, experience = ?, loginCount = ?, lastOnlineTime = ?, areaId = ? where id = ?';
+        var args = [player.roleName, player.rank, player.sex, player.pinCode, player.accountAmount, player.level, player.experience, player.loginCount, player.lastOnlineTime, player.areaId, player.id];
         client.query(sql, args, function(err, res) {
             if(err !== null) {
                 console.error('write mysql failed!　' + sql + ' ' + JSON.stringify(player) + ' stack:' + err.stack);

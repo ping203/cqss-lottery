@@ -24,18 +24,10 @@ util.inherits(Entity, EventEmitter);
 
 Entity.prototype._init = function() {
 	var opts = this.opts;
-	if (opts.x === undefined || opts.y === undefined) {
-		this.randPos();
-	} else {
-		this.x = opts.x;
-		this.y = opts.y;
-	}
 }
 
 Entity.prototype._toJSON = function() {
 	return {
-		x: this.x,
-		y: this.y,
 		entityId: this.entityId,
 		kindId: this.kindId,
 		kindName: this.kindName,

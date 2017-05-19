@@ -56,7 +56,6 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 	});
 };
 
-
 module.exports ={
 	id:"npcEvent",
 	func:NpcEvent,

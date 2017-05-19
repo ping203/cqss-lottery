@@ -56,7 +56,7 @@ PlayerHandler.prototype.enterGame = function (msg, session, next) {
 
         next(null, new Answer.DataResponse(Code.OK, {
             area: self.areaService.getAreaInfo(),
-            playerId: player.id
+            player:player.strip()
         }));
     });
 };
@@ -65,6 +65,18 @@ PlayerHandler.prototype.enterGame = function (msg, session, next) {
 PlayerHandler.prototype.changeArea = function(msg, session, next) {
 
 };
+
+PlayerHandler.prototype.changePrivateInfo = function (msg, session, next) {
+    var playerId = session.get('playerId');
+    var player = this.areaService.getPlayer(playerId);
+    if (!player) {
+        logger.error('Move without a valid player ! playerId : %j', playerId);
+        next(new Error('invalid player:' + playerId), {
+            code: this.consts.MESSAGE.ERR
+        });
+        return;
+    }
+}
 
 /**
  * lottery bet

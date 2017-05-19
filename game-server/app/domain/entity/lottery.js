@@ -72,6 +72,10 @@ Lottery.prototype.toJSON = function() {
 	return r;
 }
 
+Lottery.prototype.save = function() {
+    this.emit('save');
+};
+
 module.exports = {
 	id: "lottery",
 	func: Lottery,
