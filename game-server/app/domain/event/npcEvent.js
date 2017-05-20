@@ -30,7 +30,7 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
         if (args.lottery) {
             if(args.uids){
                 pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.lottery,{
-                    entityId: args.entityId,
+                    entityId: args.lottery.entityId,
                     lotteryResult: args.lotteryResult,
                 },args.uids);
             }else {
@@ -42,14 +42,11 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
         }
     });
 
-	/**
-	 * Publish notice
-	 */
 	lottery.on(this.consts.Event.area.notice, function(args){
         if (args.lottery) {
             args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.notice,{
-                entityId: args.entityId,
-                lotteryResult: args.sysNotice,
+                entityId: args.lottery.entityId,
+                notice: args.content,
             });
         }
 	});
@@ -57,7 +54,7 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 	lottery.on(this.consts.Event.area.parseLottery, function(args){
         if (args.lottery) {
             args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.parseLottery,{
-                entityId: args.entityId,
+                entityId: args.lottery.entityId,
                 parseResult: args.parseResult,
             });
         }

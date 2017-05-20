@@ -60,31 +60,46 @@ AreaService.prototype.convertParseToJson = function (openInfo) {
     var parseResult = {};
     parseResult.totalSizeResult = openInfo.totalSizeResult;
     parseResult.totalSingleDoubleResult = openInfo.totalSingleDoubleResult;
+
     parseResult.dragonAndTigerResult = [];
-    for (let item of openInfo.dragonAndTigerResult){
-        parseResult.dragonAndTigerResult.push(item);
-    }
-    parseResult.equal15Result = openInfo.equal15Result;
-    parseResult.perPosSizeSingleDoubleResult = [];
-    for (let item of openInfo.perPosSizeSingleDoubleResult){
-        parseResult.perPosSizeSingleDoubleResult.push(item);
-    }
-    parseResult.perPosValueResult = [];
-    for (let item of openInfo.perPosValueResult){
-        parseResult.perPosValueResult.push(item);
+    if(openInfo.dragonAndTigerResult){
+        for (let item of openInfo.dragonAndTigerResult){
+            parseResult.dragonAndTigerResult.push(item);
+        }
     }
 
-    parseResult.containValueResult = [];
-    for (let item of openInfo.containValueResult){
-        parseResult.containValueResult.push(item);
+    parseResult.equal15Result = openInfo.equal15Result;
+    parseResult.perPosSizeSingleDoubleResult = [];
+    if(openInfo.perPosSizeSingleDoubleResult){
+        for (let item of openInfo.perPosSizeSingleDoubleResult){
+            parseResult.perPosSizeSingleDoubleResult.push(item);
+        }
     }
+
+    parseResult.perPosValueResult = [];
+    if(openInfo.perPosValueResult){
+        for (let item of openInfo.perPosValueResult){
+            parseResult.perPosValueResult.push(item);
+        }
+    }
+
+
+    parseResult.containValueResult = [];
+    if(openInfo.containValueResult){
+        for (let item of openInfo.containValueResult){
+            parseResult.containValueResult.push(item);
+        }
+    }
+
     parseResult.pantherResult = [];
     for (let item of openInfo.pantherResult){
         parseResult.pantherResult.push(item);
     }
     parseResult.shunZiResult = [];
-    for (let item of openInfo.shunZiResult){
-        parseResult.shunZiResult.push(item);
+    if(openInfo.shunZiResult){
+        for (let item of openInfo.shunZiResult){
+            parseResult.shunZiResult.push(item);
+        }
     }
 
     return parseResult;
@@ -218,6 +233,7 @@ AreaService.prototype.rankUpdate = function() {
   this.tickCount++;
   if (this.tickCount >= 10) {
     this.tickCount = 0;
+      this.getLottery().publishNotice();
 
    //  var player = this.getAllPlayers();
    //  player.sort(function(a, b) {

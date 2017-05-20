@@ -2,7 +2,6 @@ var Code = require('../../../../../shared/code');
 var async = require('async');
 var bearcat = require('bearcat');
 var logger = require('pomelo-logger').getLogger(__filename);
-var random_name = require('node-random-name')
 var Answer = require('../../../../../shared/answer');
 
 var EntryHandler = function (app) {

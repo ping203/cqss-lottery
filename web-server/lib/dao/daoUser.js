@@ -15,9 +15,9 @@ const default_rank = '江湖小虾';
  * @param {function} cb Call back function.
  */
 daoUser.createUser = function (username, password, phone, inviter, from, cb){
-    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank) values(?,?,?,?,?,?,?,?,?)';
+    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount) values(?,?,?,?,?,?,?,?,?,?)';
     var regTime = Date.now(), roleName = random_name();
-    var args = [username, password, phone, from, regTime,inviter,default_role,roleName, default_rank];
+    var args = [username, password, phone, from, regTime,inviter,default_role,roleName, default_rank, 3000];
 
     mysql.insert(sql, args, function(err,res){
         if(err !== null){

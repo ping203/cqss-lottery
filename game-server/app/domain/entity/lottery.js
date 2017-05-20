@@ -36,7 +36,7 @@ Lottery.prototype.setTickCount = function(period, tick) {
 };
 
 Lottery.prototype.publishNotice = function () {
-    this.emit(this.consts.Event.area.notice, {lottery: this});
+    this.emit(this.consts.Event.area.notice, {lottery: this, content:'三季娱乐, 技术封测'});
 };
 
 Lottery.prototype.publishLottery = function (result) {
