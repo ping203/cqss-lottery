@@ -66,6 +66,7 @@ LotteryManagerService.prototype.tick = function () {
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
         }
 
+        //   logger.info('result__________________',result);
         var sysTickTime = new Date(result.tickTime);
         var nextOpenTime = new Date(result.next.opentime);
 
@@ -142,13 +143,15 @@ LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
 
         var resData = "";
         res.on('data', function (chunk) {
-           // console.log('BODY: ' + chunk);
+            console.log('BODY: ' + chunk);
             if(chunk){
                 resData += chunk;
             }
         });
 
         res.on("end", function () {
+
+             console.log('BODY: ' + resData);
             var jsData = JSON.parse(resData);
             if(!jsData){
                 self.getLotteryInfo(self.nextAddr(), callback);

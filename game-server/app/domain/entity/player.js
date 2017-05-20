@@ -159,12 +159,12 @@ Player.prototype.bet = function (period, identify, betParseInfo, cb) {
 Player.prototype.unBet = function (entityId, cb) {
     var betItem = this.bets.getItem(entityId);
     if(betItem){
-        if(betItem.getItemState(entityId) != this.consts.BetState.BET_WAIT){
+        if(betItem.getState(entityId) != this.consts.BetState.BET_WAIT){
             this.utils.invokeCallback(cb, Code.GAME.FA_BET_STATE, null);
             return;
         }
 
-        betItem.setItemState(entityId, this.consts.BetState.BET_CANCLE);
+        betItem.setState(entityId, this.consts.BetState.BET_CANCLE);
         this.emit(this.consts.Event.area.playerUnBet, {player: self, betItem: betItem});
 
         this.accountAmount += betItem.getBetMoney();

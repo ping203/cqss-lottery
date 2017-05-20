@@ -41,7 +41,7 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
     var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
 
-    player.unBet(player.entityId, function (err, result) {
+    player.unBet(msg.entityId, function (err, result) {
         if(err){
             next(null, new Answer.NoDataResponse(err));
             return;
