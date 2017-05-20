@@ -22,19 +22,19 @@ adminClient.prototype.invokeCallback = function (cb) {
 //登录游戏服务器
 adminClient.prototype.login = function (username, password, cb) {
     if (!username) {
-        this.invokeCallback(cb, '用户名不能为空');
+        this.invokeCallback(cb, '用户名不能为空', null);
         return;
     }
 
     if (!password) {
-        this.invokeCallback(cb, '密码不能为空');
+        this.invokeCallback(cb, '密码不能为空', null);
         return;
     }
 
     var self = this;
     $.post(this.httpHost + 'admin/login', {username: username, password: password}, function (res) {
         if (res.code !== 200) {
-            this.invokeCallback(cb, '用户名或者密码错误');
+            this.invokeCallback(cb, '用户名或者密码错误', null);
             return;
         }
         pomelo.init({
@@ -47,7 +47,7 @@ adminClient.prototype.login = function (username, password, cb) {
             }, function (res) {
                 pomelo.disconnect();
                 if (res.result.code !== 200) {
-                    this.invokeCallback(cb, '连接游戏网关失败');
+                    this.invokeCallback(cb, '连接游戏网关失败', null);
                     return;
                 }
 
@@ -58,10 +58,10 @@ adminClient.prototype.login = function (username, password, cb) {
                 }, function () {
                     pomelo.request('connector.entryHandler.adminLogin', {token: res.token}, function (res) {
                         if (res.result.code != 200) {
-                            this.invokeCallback(cb, '登录游戏服务器失败');
+                            this.invokeCallback(cb, '登录游戏服务器失败', null);
                             return;
                         }
-                        this.invokeCallback(cb, '登录游戏服务器成功');
+                        this.invokeCallback(cb, null, '登录游戏服务器成功');
                     });
                 });
             });
@@ -73,16 +73,16 @@ adminClient.prototype.login = function (username, password, cb) {
 adminClient.prototype.recharge = function (uid, money, cb) {
     pomelo.request('connector.entryHandler.recharge', {uid: uid, money: money}, function (res) {
         if (!res.result || res.result.code != 200) {
-            this.invokeCallback(cb, res.result);
+            this.invokeCallback(cb, res.result,null);
         }
         else {
-            this.invokeCallback(cb, null);
+            this.invokeCallback(cb, null,null);
         }
     });
 };
 
 // 兑现
-adminClient.prototype.cash = function (uid, money) {
+adminClient.prototype.cash = function (uid, money, cb) {
     pomelo.request('connector.entryHandler.cash', {uid: uid, money: money}, function (res) {
         if (!res.result || res.result.code != 200) {
             this.invokeCallback(cb, res.result);
@@ -93,7 +93,7 @@ adminClient.prototype.cash = function (uid, money) {
     });
 };
 
-adminClient.prototype.setConfig = function (configs) {
+adminClient.prototype.setConfig = function (configs,cb) {
     pomelo.request('connector.entryHandler.setConfig', {configs: configs}, function (res) {
         if (!res.result || res.result.code != 200) {
             this.invokeCallback(cb, res.result);
