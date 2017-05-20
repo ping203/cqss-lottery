@@ -36,7 +36,7 @@ AreaService.prototype.init = function() {
   //area run
   this.run();
 
-  schedule.scheduleJob('0 * * * * *', this.incomeScheduleTask.bind(this));
+  schedule.scheduleJob('0 2 0 * * *', this.incomeScheduleTask.bind(this));
 };
 
 AreaService.prototype.run = function() {

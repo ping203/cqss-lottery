@@ -61,7 +61,7 @@ LotteryManagerService.prototype.tick = function () {
             return;
         }
 
-        if(!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period != result.last.period)){
+        if(!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period === result.last.period)){
             lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
         }
