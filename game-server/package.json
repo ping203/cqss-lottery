@@ -4,6 +4,7 @@
   "private": false,
   "dependencies": {
     "bearcat": "^0.4.29",
+    "cheerio": "^1.0.0-rc.1",
     "chinese-random-name": "^0.1.2",
     "crc": "^3.4.4",
     "generic-pool": "^3.1.7",
@@ -14,6 +15,7 @@
     "pomelo": "^2.2.5",
     "pomelo-collection": "^0.1.0",
     "pomelo-logger": "^0.1.7",
-    "pomelo-sync-plugin": "0.0.2"
+    "pomelo-sync-plugin": "0.0.2",
+    "urlencode": "^1.1.0"
   }
 }
