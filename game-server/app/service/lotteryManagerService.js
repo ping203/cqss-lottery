@@ -20,6 +20,7 @@ var async = require('async');
 function LotteryManagerService() {
     this.addrIndex = 0;
     this.latestLotteryInfo = null;
+    this.latestPeriod;
 }
 
 var lotteryResultSample = {
@@ -60,8 +61,38 @@ LotteryManagerService.prototype.nextAddr = function () {
 };
 
 LotteryManagerService.prototype.tick = function () {
-
     var self = this;
+    this.getOfficialLotteryInfo(function (err, result) {
+        if (err || !result) {
+            console.log('获取彩票信息失败', err);
+            return;
+        }
+
+        var lottery = self.areaService.getLottery();
+        if (!lottery) {
+            return;
+        }
+
+        if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestPeriod === result.last.period)) {
+            lottery.publishLottery(result);
+            self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
+
+            var sysTickTime = new Date(result.tickTime);
+            var nextOpenTime = new Date(result.next.opentime);
+
+            var tick = (nextOpenTime - sysTickTime) / 1000;
+            lottery.setTickCount(result.next.period, tick);
+
+            self.latestPeriod = result.next.period;
+        }
+        self.latestLotteryInfo = result;
+    });
+
+    return;
+
+
+
+
     this.getLotteryInfo(this.nextAddr(), function (err, result) {
         if (err || !result) {
             return;
@@ -176,7 +207,6 @@ LotteryManagerService.prototype.generateLottery = function (oriData) {
 };
 
 LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
-
     if (!options) {
         callback('Request err', null);
         return;
@@ -225,11 +255,66 @@ LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
     req.end();
 };
 
+
+LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
+    var self = this;
+    async.parallel([
+            function (cb) {
+                self.cqss.getServerTime(cb);
+            },
+            function (cb) {
+                self.cqss.getPreInfo(cb);
+            },
+            function (cb) {
+                self.cqss.getLatestInfo(cb);
+            },
+            function (cb) {
+                self.cqss.getNextInfo(cb);
+            }
+        ],
+        function (err, results) {
+            if(!!err){
+                this.utils.invokeCallback(callback, err, null);
+                return;
+            }
+            var serverTime = results[0];
+            var preInfos = results[1];
+            var latestInfo = results[2];
+            var nextInfo = results[3];
+
+            var lotteryInfo = {};
+            lotteryInfo.identify = 'cqss';
+            lotteryInfo.tickTime = results[0];
+
+            lotteryInfo.next = {period: nextInfo.period, opentime: nextInfo.time};
+            // lotteryInfo.last = {
+            //     period: latestInfo.period,
+            //     opentime: latestInfo.time,
+            //     numbers: latestInfo.numbers
+            // };
+
+            lotteryInfo.last = {
+                period: preInfos[0].period,
+                opentime: preInfos[0].time,
+                numbers: preInfos[0].numbers
+            };
+
+            lotteryInfo.pre = {
+                period: preInfos[1].period,
+                opentime: preInfos[1].time,
+                numbers: preInfos[1].numbers
+            };
+
+            self.utils.invokeCallback(callback, null, lotteryInfo);
+        });
+};
 module.exports = {
     id: "lotteryManagerService",
     func: LotteryManagerService,
     props: [
         {name: "dataApiUtil", ref: "dataApiUtil"},
-        {name: "consts", ref: "consts"}
+        {name: "consts", ref: "consts"},
+        {name: "utils", ref: "utils"},
+        {name: "cqss", ref: "cqss"}
     ]
 }

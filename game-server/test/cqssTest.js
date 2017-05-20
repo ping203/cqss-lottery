@@ -18,18 +18,18 @@ const cheerio = require('cheerio');
 var host = 'buy.cqcp.net';
 var port = 80;
 
-function getServerTime(){
+function getServerTime() {
     var url = `/game/time.aspx?ab=${Math.random()}`;
-  //  var options = `{host: '${host}', port: ${port}, path: '${url}', method: 'get'}`;
- //   console.log(options,'----',JSON.parse(options));
+    //  var options = `{host: '${host}', port: ${port}, path: '${url}', method: 'get'}`;
+    //   console.log(options,'----',JSON.parse(options));
     var req = http.request({
-        host:host,
-        port:80,
-        path:url,
-        method:'get'
+        host: host,
+        port: 80,
+        path: url,
+        method: 'get'
     }, function (res) {
         if (res.statusCode != 200) {
-            console.log('获取服务器时间请求失败',res);
+            console.log('获取服务器时间请求失败', res);
             return;
         }
 
@@ -42,7 +42,7 @@ function getServerTime(){
         });
 
         res.on("end", function () {
-            console.log('服务器系统时间:',timeData);
+            console.log('服务器系统时间:', timeData);
         });
     });
 
@@ -58,14 +58,14 @@ function getServerTime(){
 function getOpenNumber() {
 
     var url = `/Game/GetNum.aspx?iType=11&name=${Math.random()}`;
-   // var options = `{host:${host},port:${port},path:${url},method:'get'}`;
+    // var options = `{host:${host},port:${port},path:${url},method:'get'}`;
     var req = http.request({
-        host:host,
-        port:80,
-        path:url,
-        method:'get'
+        host: host,
+        port: 80,
+        path: url,
+        method: 'get'
     }, function (res) {
-        if(res.statusCode != 200){
+        if (res.statusCode != 200) {
             console.log('获取开奖号码失败');
             return;
         }
@@ -80,8 +80,8 @@ function getOpenNumber() {
 
         res.on("end", function () {
             var period = numberData.substring(0, numberData.indexOf('|'));
-            var number = numberData.substring(numberData.indexOf('|')+1);
-            console.log('获取开奖 期数:',period, '开奖号:', number);
+            var number = numberData.substring(numberData.indexOf('|') + 1);
+            console.log('获取开奖 期数:', period, '开奖号:', number);
 
         });
     });
@@ -126,22 +126,28 @@ function getOpenNumber() {
 //     <li class='openli3'>06-05 12:40</li>
 // </ul>
 
+// <ul id=“fruits”>
+// <li class=“apple”>Apple</li>
+// <li class=“orange”>Orange</li>
+// <li class=“pear”>Pear</li>
+// </ul>
+
 function getOpenNumbers() {
 
     var now = new Date();
-   // now.toDateString();
+    // now.toDateString();
     //console.log(urlencode(now));
     var url = "/Game/GetNum.aspx?iType=3&time=" + urlencode(now);
 
     //var url = `/Game/GetNum.aspx?iType=3&time=" +${urlencode(new Date())}`;
     // var options = `{host:${host},port:${port},path:${url},method:'get'}`;
     var req = http.request({
-        host:host,
-        port:80,
-        path:url,
-        method:'get'
+        host: host,
+        port: 80,
+        path: url,
+        method: 'get'
     }, function (res) {
-        if(res.statusCode != 200){
+        if (res.statusCode != 200) {
             console.log('获取开奖号码失败');
             return;
         }
@@ -156,10 +162,51 @@ function getOpenNumbers() {
 
         res.on("end", function () {
 
-            // const $ = cheerio.load(numberData);
-            // console.log($.html('.openul'));
+            const $ = cheerio.load(numberData);
+            console.log($('.openul').children().length);
+            console.log(typeof $('.openul').children());
 
-            //console.log('获取开奖历史号码:',numberData);
+            var items = [];
+            $('.openul').children().each(function (i, elem) {
+                items[i] = $(this).text();
+            });
+            console.log(items);
+
+      //      0,1,2, 3,4,5
+
+            var now = new Date();
+
+
+            var infos = [];
+            var info1 = {period: now.getFullYear()+items[0], numbers: items[1], time: now.getFullYear()+'-'+items[2]+':'+'00'};
+            var info2 = {period: now.getFullYear()+items[3], numbers: items[4], time: now.getFullYear()+'-'+items[5]+':'+'00'};
+
+
+            console.log('-------------------',[info1,info2]);
+
+            var nextTime = new Date('2017-06-05 13:59:00');
+            nextTime.setSeconds(nextTime.getSeconds() + 40);
+            console.log(nextTime.toISOString());
+
+            // docs.forEach(function (item) {
+            //     console.log(item);
+            // })
+
+            // var itemList = [];
+            // lists.each(function(item) {
+            //     var cap = $(this);
+            //     //console.log(cap.find('h3').text());
+            //     var item = {
+            //         period: cap.find('openli1').text(),
+            //         number: cap.find('openli2').text(),
+            //         time: cap.find('openli3').text(),
+            //     }
+            //     console.log(item);
+            //     itemList.push(item);
+            // });
+            // console.info(itemList);
+
+            //console.log('获取开奖历史号码:',lists.children('li'));
         });
     });
 
@@ -172,19 +219,18 @@ function getOpenNumbers() {
 }
 
 function getNextOpenNumberTime() {
-
     var now = new Date();
     var url = "/Game/ShortIssues.aspx?time=" + urlencode(now) + "&type=" + "BEAB95B0BAA1242CF042D1659686F54B" + "&iType=Ssc";
 
     //var url = `/Game/GetNum.aspx?iType=3&time=" +${urlencode(new Date())}`;
     // var options = `{host:${host},port:${port},path:${url},method:'get'}`;
     var req = http.request({
-        host:host,
-        port:80,
-        path:url,
-        method:'get'
+        host: host,
+        port: 80,
+        path: url,
+        method: 'get'
     }, function (res) {
-        if(res.statusCode != 200){
+        if (res.statusCode != 200) {
             console.log('获取开奖号码失败');
             return;
         }
@@ -204,14 +250,15 @@ function getNextOpenNumberTime() {
 
             //170605048$2017-06-05 13:59:00$
 
-             var reg1 = /(\d+)\$(.+)\$$/i;;
-             var index = numberData.lastIndexOf('$');
+            var reg1 = /(\d+)\$(.+)\$$/i;
+            ;
+            var index = numberData.lastIndexOf('$');
             var filt = numberData.substring(0, index);
             var period = filt.substring(0, filt.lastIndexOf('$'));
-            var time = filt.substring(filt.indexOf('$')+1);
-           // var result = numberData.match(reg1);
+            var time = filt.substring(filt.indexOf('$') + 1);
+            // var result = numberData.match(reg1);
 
-            console.log('下期开奖 期数:',period, '时间:', time);
+            console.log('下期开奖 期数:', period, '时间:', time);
         });
     });
 
@@ -227,11 +274,11 @@ function getNextOpenNumberTime() {
 function getLottery() {
 
     setInterval(function () {
-        getServerTime();
-        getOpenNumber();
+        // getServerTime();
+        // getOpenNumber();
         getOpenNumbers();
-        getNextOpenNumberTime();
-    },1000);
+        // getNextOpenNumberTime();
+    }, 1000);
 }
 
 getLottery();

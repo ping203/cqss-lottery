@@ -83,9 +83,9 @@ Lottery.prototype.initPublishParseResult = function (uids) {
     this.emit(this.consts.Event.area.parseLottery, {lottery: this, parseResult:this.lotteryCaches, uids:uids});
 };
 
-//发布最近10期开奖分析结果
+//发布最近10条投注记录
 Lottery.prototype.initPublishLatestBets = function (betItems, uids) {
-    this.emit(this.consts.Event.area.parseLottery, {lottery: this, betItems:betItems, uids:uids});
+    this.emit(this.consts.Event.area.playerBets, {lottery: this, betItems:betItems, uids:uids});
 };
 
 Lottery.prototype.getNextPeriod = function () {
