@@ -6,7 +6,7 @@
         "url": "/users/login",
         "body": {
           "username": {
-            "type": "string",
+            "type": "https://github.com/linyngfly/lottery.git",
             "required": true
           },
           "phone": {
