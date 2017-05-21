@@ -40,7 +40,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
-        this.areaService.updateLatestBets(betItem);
+        self.areaService.updateLatestBets(betItem);
     });
 };
 

@@ -33,9 +33,13 @@
 // console.log(b);
 
 // var reg1 = /^大(\d+)小(\d+)/ig;
-    
+
+
+
     
 function test() {
+
+
 
     var curr_time = new Date();
     var begin_time = new Date(curr_time);
@@ -247,7 +251,34 @@ var type51 = '大单龙合60';
 
 }
 
-test();
+// test();
+
+function test2() {
+    var reg1 = /(^[大小单双龙虎和合]+)\/?(\d+)/i;
+    var reg2 = /(^\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
+    var reg3 = /(^\d+)\/(\d+)/i; //包数字玩法
+    var reg4 = /(^[豹顺]+)子?\/?(\d+)/i;
+    var reg5= /(^[豹顺]+)子?\/(\d+)\/(\d+)\/(\d+)/i;
+
+    var bet1 = '大100';
+    var ret1 = bet1.match(reg1);
+    console.log(ret1);
+    var bet2 = '大/100';
+    var ret2 = bet2.match(reg1);
+    console.log(ret2);
+
+
+    var bet3 = '豹顺/100';
+    var ret3 = bet3.match(reg4);
+    console.log(ret3);
+
+    var bet4 = '豹子/100/100/30';
+    var ret4 = bet4.match(reg5);
+    console.log(ret4);
+
+}
+
+test2();
 
 //
 // 玩家信息显示：

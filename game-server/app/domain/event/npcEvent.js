@@ -60,16 +60,20 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 	});
 
     lottery.on(this.consts.Event.area.playerBets, function(args) {
+        var betItems = [];
+        for(var i = 0; i<args.betItems.length;i++){
+            betItems.push(args.betItems[i].strip());
+        }
         if (args.lottery) {
             if(args.uids){
                 pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.playerBets,{
                     entityId: args.lottery.entityId,
-                    betItems: args.betItems,
+                    betItems: betItems,
                 },args.uids);
             }else {
                 args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.playerBets,{
                     entityId: args.lottery.entityId,
-                    betItems: args.betItems,
+                    betItems: betItems,
                 });
             }
         }

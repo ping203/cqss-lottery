@@ -189,7 +189,7 @@ $(document).ready(function () {
     }
 
     function myBets(e) {
-        pomelo.request("area.playerHandler.myBets", {skip: 10, limit: 10}, function (res) {
+        pomelo.request("area.playerHandler.myBets", {skip: 0, limit: 10}, function (res) {
             if (res.result.code != 200) {
                 console.log('獲取收益失敗');
                 return;

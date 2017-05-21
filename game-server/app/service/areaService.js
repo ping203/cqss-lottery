@@ -51,6 +51,13 @@ AreaService.prototype.init = function () {
         logger.error('平台参数配置获取失败，系统无法工作');
     });
 
+    this.daoBets.getLatestBets(0,10, function (err, results) {
+        if(err){
+            return;
+        }
+        self.latestBets = results;
+    });
+
     //this.run();
     //schedule.scheduleJob('10 30 * * * *', this.incomeScheduleTask.bind(this));
 };
@@ -186,7 +193,7 @@ AreaService.prototype.addEntity = function (e) {
  */
 AreaService.prototype.countdown = function () {
 
-    if (this.countdownCount >= 2) {
+    if (this.countdownCount >= 5) {
         this.getLottery().countdown();
         this.countdownCount = 0;
     }
@@ -352,5 +359,8 @@ module.exports = {
     }, {
         name: "platformBet",
         ref: "platformBet"
+    }, {
+        name: "daoBets",
+        ref: "daoBets"
     }]
 }

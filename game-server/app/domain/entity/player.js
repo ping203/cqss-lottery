@@ -171,13 +171,14 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         playerId: this.id,
         period: period,
         identify: identify,
-        betData: betData,
+        betInfo: betData,
         state: this.consts.BetState.BET_WAIT,
         betCount: betParseInfo.betItems.length,
         winCount:0,
         betMoney: betParseInfo.total,
         winMoney:0,
-        betTime: Date.now()
+        betTime: Date.now(),
+        betTypeInfo:betParseInfo.betTypeInfo
     }, function (err, betItem) {
         if (err) {
             self.utils.invokeCallback(cb, err, null);
@@ -198,12 +199,14 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         }
 
         betItem.setBetItems(betParseInfo.betItems);
-        betItem.setBetTypeInfo(betParseInfo.betTypeInfo);
         betItem.setRoleName(self.roleName);
+
         self.bets.addItem(betItem);
 
         self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});
         self.utils.invokeCallback(cb, null, betItem);
+
+        betItem.save();
     });
 
 };
@@ -216,7 +219,7 @@ Player.prototype.unBet = function (entityId, cb) {
             return;
         }
 
-        betItem.setState(entityId, this.consts.BetState.BET_CANCLE);
+        betItem.setState(this.consts.BetState.BET_CANCLE);
         this.accountAmount += betItem.getBetMoney();
         this.betStatistics.betCount -= betItem.getBetCount();
 
@@ -230,6 +233,8 @@ Player.prototype.unBet = function (entityId, cb) {
             num -= betTypeInfo[type].money;
             this.betMoneyMap.set(betTypeInfo[type].type.code, num);
         }
+
+        betItem.save();
 
         this.utils.invokeCallback(cb, null, betItem);
         this.save();

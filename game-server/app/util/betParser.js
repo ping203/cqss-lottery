@@ -6,11 +6,11 @@ var Code = require('../../../shared/code');
 
 var BetParser = function () {
     this.splitReg=/.{1}/g;
-    this.reg1 = /(^[大小单双龙虎和合]+)(\d+)/i;
+    this.reg1 = /(^[大小单双龙虎和合]+)\/?(\d+)/i;
     this.reg2 = /(^\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
     this.reg3 = /(^\d+)\/(\d+)/i; //包数字玩法
-    this.reg4 = /(^[豹顺]+)(\d+)/i;
-    this.reg5= /(^[豹顺]+)\/(\d+)\/(\d+)\/(\d+)/i;
+    this.reg4 = /(^[豹顺]+)子?\/?(\d+)/i;
+    this.reg5= /(^[豹顺]+)子?\/(\d+)\/(\d+)\/(\d+)/i;
     this.keyValue =['前','中','后'];
 };
 

@@ -6,7 +6,7 @@ const json = require('koa-json');
 const onerror = require('koa-onerror');
 const bodyparser = require('koa-bodyparser')();
 const logger = require('koa-logger');
-// const cors = require('koa-cors');
+const cors = require('koa-cors');
 const path = require('path');
 
 const mysql = require('./lib/dao/mysql/mysql');
@@ -40,7 +40,7 @@ onerror(app);
 
 // middlewares
 //跨域访问
-//app.use(cors());
+app.use(cors());
 app.use(logger());
 app.use(bodyparser);
 app.use(json());

@@ -11,8 +11,10 @@ var DaoBets = function () {
 };
 
 DaoBets.prototype.addBet = function (bet, cb) {
-    var sql = 'insert into Bets (uid,period,identify,betInfo,state,betCount,winCount,betMoney,winMoney,betTime) values(?,?,?,?,?,?,?,?,?,?)';
-    var args = [bet.playerId, bet.period, bet.identify, bet.betData, bet.state, bet.betCount, bet.winCount, bet.betMoney, bet.winMoney, bet.betTime];
+    var sql = 'insert into Bets (uid,period,identify,betInfo,state,betCount,' +
+        'winCount,betMoney,winMoney,betTime, betTypeInfo) values(?,?,?,?,?,?,?,?,?,?,?)';
+    var args = [bet.playerId, bet.period, bet.identify, bet.betInfo, bet.state,
+        bet.betCount, bet.winCount, bet.betMoney, bet.winMoney, bet.betTime, JSON.stringify(bet.betTypeInfo)];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
@@ -23,22 +25,23 @@ DaoBets.prototype.addBet = function (bet, cb) {
                 playerId: bet.playerId,
                 period: bet.period,
                 identify: bet.identify,
-                betInfo: bet.betData,
+                betInfo: bet.betInfo,
                 state: bet.state,
                 betCount: bet.betCount,
                 winCount: bet.winCount,
                 betMoney: bet.betMoney,
                 winMoney: bet.winMoney,
-                betTime: bet.betTime
+                betTime: bet.betTime,
+                betTypeInfo:bet.betTypeInfo
             });
 
             self.utils.invokeCallback(cb, null, betItem);
         }
     });
 };
-
+//select * from Bets b left join User u on b.uid = u.id where uid=3 limit 0,10
 DaoBets.prototype.getBets = function (playerId, skip, limit, cb) {
-    var sql = 'select * from Bets where uid=? limit ?,?';
+    var sql = 'select * from Bets b left join User u on b.uid = u.id where uid=? limit ?,?';
     var args = [playerId, skip, limit];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
@@ -53,16 +56,54 @@ DaoBets.prototype.getBets = function (playerId, skip, limit, cb) {
                         playerId: res[i].playerId,
                         period: res[i].period,
                         identify: res[i].identify,
-                        betInfo: res[i].betData,
+                        betInfo: res[i].betInfo,
                         state: res[i].state,
                         betCount: res[i].betCount,
                         winCount: res[i].winCount,
                         betMoney: res[i].betMoney,
                         winMoney: res[i].winMoney,
-                        betTime: res[i].betTime
-
+                        betTime: res[i].betTime,
+                        betTypeInfo:JSON.parse(res[i].betTypeInfo)
                     });
                     items.push(betItem.strip());
+                }
+
+                self.utils.invokeCallback(cb, null, items);
+            } else {
+                self.utils.invokeCallback(cb, ' Bets not exist ', null);
+            }
+        }
+    });
+};
+//select * from Bets b left join User u on b.uid = u.id where uid=3 ORDER BY betTime DESC limit 0,10
+//select * from Bets b left join User u on b.uid = u.id ORDER BY betTime DESC limit 0,10
+DaoBets.prototype.getLatestBets = function (skip, limit, cb) {
+    var sql = 'select * from Bets b left join User u on b.uid = u.id ORDER BY betTime DESC limit ?,?';
+    var args = [skip, limit];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            self.utils.invokeCallback(cb, err.message, null);
+        } else {
+            if (!!res && res.length >= 1) {
+                var items = [];
+                for (var i = 0; i < res.length; ++i) {
+                    var betItem = bearcat.getBean("betItem", {
+                        id: res[i].insertId,
+                        playerId: res[i].playerId,
+                        period: res[i].period,
+                        identify: res[i].identify,
+                        betInfo: res[i].betInfo,
+                        state: res[i].state,
+                        betCount: res[i].betCount,
+                        winCount: res[i].winCount,
+                        betMoney: res[i].betMoney,
+                        winMoney: res[i].winMoney,
+                        betTime: res[i].betTime,
+                        betTypeInfo:JSON.parse(res[i].betTypeInfo)
+                    });
+                    betItem.setRoleName(res[i].roleName);
+                    items.push(betItem);
                 }
 
                 self.utils.invokeCallback(cb, null, items);
@@ -95,7 +136,8 @@ DaoBets.prototype.getPlayerBetsByTime = function (playerId, beginTime, endTime, 
                         winCount: res[i].winCount,
                         betMoney: res[i].betMoney,
                         winMoney: res[i].winMoney,
-                        betTime: res[i].betTime
+                        betTime: res[i].betTime,
+                        betTypeInfo:JSON.parse(res[i].betTypeInfo)
                     });
                     items.push(betItem);
                 }

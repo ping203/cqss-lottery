@@ -19,9 +19,10 @@ var BetItem = function (opts) {
     this.betMoney = opts.betMoney;
     this.winMoney = opts.winMoney;
     this.betTime = Date.now();
+    this.betTypeInfo = opts.betTypeInfo
+
     this.roleName = null;
     this.betItems = null;
-    this.betTypeInfo = null;
 };
 
 BetItem.prototype.init = function () {
@@ -46,11 +47,6 @@ BetItem.prototype.setState = function (state) {
 BetItem.prototype.setBetItems = function (betItems) {
     this.betItems = betItems;
 };
-
-
-BetItem.prototype.setBetTypeInfo = function (betTypeInfo) {
-    this.betTypeInfo = betTypeInfo;
-}
 
 BetItem.prototype.getBetTypeInfo = function () {
     return this.betTypeInfo;
@@ -99,18 +95,29 @@ BetItem.prototype.calcHarvest = function (openInfo, level) {
     }
 };
 
-BetItem.prototype.strip = function () {
-
+BetItem.prototype.getBetExternalInfo = function () {
     var betTypeFormat = "";
-    var betDescInfoFormat = "用户投注 ";
+    var betDescInfoFormat = "投注 ";
+    var multiCount = 0;
     for (var type in this.betTypeInfo){
         betTypeFormat += `${this.betTypeInfo[type].type.desc}/${this.betTypeInfo[type].freeBetValue}/`;
         betDescInfoFormat += `${this.betTypeInfo[type].desc}`;
+        multiCount ++;
     }
-    betDescInfoFormat+="各1柱";
 
+    if(multiCount > 1){
+        betDescInfoFormat+="各1柱";
+    }
     betTypeFormat = betTypeFormat.substring(0, betTypeFormat.lastIndexOf('/'));
 
+    return {
+        betFreeInfoFormat:betTypeFormat,
+        betDescInfoFormat:betDescInfoFormat
+    };
+}
+
+BetItem.prototype.strip = function () {
+    var ext = this.getBetExternalInfo();
     var r= {
         id: this.id,
         entityId:this.entityId,
@@ -126,10 +133,10 @@ BetItem.prototype.strip = function () {
         betMoney:this.betMoney,
         winMoney:this.winMoney,
         betTime: this.betTime,
-        betTypeInfo:betTypeFormat,
-        betDescInfo:betDescInfoFormat
+        betTypeInfo:this.betTypeInfo,
+        betFreeInfo:ext.betFreeInfoFormat,
+        betDescInfo:ext.betDescInfoFormat
     };
-
     return r;
 };
 

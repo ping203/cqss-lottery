@@ -157,7 +157,7 @@ var onUserLeave = function (app, session, reason) {
 
 var onAdminLeave = function (app, session, reason) {
     if (session && session.uid) {
-        self.app.get('sessionService').kick(session.uid, cb);
+        app.get('sessionService').kick(session.uid, cb);
     }
 };
 
