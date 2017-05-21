@@ -2,65 +2,75 @@
  * Created by linyng on 17-5-22.
  */
 
-var logger = require('pomelo-logger').getLogger(__filename);
-var pomelo = require('pomelo');
-var bearcat = require('bearcat');
+const logger = require('pomelo-logger').getLogger(__filename);
+const pomelo = require('pomelo');
+const bearcat = require('bearcat');
+const async = require('async');
 
 var DaoConfig = function () {
 
 };
 
-DaoConfig.prototype.defaultConfig = function (bet, cb) {
-    var sql = 'insert into Bets (uid,period,identify,betInfo,state,betCount,winCount,betMoney,winMoney,betTime) values(?,?,?,?,?,?,?,?,?,?)';
-    var args = [bet.playerId, bet.period, bet.identify, bet.betData, bet.state, bet.betCount, bet.winCount, bet.betMoney, bet.winMoney, bet.betTime];
+DaoConfig.prototype.initPlatformParam = function (configs, callback) {
     var self = this;
-    pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
-        } else {
-            var betItem = bearcat.getBean("betItem", {
-                id: res.insertId,
-                playerId: bet.playerId,
-                period: bet.period,
-                identify: bet.identify,
-                betInfo: bet.betData,
-                state: bet.state,
-                betCount: bet.betCount,
-                winCount: bet.winCount,
-                betMoney: bet.betMoney,
-                winMoney: bet.winMoney,
-                betTime: bet.betTime
+    var sysConfig = null;
+    async.waterfall([function (cb) {
+        var sql = 'insert into config values(?,?)';
+        var args = [1, JSON.stringify(configs)];
+        pomelo.app.get('dbclient').insert(sql, args, function(err,res){
+            if(err !== null){
+                cb(null,null);
+            } else {
+                cb(null, configs);
+            }
+        });
+    },function (res,cb) {
+        if(res){
+            sysConfig = res;
+            cb();
+        }
+        else {
+            var sql = 'select * from config where id = ?';
+            var args = [1];
+
+            pomelo.app.get('dbclient').query(sql,args,function(err, res){
+                if(err !== null){
+                    cb(err);
+                } else {
+                    if (!!res && res.length === 1) {
+                        sysConfig = JSON.parse(res[0].info);
+                        cb();
+                    } else {
+                        cb('sys config not exist');
+                    }
+                }
             });
 
-            self.utils.invokeCallback(cb, null, betItem);
+        }
+    }],function (err) {
+        if(err){
+            self.utils.invokeCallback(callback, err, null);
+        }
+        else {
+            self.utils.invokeCallback(callback, null, sysConfig);
         }
     });
+
 };
 
-DaoConfig.prototype.getBets = function (skip, limit, cb) {
-    var sql = 'select * from Bets limit ?,?';
-    var args = [skip, limit];
+DaoConfig.prototype.updateConfig = function (configs, cb) {
+    var sql = 'update config set info = ?  where id = 1';
+    var args = [JSON.stringify(configs)];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
+            self.utils.invokeCallback(cb, err.message, false);
         } else {
-            if (!!res && res.length >= 1) {
-                var items = [];
-                for (var i = 0; i < res.length; ++i) {
-                    var betItem = bearcat.getBean("betItem", {
-                        id: res[i].id,
-                        period: res[i].period,
-                        identify: res[i].identify,
-                        numbers: res[i].numbers,
-                        openTime: res[i].openTime
-                    });
-                    items.push(betItem);
-                }
-
-                self.utils.invokeCallback(cb, null, items);
+            if (!!res && res.affectedRows > 0) {
+                self.utils.invokeCallback(cb, null, true);
             } else {
-                self.utils.invokeCallback(cb, ' Bets not exist ', null);
+                logger.error('updateAccountAmount player failed!');
+                self.utils.invokeCallback(cb, null, false);
             }
         }
     });

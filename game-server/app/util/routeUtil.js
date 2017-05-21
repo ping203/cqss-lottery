@@ -4,6 +4,8 @@
 
 var crc = require('crc');
 var logger = require('pomelo-logger').getLogger(__filename);
+var Code = require('../../../shared/code');
+var Answer = require('../../../shared/answer');
 
 var RouteUtil = module.exports;
 
@@ -22,7 +24,7 @@ RouteUtil.chat = function(session, msg, app, cb) {
 
     var res = RouteUtil.routeDispatch(session.uid, chatServers);
 
-    logger.error('-----------------------route chat:', res.id);
+    logger.debug('-----------------------route chat:', res.id);
 
     cb(null, res.id);
 };
@@ -31,11 +33,11 @@ RouteUtil.area = function(session, msg, app, cb) {
     var areaServers = app.getServersByType('area');
 
     if(!areaServers || areaServers.length === 0) {
-        cb(new Error('can not find chat servers.'));
+        cb(new Error('can not find area servers.'), new Answer.NoDataResponse(Code.FAIL));
         return;
     }
 
-    logger.error('------------------------------------', session.uid,'----------------', session)
+    logger.debug('------------------------------------', session.uid,'----------------', session)
     var res = RouteUtil.routeDispatch(session.uid, areaServers);
 
     cb(null, res.id);

@@ -10,6 +10,10 @@ NoDataResponse.prototype.toString = function () {
     return JSON.stringify(this);
 };
 
+// NoDataResponse.prototype.addExternalDesc = function (desc) {
+//     this.result.desc = `${this.result.desc}|${desc}`;
+// };
+
 function DataResponse(result, data) {
     this.result = result;
     this.data = data;

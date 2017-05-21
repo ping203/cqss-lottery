@@ -57,7 +57,7 @@ EntryHandler.prototype.recharge = function (msg, session, next) {
         return;
     }
 
-    app.rpc.area.playerRemote.recharge(session, msg.uid, money, function (err, result) {
+    this.app.rpc.area.playerRemote.recharge(session, msg.uid, money, function (err, result) {
         next(err, result);
     });
 };
@@ -74,13 +74,13 @@ EntryHandler.prototype.cash = function (msg, session, next) {
         return;
     }
 
-    app.rpc.area.playerRemote.cash(session, msg.uid, money, function (err, result) {
+    this.app.rpc.area.playerRemote.cash(session, msg.uid, money, function (err, result) {
         next(err, result);
     });
 };
 
 EntryHandler.prototype.setConfig = function (msg, session, next) {
-    app.rpc.area.playerRemote.setConfig(session, msg.configs, function (err, result) {
+    this.app.rpc.area.playerRemote.setConfig(session, msg.configs, function (err, result) {
         next(err, result);
     });
 };
@@ -118,7 +118,13 @@ EntryHandler.prototype.login = function (msg, session, next) {
             session.on('closed', onUserLeave.bind(null, self.app));
             session.pushAll(cb);
         },function (cb) {
-            self.app.rpc.area.playerRemote.playerJoin(session, _player.id, session.frontendId, cb);
+            if(!!self.app.rpc.area.playerRemote){
+                self.app.rpc.area.playerRemote.playerJoin(session, _player.id, session.frontendId, cb);
+            }
+            else {
+                cb('业务服务器异常',null);
+            }
+
         },function (playerJoinResult, cb) {
             if(playerJoinResult.result.code != Code.OK.code){
                 cb(playerJoinResult.result);

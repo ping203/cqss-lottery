@@ -125,7 +125,7 @@ Player.prototype.recharge = function (money) {
     //todo 充值记录
 };
 
-Player.prototype.cast = function (money) {
+Player.prototype.cash = function (money) {
     if(this.accountAmount < money) return false;
     this.accountAmount -= money;
     this.save();

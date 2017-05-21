@@ -2,6 +2,7 @@ var bearcat = require('bearcat');
 var Answer = require('../../../../../shared/answer');
 var Code = require('../../../../../shared/code');
 var async = require('async');
+var logger = require('pomelo-logger').getLogger(__filename);
 
 var PlayerRemote = function(app) {
 	this.app = app;
@@ -53,27 +54,28 @@ PlayerRemote.prototype.playerLeave = function(playerId, cb) {
 
 PlayerRemote.prototype.recharge = function (uid, money,cb) {
     var player = this.areaService.getPlayer(uid);
-    if (player) {
+    if (!!player) {
         player.recharge(money);
         this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
         return;
     }
 
     //离线用户充值
+    var self = this;
     this.daoUser.updateAccountAmount(uid, money, function (err, success) {
         if(!!err || !success){
-            this.utils.invokeCallback(cb,'充值失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
+            self.utils.invokeCallback(cb,'充值失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
             return;
         }
 
-        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+        self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
     })
 }
 
-PlayerRemote.prototype.cast = function (uid, money, cb) {
+PlayerRemote.prototype.cash = function (uid, money, cb) {
     var player = this.areaService.getPlayer(uid);
-    if (player) {
-        if(!player.cast(money)){
+    if (!!player) {
+        if(!player.cash(money)){
             this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
         }
         else {
@@ -83,37 +85,46 @@ PlayerRemote.prototype.cast = function (uid, money, cb) {
     }
 
     //离线用户提现
+    var self = this;
     async.waterfall([
-        function (callback) {
-            this.daoUser.getAccountAmount(uid, callback);
+        function (scb) {
+            self.daoUser.getAccountAmount(uid, scb);
         },
-        function (amount, callback) {
-            if(amount > money){
-                this.daoUser.updateAccountAmount(uid, -money, callback);
+        function (amount, scb) {
+            if(amount >= money){
+                self.daoUser.updateAccountAmount(uid, -money, scb);
             }
             else {
-                this.utils.invokeCallback(cb, '提现失败', new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
+                self.utils.invokeCallback(cb, '提现失败', new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
             }
-        },function (success, callback) {
+        },function (success, scb) {
             if(!success){
-                cb('提现失败');
+                scb('提现失败');
             }else {
-                cb();
+                scb();
             }
         }
     ],function (err) {
         if(err){
-            this.utils.invokeCallback(cb, err, new Answer.NoDataResponse(Code.FAIL));
+            self.utils.invokeCallback(cb, err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
-        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+        self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
     });
 }
 
 PlayerRemote.prototype.setConfig = function (configs,cb) {
 	//check config invalid
-	this.sysConfig.setConfigs(configs);
-    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+    var self = this;
+    this.daoConfig.updateConfig(configs, function (err, success) {
+        if(!!err || !success){
+            logger.error('updateConfig err:', err);
+            self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.FAIL));
+            return;
+        }
+        self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+        self.sysConfig.setConfigs(configs);
+    });
 }
 
 module.exports = function(app) {
@@ -139,6 +150,9 @@ module.exports = function(app) {
         }, {
             name: "sysConfig",
             ref: "sysConfig"
+        }, {
+            name: "daoConfig",
+            ref: "daoConfig"
         }]
 	});
 };

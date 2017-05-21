@@ -21,10 +21,10 @@ $(document).ready(function () {
     $('#cash').on('click', cash);
     $('#setConfig').on('click', setConfig);
 
-    var adminClient = new window.adminClient();
+    var _adminClient =  new window.adminClient();
 
     function adminLogin() {
-        adminClient.login('sys', '', function (err, result) {
+        _adminClient.login('sys', '71a24b8ec1514d66861cba67a065db3c', function (err, result) {
             if (!!err) {
                 console.log('管理员登录失败,', err);
                 return;
@@ -34,9 +34,9 @@ $(document).ready(function () {
     }
 
     function recharge() {
-        adminClient.recharge(3, 10000, function (err, result) {
+        _adminClient.recharge(3, 10000, function (err, result) {
             if (!!err) {
-                console.log('充值失败');
+                console.log('充值失败:', err);
                 return;
             }
             console.log('充值成功');
@@ -44,24 +44,24 @@ $(document).ready(function () {
     }
 
     function cash() {
-        adminClient.cash(3, 5000, function (err, result) {
+        _adminClient.cash(3, 5000, function (err, result) {
             if (!!err) {
-                console.log('提现失败');
+                console.log('提现失败:', err);
                 return;
             }
-            console.log('充值成功');
+            console.log('提现成功');
         })
     }
 
     function setConfig() {
-        adminClient.setConfig({
+        _adminClient.setConfig({
             "bw": [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5],
             "msg": "三季娱乐，技术封测",
             "norm": {"bz": {"m": 6000, "p": 600000}, "sz": {"m": 2000, "p": 200000}, "num": {"m": 3000, "p": 100000}, "sum": {"m": 2000, "p": 200000}, "size": {"m": 3000, "p": 100000}},
             "odds": {"bz": {"max": 90, "min": 60}, "sz": {"max": 20, "min": 10}, "num": {"max": 10, "min": 9}, "sum": {"max": 10, "min": 9}, "size": {"max": 2, "min": 1}},
             "rank": ["英勇青铜", "不屈白银", "荣耀黄金", "华贵铂金", "璀璨钻石", "最强王者", "武林高手", "绝世奇才", "威震三界", "盖世英雄"],
             "limit": 5,
-            "initial": 30000}, function (err, result) {
+            "initial": 20000}, function (err, result) {
             if (!!err) {
                 console.log('提现失败');
                 return;

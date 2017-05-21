@@ -47,8 +47,9 @@ LotteryManagerService.prototype.init = function (service) {
     this.lotteryData = this.dataApiUtil.lotteryApi().data;
     this.lotteryIds = this.dataApiUtil.lotteryApi().ids;
     this.areaService = service;
+    this.tickCount = 0;
 
-    setInterval(this.tick.bind(this), 1300);
+    setInterval(this.tick.bind(this), 1200);
 };
 
 LotteryManagerService.prototype.nextAddr = function () {
@@ -58,6 +59,20 @@ LotteryManagerService.prototype.nextAddr = function () {
     var addr = this.lotteryData[this.addrIndex];
     var retVal = {header: {host: addr.host, port: addr.port, path: addr.path, method: addr.method}, type: addr.type};
     return retVal;
+};
+
+LotteryManagerService.prototype.timeSync = function (result) {
+    var lottery = this.areaService.getLottery();
+    if (!lottery) {
+        return;
+    }
+
+    var sysTickTime = new Date(result.tickTime);
+    var nextOpenTime = new Date(result.next.opentime);
+
+    var tick = (nextOpenTime - sysTickTime) / 1000;
+    lottery.setTickCount(result.next.period, tick);
+    this.tickCount = 0;
 };
 
 LotteryManagerService.prototype.tick = function () {
@@ -77,21 +92,19 @@ LotteryManagerService.prototype.tick = function () {
             lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
 
-            var sysTickTime = new Date(result.tickTime);
-            var nextOpenTime = new Date(result.next.opentime);
-
-            var tick = (nextOpenTime - sysTickTime) / 1000;
-            lottery.setTickCount(result.next.period, tick);
-
+            self.timeSync(result);
             self.latestPeriod = result.next.period;
         }
+
+        if(self.tickCount > 50){
+            self.timeSync(result);
+        }
+
+        self.tickCount++;
         self.latestLotteryInfo = result;
     });
 
     return;
-
-
-
 
     this.getLotteryInfo(this.nextAddr(), function (err, result) {
         if (err || !result) {

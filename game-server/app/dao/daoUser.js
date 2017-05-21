@@ -136,7 +136,7 @@ DaoUser.prototype.getAccountAmount = function (playerId, cb) {
         if (err !== null) {
             self.utils.invokeCallback(cb, err.message, null);
         } else {
-            if (!!res && res.affectedRows > 0) {
+            if (!!res && res.length > 0) {
                 self.utils.invokeCallback(cb, null, res[0].accountAmount);
             } else {
                 logger.error('updateAccountAmount player failed!');

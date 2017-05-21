@@ -38,7 +38,7 @@ AreaService.prototype.init = function () {
     this.lotteryManagerService.init(this);
     //初始化系統參數配置
     var self = this;
-    this.daoSysParamConfig.initPlatformParam(defaultConfigs, function (err, result) {
+    this.daoConfig.initPlatformParam(defaultConfigs, function (err, result) {
         if(!err && !!result){
             self.sysConfig.setConfigs(result);
             self.run();
@@ -61,6 +61,7 @@ AreaService.prototype.run = function () {
 
 AreaService.prototype.tick = function () {
     //run all the action
+    return;
     this.actionManagerService.update();
     this.entityUpdate();
     this.countdown();
@@ -344,8 +345,8 @@ module.exports = {
         name: "calcIncome",
         ref: "calcIncome"
     }, {
-        name: "daoSysParamConfig",
-        ref: "daoSysParamConfig"
+        name: "daoConfig",
+        ref: "daoConfig"
     }, {
         name: "sysConfig",
         ref: "sysConfig"
