@@ -61,7 +61,6 @@ AreaService.prototype.run = function () {
 
 AreaService.prototype.tick = function () {
     //run all the action
-    return;
     this.actionManagerService.update();
     this.entityUpdate();
     this.countdown();
