@@ -64,24 +64,34 @@ PlayerHandler.prototype.setRoleName = function (msg, session, next) {
 
     var action = bearcat.getBean('rename', {
         entity: player,
-        roleName: roleName,
+        roleName: msg.roleName,
     });
 
-    if (this.areaService.addAction(action)) {
-        next(null, {
-            code: this.consts.MESSAGE.RES,
-            sPos: player.getPos()
-        });
-
-        this.areaService.getChannel().pushMessage({
-            route: 'onMove',
-            entityId: player.entityId,
-            endPos: endPos
-        });
-    }
-
+    this.areaService.addAction(action);
+    next(null, new Answer.NoDataResponse(Code.OK));
 };
 
+PlayerHandler.prototype.setPinCode = function (msg, session, next) {
+    var playerId = session.get('playerId');
+    var player = this.areaService.getPlayer(playerId);
+    if (!player) {
+        next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
+        return;
+    }
+    player.setPinCode(msg.roleName);
+    next(null, new Answer.NoDataResponse(Code.OK));
+};
+
+PlayerHandler.prototype.getLotterys = function (msg, session, next) {
+    var lottery =  this.areaService.getLottery();
+    lottery.getLotterys(msg.skip, msg.limit, function (err, result) {
+        if(!!err){
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_LOTTERY_INFO_ERROR));
+        }else {
+            next(null, new Answer.DataResponse(Code.OK, result));
+        }
+    });
+};
 /**
  * lottery bet
  * @param msg
@@ -95,6 +105,8 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
         next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
         return;
     }
+
+    player.bet();
 
     var action = bearcat.getBean('bet', {
         entity: player,

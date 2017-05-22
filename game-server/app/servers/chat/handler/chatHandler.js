@@ -44,6 +44,7 @@ ChatHandler.prototype.enterRoom = function(msg, session, next){
 
 ChatHandler.prototype.leaveRoom = function (msg, session, next) {
     this.chatService.leave(session.uid, session.get('roomId'));
+    next(null);
 };
 
 /**
@@ -55,6 +56,18 @@ ChatHandler.prototype.leaveRoom = function (msg, session, next) {
  *
  */
 ChatHandler.prototype.sendChatMsg = function(msg, session, next) {
+    if(!this.consts.ChatMsgType.isSupported(msg.msgType)){
+        next(null, new Answer.NoDataResponse(Code.CHAT.FA_UNSUPPORT_CHAT_MSGTYPE));
+        return;
+    }
+
+    if(!msg.from || !msg.target || !msg.content){
+        next(null, new Answer.NoDataResponse(Code.CHAT.FA_CHAT_DATA_ERROR));
+        return;
+    }
+
+    msg.time = Date.now();
+
     this.chatService.pushByRoomId(session.get('roomId'), msg, next);
 };
 

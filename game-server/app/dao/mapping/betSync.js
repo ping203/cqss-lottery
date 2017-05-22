@@ -1,24 +1,24 @@
 /**
  * Created by linyng on 2017/4/24.
  */
-//http://blog.csdn.net/wangqiuyun/article/details/10083127
-//https://github.com/youyudehexie/lordofpomelo/wiki
-module.exports =  {
-    updateBet:function(client, player, cb) {
-        var sql = 'update Bag set items = ? where id = ?';
-        var items = val.items;
-        if (typeof items !== 'string') {
-            items = JSON.stringify(items);
-        }
-        var args = [items, val.id];
 
-        dbclient.query(sql, args, function (err, res) {
-            if (err) {
-                console.error('write mysql failed!　' + sql + ' ' + JSON.stringify(val));
-            }
-            if(!!cb && typeof cb == 'function') {
-                cb(!!err);
-            }
-        });
+module.exports =  {
+    updateBet:function(client, bet, cb) {
+        var sql = 'update Bets set playerId = ? ,period = ? ,identify = ? ,betInfo = ?, state= ? ,investmentMoney = ? ,multiple = ?, harvestMoney = ?, betTime = ? where id = ?';
+        var items = bet.getSyncItems();
+
+        if(items.length > 0){
+            items.forEach(function (val) {
+                var args = [val.playerId, val.period, val.identify, val.betInfo, val.state, val.investmentMoney, val.multiple, val.harvestMoney, val.betTime, val.id];
+                client.query(sql, args, function(err, res) {
+                    if(err !== null) {
+                        console.error('write mysql Bets failed!　' + sql + ' ' + JSON.stringify(player) + ' stack:' + err.stack);
+                    }
+                    if(!!cb && typeof cb == 'function') {
+                        cb(!!err);
+                    }
+                });
+            })
+        }
     }
 };

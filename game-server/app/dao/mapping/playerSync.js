@@ -9,7 +9,7 @@ module.exports =  {
         var args = [player.roleName, player.rank, player.sex, player.pinCode, player.accountAmount, player.level, player.experience, player.loginCount, player.lastOnlineTime, player.areaId, player.id];
         client.query(sql, args, function(err, res) {
             if(err !== null) {
-                console.error('write mysql failed!　' + sql + ' ' + JSON.stringify(player) + ' stack:' + err.stack);
+                console.error('write mysql Player failed!　' + sql + ' ' + JSON.stringify(player) + ' stack:' + err.stack);
             }
             if(!!cb && typeof cb == 'function') {
                 cb(!!err);

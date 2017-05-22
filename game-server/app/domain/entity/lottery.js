@@ -11,7 +11,6 @@ var util = require('util');
 
 function Lottery(opts) {
     this.opts = opts;
-    this.type = null;
     this.imgId = opts.imgId;
     this.consts = null;
     this.tickCount = 0;
@@ -38,10 +37,11 @@ Lottery.prototype.publishNotice = function () {
     this.emit(this.consts.Event.area.notice, {lottery: this});
 };
 
-Lottery.prototype.publishLottery = function (result, uids) {
+Lottery.prototype.publishLottery = function (result) {
     this.lastLottery = result;
     this.lotteryHistory.set(result.period, result);
-    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:result, uids:uids});
+    this.daoLottery.recordLottery(this.lastLottery);
+    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:result, uids:null});
 };
 
 Lottery.prototype.publishCurLottery = function (uids) {
@@ -49,6 +49,11 @@ Lottery.prototype.publishCurLottery = function (uids) {
         this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:uids});
 	}
 };
+
+Lottery.prototype.getLotterys = function (skip, limit, cb
+) {
+
+}
 
 Lottery.prototype.countdown = function () {
 	var subTick = 0;
@@ -63,18 +68,23 @@ Lottery.prototype.countdown = function () {
     this.lastTickTime = Date.now();
 };
 
-Lottery.prototype.toJSON = function() {
-	var r = this._toJSON();
-	r['type'] = this.type;
-	r['imgId'] = this.imgId;
-	r['score'] = this.score;
-
-	return r;
-}
 
 Lottery.prototype.save = function() {
     this.emit('save');
 };
+
+Lottery.prototype.strip = function() {
+    var r= {
+        id: this.id,
+        entityId: this.entityId,
+        kindId: this.kindId,
+        kindName: this.kindName,
+        areaId: this.areaId,
+        type: this.type
+    };
+
+    return r;
+}
 
 module.exports = {
 	id: "lottery",
@@ -89,5 +99,8 @@ module.exports = {
 	props: [{
 		name: "consts",
 		ref: "consts"
-	}]
+	},{
+	    name:"daoLottery",
+        ref:"daoLottery"
+    }]
 };

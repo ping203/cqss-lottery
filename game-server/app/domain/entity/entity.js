@@ -35,39 +35,6 @@ Entity.prototype._toJSON = function() {
 	}
 }
 
-// random position
-Entity.prototype.randPos = function() {
-	var area = this.dataApiUtil.area().findById(this.areaId);
-	this.x = this.utils.rand(50, area.width - 50);
-	this.y = this.utils.rand(50, area.height - 50);
-	// this.dataApiUtil = null; // to be serialized
-};
-
-/**
- * Get state
- *
- * @return {Object}
- * @api public
- */
-Entity.prototype.getPos = function() {
-	return {
-		x: this.x,
-		y: this.y
-	};
-};
-
-/**
- * Set positon of this entityId
- *
- * @param {Number} x
- * @param {Number} y
- * @api public
- */
-Entity.prototype.setPos = function(x, y) {
-	this.x = x;
-	this.y = y;
-};
-
 module.exports = {
 	id: "entity",
 	func: Entity,

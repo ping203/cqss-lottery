@@ -19,7 +19,9 @@ module.exports = {
         FA_CHANNEL_CREATE:      {code:3001,desc:"通道创建"},
         FA_CHANNEL_NOT_EXIST: 	{code:3002,desc:"通道不存在"},
         FA_UNKNOWN_CONNECTOR: 	{code:3003,desc:"未知连接服务器"},
-        FA_USER_NOT_ONLINE: 	{code:3004,desc:"用户不在线"}
+        FA_USER_NOT_ONLINE: 	{code:3004,desc:"用户不在线"},
+        FA_UNSUPPORT_CHAT_MSGTYPE: {code:3005,desc:"不支持的消息类型"},
+        FA_CHAT_DATA_ERROR: {code:3005,desc:"聊天数据不完整"}
     },
     USER:{
         FA_USER_AREADY_EXIST:   {code:4001,desc:'用户名已经被使用'},
@@ -32,5 +34,6 @@ module.exports = {
         FA_ADD_ENTITY_ERROR: {code:5001, desc:"加入对象失败"},
         FA_PLAYER_NOT_FOUND: {code:5002, desc:"玩家不存在"},
         FA_QUERY_PLAYER_INFO_ERROR: {code:5003, desc:"查询玩家信息失败"},
+        FA_QUERY_LOTTERY_INFO_ERROR: {code:5004, desc:"查询开奖信息失败"},
     }
 };

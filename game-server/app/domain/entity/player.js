@@ -22,6 +22,7 @@ function Player(opts) {
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastOnlineTime = opts.lastOnlineTime;
+    this.bets = opts.bets;
 }
 
 Player.prototype.init = function () {
@@ -29,7 +30,7 @@ Player.prototype.init = function () {
     this.setRank();
     this.setNextLevelExp();
     this.type = this.consts.EntityType.PLAYER;
-    logger.error('*************Player.prototype.init player');
+
     var Entity = bearcat.getFunction('entity');
     Entity.call(this, this.opts);
     this._init();
@@ -88,7 +89,15 @@ Player.prototype.setRoleName = function (name) {
   this.roleName = name;
   this.save();
 };
+
+Player.prototype.setPinCode = function (pinCode) {
+  this.pinCode = pinCode;
+  this.save();
+};
+
 Player.prototype.bet = function (msg) {
+
+    this.daoBet.addBet()
     this.emit(this.consts.Event.area.playerBet);
 };
 
@@ -103,7 +112,7 @@ Player.prototype.save = function () {
 };
 
 Player.prototype.strip = function () {
-    return {
+    var r= {
         id: this.id,
         entityId: this.entityId,
         kindId: this.kindId,
@@ -116,10 +125,13 @@ Player.prototype.strip = function () {
         pinCode: this.pinCode,
         accountAmount: this.accountAmount,
         level: this.level,
+        experience:this.experience,
         rank:this.rank,
         loginCount: this.loginCount,
         lastOnlineTime: this.lastOnlineTime
     };
+
+    return r;
 }
 
 /**
@@ -154,6 +166,7 @@ module.exports = {
     }],
     props: [
         {name: "consts", ref: "consts"},
-        {name: "dataApiUtil", ref: "dataApiUtil"}
+        {name: "dataApiUtil", ref: "dataApiUtil"},
+        {name: "daoBets", ref: "daoBets"}
     ]
 }

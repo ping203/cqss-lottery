@@ -15,6 +15,7 @@ EventManager.prototype.addEvent = function(entity){
 			break;
 		case this.consts.EntityType.LOTTERY :
 			this.npcEvent.addEventForNPC(entity);
+            addLotterySaveEvent(entity);
 			break;
 	}
 };
@@ -29,9 +30,9 @@ function addPlayerSaveEvent(player) {
 		app.get('sync').exec('playerSync.updatePlayer', player.id, player.strip());
 	});
 
-    // player.bet.on('save', function () {
-    //     app.get('sync').exec('betSync.updateBet', player.bet.id, player.bet);
-    // });
+    player.bets.on('save', function () {
+        app.get('sync').exec('betSync.updateBet', player.bet.id, player.bet);
+    });
     //
     // player.task.on('save', function () {
     //     app.get('sync').exec('taskSync.updateTask', player.task.id, player.task);

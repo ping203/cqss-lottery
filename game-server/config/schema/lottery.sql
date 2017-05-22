@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `User` (
 
 CREATE TABLE IF NOT EXISTS `Task` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `playerId` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `playerId` bigint(20) unsigned NOT NULL,
   `kindId` bigint(20) unsigned NOT NULL DEFAULT '0',
   `taskState` smallint(6) unsigned DEFAULT '0',
   `startTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -81,28 +81,30 @@ CREATE TABLE IF NOT EXISTS `FriendRelation`(
 # Dump of table BettingInformation(用户投注信息)
 # ------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `BettingInformation`(
+CREATE TABLE IF NOT EXISTS `Bets`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `userId` bigint(20) unsigned NOT NULL COMMENT '用户id',
-  `period` bigint(20) unsigned NOT NULL COMMENT '期数',
-  `info` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '投注操作',
-  `operate` smallint(6) unsigned NOT NULL COMMENT '0 撤消，1 确认',
-  `investmentMoney` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '投注金额',
-  `harvestMoney` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '收益金额',
-  `time` bigint(20) unsigned DEFAULT '0' COMMENT '投注时间',
+  `playerId` bigint(20) unsigned NOT NULL COMMENT '玩家ID'
+  `period` varchar(20) COLLATE uft8_utf8_unicode_ci NOT NULL COMMENT '期数',
+  `identify` varchar(20) COLLATE uft8_utf8_unicode_ci NOT NULL COMMENT '标志',
+  `betInfo` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '投注信息{type:0,value:0}',
+  `state` smallint(6) unsigned NOT NULL COMMENT '0 确认，1 撤销，2 结算',
+  `investmentMoney` bigint(20) unsigned NOT NULL COMMENT '投注金额',
+  `multiple` smallint(6) unsigned NOT NULL COMMENT '倍数',
+  `harvestMoney` bigint(20) unsigned NOT NULL COMMENT '收益金额',
+  `betTime` bigint(20) unsigned NOT NULL COMMENT '投注时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `INDEX_PALYER_USER_ID` (`userId`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
 # Dump of table LotteryHistory(开奖历史)
 # ------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `LotteryHistory`(
+CREATE TABLE IF NOT EXISTS `Lottery`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `period` bigint(20) unsigned NOT NULL COMMENT '期数',
-  `result` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '开奖结果',
-  `time` bigint(20) unsigned DEFAULT '0' COMMENT '开奖时间',
+  `period` varchar(20) COLLATE uft8_utf8_unicode_ci NOT NULL COMMENT '期数',
+  `identify` varchar(20) COLLATE uft8_utf8_unicode_ci NOT NULL COMMENT '标志',
+  `numbers` varchar(10) COLLATE utf8_unicode_ci NOT NULL COMMENT '开奖结果',
+  `openTime` bigint(20) unsigned NOT NULL COMMENT '开奖时间',
    PRIMARY KEY (`id`),
    UNIQUE KEY `INDEX_PERIOD_IDENTIFY` (`period`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

@@ -3,51 +3,82 @@
  */
 
 var pomelo = window.pomelo;
+var players = {};
 
 function gameMsgInit() {
+
+    //wait message from the server.
+    pomelo.on('onChatMessage', function(data) {
+        console.log('onChatMessage', data);
+        addMessage(data.from, data.target, data.content);
+        $("#chatHistory").show();
+        if(data.from !== rolename)
+            tip('message', data.from);
+    });
+
+    //update user list
+    pomelo.on('onEnterRoom', function(data) {
+        console.log('onEnterRoom', data);
+        var user = data;
+        tip('online', user.roleName);
+        addUser(user);
+    });
+
+    //update user list
+    pomelo.on('onLeaveRoom', function(data) {
+        console.log('onLeaveRoom', data);
+        var user = data.uid;
+        tip('offline', user);
+        removeUser(user);
+    });
+
     // add entities
-    pomelo.on('addEntities', function(data) {
-
-    });
-
-    pomelo.on('onCountdown', function (data) {
-        console.log('onCountdown data:', data);
-        $('#countdown').html('period: ' +data.period +' countdown: ' + Math.floor(data.tickCount) + 's');
-
-       // document.getElementById('countdown').innerHTML='one'+ String(data.tickCount);
-    });
-
-    pomelo.on('onLottery', function (data) {
-        console.log('onLottery data:', data);
-        $('#lottery').html('period: '+ data.lotteryResult.period + '  lottery: '+ data.lotteryResult.numbers);
-    });
-
-    pomelo.on('onPlayerRename', function (data) {
-        console.log('onLottery data:', data);
-        $('#lottery').html('period: '+ data.lotteryResult.period + '  lottery: '+ data.lotteryResult.numbers);
+    pomelo.on('onAddEntities', function (data) {
+        for (var i = 0; i < data.length; ++i) {
+            console.log('addEntity data:', data[i]);
+            players[data[i].entityId] = data[i];
+        }
     });
 
     //Handle remove entities message
-    pomelo.on('removeEntities', function(data) {
+    pomelo.on('onRemoveEntities', function (data) {
+        for (var i = 0; i < data.length; ++i) {
+            console.log('removeEntity data:', data[i]);
+            players[data[i].entityId] = null;
+        }
+    });
+
+    pomelo.on('onCountdown', function (data) {
+        //  console.log('onCountdown data:', data);
+        $('#countdown').html('period: ' + data.period + ' countdown: ' + Math.floor(data.tickCount) + 's');
+    });
+
+    pomelo.on('onLottery', function (data) {
+        //  console.log('onLottery data:', data);
+        $('#lottery').html('period: ' + data.lotteryResult.period + '  lottery: ' + data.lotteryResult.numbers);
+    });
+
+    pomelo.on('onPlayerRename', function (data) {
+        players[data.entityId].roleName = data.roleName;
+        console.log('onPlayerRename data:', data);
+
+        var str = JSON.stringify(players[data.entityId]);
+        console.log(str);
+        $('#playerInfo').html(str);
+    });
+
+    pomelo.on('onPlayerBet', function (data) {
+        console.log('onPlayerBet data:', data);
 
     });
 
-    // Handle move  message
-    pomelo.on('onMove', function(data) {
+    pomelo.on('onPlayerUnBet', function (data) {
+        console.log('onPlayerUnBet data:', data);
 
     });
 
-    // Handle remove item message
-    pomelo.on('onRemoveItem', function(data) {
-
-    });
-
-    // Handle pick item message
-    pomelo.on('onPickItem', function(data) {
-
-    });
-
-    pomelo.on('rankUpdate', function(data) {
+    //投注数/胜率排行, 投注总资金排行
+    pomelo.on('rankUpdate', function (data) {
         console.log('rankUpdate data:', data);
         // var ul = document.querySelector('#rank ul');
         // var area = app.getCurArea();
@@ -61,25 +92,18 @@ function gameMsgInit() {
         // ul.innerHTML = li;
     });
 
-    // Handle kick out messge, occours when the current player is kicked out
-    pomelo.on('onKick', function() {
-        console.log('You have been kicked offline for the same account logined in other place.');
-    });
-
-    // Handle disconect message, occours when the client is disconnect with servers
+    //handle disconect message, occours when the client is disconnect with servers
     pomelo.on('disconnect', function(reason) {
-
+        showLogin();
     });
 
     // Handle user leave message, occours when players leave the area
-    pomelo.on('onPlayerLeave', function(data) {
+    pomelo.on('onPlayerLeave', function (data) {
         // var area = app.getCurArea();
         // var playerId = data.playerId;
         // console.log('onUserLeave invoke!');
         // area.removePlayer(playerId);
     });
 
-    pomelo.on('onPlayerBet', function (data) {
 
-    })
 };

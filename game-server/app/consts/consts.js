@@ -15,6 +15,18 @@ var Consts = function () {
         PUSH: 600
     };
 
+    this.ChatMsgType = {
+        CHARACTERS:0,
+        IMAGE:1,
+        AUDIO:2,
+        isSupported:function(type){
+            if(type >= 0 && type <= 2){
+                return true;
+            }
+            return false;
+        }
+    }
+
     this.EntityType = {
         PLAYER: 'player',
         LOTTERY: 'lottery',
@@ -22,9 +34,7 @@ var Consts = function () {
         EQUIPMENT: 'equipment',
         ITEM: 'item',
         BAG: 'bag',
-        COUNTDOWN:'countdown',
-        NOTICEBOARD:'noticeboard',
-        LOTTERY:'lottery'
+        BETS:'bets'
     };
 
     this.Event = {

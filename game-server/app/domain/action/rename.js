@@ -11,9 +11,11 @@ var util = require('util');
 var Rename = function(opts) {
     this.opts = opts;
     opts.type = 'rename';
+    this.entity = opts.entity;
     opts.id = opts.entity.entityId;
     opts.singleton = true;
     this.roleName = opts.roleName;
+
 };
 
 Rename.prototype.init = function() {

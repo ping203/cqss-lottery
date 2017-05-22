@@ -42,7 +42,7 @@ AreaService.prototype.run = function() {
 AreaService.prototype.tick = function() {
   //run all the action
   this.actionManagerService.update();
-  //this.entityUpdate();
+  this.entityUpdate();
   this.rankUpdate();
   this.countdown();
 }
@@ -70,10 +70,7 @@ AreaService.prototype.getChannel = function() {
 
 AreaService.prototype.entityUpdate = function() {
   if (this.reduced.length > 0) {
-    this.getChannel().pushMessage({
-      route: 'removeEntities',
-      entities: this.reduced
-    });
+    this.getChannel().pushMessage(this.consts.Event.area.removeEntities,{entities: this.reduced});
     this.reduced = [];
   }
 
@@ -81,13 +78,10 @@ AreaService.prototype.entityUpdate = function() {
     var added = this.added;
     var r = [];
     for (var i = 0; i < added.length; i++) {
-      r.push(added[i].toJSON());
+      r.push(added[i].strip());
     }
 
-    this.getChannel().pushMessage({
-      route: 'addEntities',
-      entities: r
-    });
+    this.getChannel().pushMessage(this.consts.Event.area.addEntities,{entities: r});
     this.added = [];
   }
 };
@@ -99,6 +93,11 @@ AreaService.prototype.addEntity = function(e) {
   if (!e || !e.entityId) {
     return false;
   }
+
+  //todo should add after filter
+  ++e.loginCount;
+  e.lastOnlineTime = Date.now();
+  e.save();
 
   this.entities[e.entityId] = e;
   this.eventManager.addEvent(e);

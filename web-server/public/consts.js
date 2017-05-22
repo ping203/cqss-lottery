@@ -20,11 +20,8 @@ var Consts = function () {
         LOTTERY: 'lottery',
         MOB: 'mob',
         EQUIPMENT: 'equipment',
-        ITEM: 'item',
-        BAG: 'bag',
-        COUNTDOWN:'countdown',
-        NOTICEBOARD:'noticeboard',
-        OPENLOTTERY:'openlottery'
+        BETITEM: 'betItem',
+        BAG: 'bag'
     };
 
     this.Event = {
