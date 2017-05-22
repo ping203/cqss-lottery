@@ -22,6 +22,11 @@ function gameMsgInit() {
         $('#lottery').html('period: '+ data.lotteryResult.period + '  lottery: '+ data.lotteryResult.numbers);
     });
 
+    pomelo.on('onPlayerRename', function (data) {
+        console.log('onLottery data:', data);
+        $('#lottery').html('period: '+ data.lotteryResult.period + '  lottery: '+ data.lotteryResult.numbers);
+    });
+
     //Handle remove entities message
     pomelo.on('removeEntities', function(data) {
 

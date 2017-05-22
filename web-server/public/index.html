@@ -16,19 +16,25 @@
         <script type="text/javascript">
          
          require('boot');
-        </script> 
-        <script src="js/client.js"></script>
+        </script>
+        <script src="js/entity.js" type="text/javascript"></script>
+        <script src="js/client.js" type="text/javascript"></script>
         <script src="js/pop.js" type="text/javascript"></script>
-        <script src="js/gameMsgHandler.js" type="text/javascript"></script>
+        <script src="js/msgHandler.js" type="text/javascript"></script>
     </head>
     
     <body>
         <div id="app">
-            <div id="countdown">countdown</div>
-            <div id="lottery">lottery</div>
+            <div id="countdown" class="player">countdown</div>
+            <div id="lottery" class="player">lottery</div>
+            <div id="playerAction" class="player">
+                <input id="roleName" type="text" placeholder="input new role name">
+                <input id="setRoleName" type="button" value="setRoleName">
+            </div>
             <div id="rank" class="hide">
                 <div class="header">High Scores</div>
-                <ul></ul>
+                <div id="playerInfo"></div>
+
             </div>
 
             <div id="registeView">

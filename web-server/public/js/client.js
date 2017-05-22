@@ -1,6 +1,7 @@
 var pomelo = window.pomelo;
 var username;
 var rolename;
+var playerInfo;
 var users;
 var rid;
 var base = 1500;
@@ -170,6 +171,7 @@ function showChat() {
 	$("#loginView").hide();
 	$("#loginError").hide();
 	$("#toolbar").show();
+	$("#registeView").hide();
 	$("entry").focus();
 	scrollDown(base);
 };
@@ -179,6 +181,7 @@ function showGame() {
     $("#loginView").hide();
     $("#loginError").hide();
     $("#toolbar").hide();
+    $("#registeView").hide();
     // $("entry").focus();
     scrollDown(base);
 };
@@ -212,6 +215,7 @@ $(document).ready(function() {
 	$('#joinRoom').on('click', joinRoom);
 	$('#joinGame').on('click', joinGame);
 	$('#registe').on('click', register);
+	$('#setRoleName').on('click', setRoleName);
 
 	//wait message from the server.
 	pomelo.on('onChatMessage', function(data) {
@@ -299,12 +303,29 @@ $(document).ready(function() {
                 }
 
                 console.log(res.data.player);
+                playerInfo = res.data.player;
+                players.entityId = res.data.player;
+
+                var str = JSON.stringify(playerInfo);
+                console.log(str);
+                $('#playerInfo').html(str);
 
                 setName();
                 setRoom();
                 showChat();
             });
 
+        });
+    }
+
+    function setRoleName() {
+        var newRoleName = $('#roleName').val();
+        pomelo.request("area.playerHandler.setRoleName", {roleName:newRoleName}, function (res) {
+            if(res.result.code != 200){
+                alert('修改名称失败');
+                return;
+            }
+            alert('修改名称成功');
         });
     }
 

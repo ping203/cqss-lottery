@@ -221,9 +221,10 @@ body, table {
 .panel.current {
     display: block;
 }
+
 #rank{
     position: absolute;
-    width: 190px;
+    width: 600px;
     /*opacity: 0.75;*/
     /*background-color: #333;*/
     color: #fff;
@@ -252,4 +253,31 @@ body, table {
 }
 #rank li span:last-child{
     text-align: right;
+}
+
+
+
+.player{
+    position: absolute;
+    width: 40%;
+    /*opacity: 0.75;*/
+    /*background-color: #333;*/
+    color: #fff;
+    padding:12px;
+    border: 1px solid green;
+    top: 35px;
+    left: 32px;
+    position: relative;
+    border-radius: 8px;
+    -webkit-box-shadow: 0 0 6px #000;
+    overflow: hidden;
+}
+
+.player .header{
+    text-align: center;
+    border-bottom: solid 1px white;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    font-weight: bold;
+    position: relative;
 }

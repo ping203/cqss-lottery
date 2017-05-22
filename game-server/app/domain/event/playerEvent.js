@@ -33,7 +33,7 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
     player.on(this.consts.Event.area.playerRename, function(args) {
         var player = self.getEntity(args.entityId);
         if (player) {
-            player.areaService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
+            player.areaService.getChannel().pushMessage(self.consts.Event.area.playerRename,{
                 entityId: args.entityId,
                 roleName: args.roleName
             });

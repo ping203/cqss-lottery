@@ -22,7 +22,7 @@ Rename.prototype.init = function() {
 }
 
 Rename.prototype.update = function() {
-    this.entity.emit(this.consts.Event.area.playerBet, {
+    this.entity.emit(this.consts.Event.area.playerRename, {
         entityId: this.entity.entityId,
         roleName: this.roleName
     });
