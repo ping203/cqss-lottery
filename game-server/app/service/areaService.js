@@ -32,7 +32,6 @@ var AreaService = function () {
  * @api public
  */
 AreaService.prototype.init = function () {
-    return;
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
     this.generateGlobalLottery();
