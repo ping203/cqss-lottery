@@ -59,6 +59,12 @@ var Configure = function () {
         app.chatService = bearcat.getBean('chatService');
         app.chatService.init();
     });
+
+    // Configure for rank server
+    app.configure('production|development', 'rank', function() {
+        app.rankService = bearcat.getBean('rankService');
+        app.rankService.init();
+    });
 }
 
 var contextPath = require.resolve('./context.json');

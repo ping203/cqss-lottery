@@ -16,7 +16,7 @@ var RankService = function () {
 };
 
 RankService.prototype.init = function () {
-    setInterval(this.tick.bind(this), 1000);
+    setInterval(this.tick.bind(this), 2000);
 };
 
 RankService.prototype.getWinRankList = function () {
@@ -53,7 +53,6 @@ RankService.prototype.todayRichCalc = function (rankId, callback) {
 
 RankService.prototype.tick = function() {
     //run all the action
-    //console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
     var self = this;
     async.waterfall([
         function (cb) {
@@ -71,6 +70,8 @@ RankService.prototype.tick = function() {
                 self.winRankPlayers = rankPlayers.slice(0,100).map(function (rankPlayer) {
                     return rankPlayer;
                 });
+
+           //     console.log('***',self.winRankPlayers);
             });
 
             async.map(rankIds, self.todayRichCalc.bind(self), function (err, rankPlayers) {
@@ -84,6 +85,7 @@ RankService.prototype.tick = function() {
                 self.richRankPlayers = rankPlayers.slice(0,200).map(function (rankPlayer) {
                     return rankPlayer;
                 });
+            //    console.log('***',self.richRankPlayers);
             });
             cb(null);
         }
@@ -94,7 +96,6 @@ RankService.prototype.tick = function() {
 module.exports = {
     id:"rankService",
     func:RankService,
-    init:"init",
     props:[
         {
             name: "utils",
