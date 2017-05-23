@@ -106,6 +106,11 @@ Player.prototype.unBet = function (msg) {
     this.emit(this.consts.Event.area.playerUnBet);
 };
 
+
+Player.prototype.openTheLottery = function (openInfo) {
+
+};
+
 // Emit the event 'save'.
 Player.prototype.save = function () {
     this.emit('save');
