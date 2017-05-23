@@ -62,10 +62,10 @@ LotteryManagerService.prototype.tick = function () {
         }
 
         if(!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period === result.last.period)){
-            lottery.publishLottery(result.last);
+            lottery.publishLottery(result);
+            self.areaService.openLottery(result.last);
         }
-      //  lottery.publishCurLottery(result.last,[{uid:4,sid:'connector-server-1'}]);
-        
+
         var sysTickTime = new Date(result.tickTime);
         var nextOpenTime = new Date(result.next.opentime);
 

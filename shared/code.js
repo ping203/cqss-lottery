@@ -35,5 +35,10 @@ module.exports = {
         FA_PLAYER_NOT_FOUND: {code:5002, desc:"玩家不存在"},
         FA_QUERY_PLAYER_INFO_ERROR: {code:5003, desc:"查询玩家信息失败"},
         FA_QUERY_LOTTERY_INFO_ERROR: {code:5004, desc:"查询开奖信息失败"},
+        FA_BET_TYPE_NOT_EXIST: {code:5005, desc:"投注类型不存在"},
+        FA_BET_SINGLE_LIMIT: {code:5006, desc:"单注投注金额超限"},
+        FA_BET_PLAYER_LIMIT: {code:5007, desc:"该类型玩家投注金额超限"},
+        FA_BET_PLATFORM_LIMIT: {code:5008, desc:"该类型平台投注金额超限"},
+
     }
 };

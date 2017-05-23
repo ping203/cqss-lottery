@@ -12,6 +12,7 @@ var AreaService = function() {
   this.added = []; // the added entities in one tick
   this.reduced = []; // the reduced entities in one tick
   this.players = {};
+  this.trusteePlayers = {};
   this.entities = {};
   this.channel = null;
   this.actionManagerService = null;
@@ -46,6 +47,10 @@ AreaService.prototype.tick = function() {
   this.rankUpdate();
   this.countdown();
 }
+
+AreaService.prototype.openLottery = function (lotterInfo) {
+    
+};
 
 AreaService.prototype.addAction = function(action) {
   return this.actionManager().addAction(action);

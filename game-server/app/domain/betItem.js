@@ -13,7 +13,7 @@ var BetItem = function(opts) {
     this.betInfo = opts.betInfo;
     this.state = opts.state;
     this.investmentMoney = opts.investmentMoney;
-    this.multiple = -1;
+    this.multiple = opts.multiple;
     this.harvestMoney = 0;
     this.betTime = Date.now();
 };

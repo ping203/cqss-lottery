@@ -26,7 +26,6 @@ function Player(opts) {
 }
 
 Player.prototype.init = function () {
-
     this.setRank();
     this.setNextLevelExp();
     this.type = this.consts.EntityType.PLAYER;
@@ -95,8 +94,9 @@ Player.prototype.setPinCode = function (pinCode) {
   this.save();
 };
 
-Player.prototype.bet = function (msg) {
+Player.prototype.bet = function (betBaseInfo, betParseInfo) {
 
+    //todo:检查用户投注类型总额是否超限
     this.daoBet.addBet()
     this.emit(this.consts.Event.area.playerBet);
 };
@@ -167,6 +167,7 @@ module.exports = {
     props: [
         {name: "consts", ref: "consts"},
         {name: "dataApiUtil", ref: "dataApiUtil"},
-        {name: "daoBets", ref: "daoBets"}
+        {name: "daoBets", ref: "daoBets"},
+        {name: "betLimit", ref: "betLimit"}
     ]
 }

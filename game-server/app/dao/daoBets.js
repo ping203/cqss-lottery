@@ -21,9 +21,7 @@ DaoBets.prototype.addBet = function (bet, cb) {
             var betItem = bearcat.getBean("betItem", {
                 id: res.insertId,
                 period:bet.period,
-                identify:bet.identify,
-                numbers:bet.numbers,
-                openTime:bet.openTime
+                identify:bet.identify
             });
 
             this.utils.invokeCallback(cb, null, betItem);

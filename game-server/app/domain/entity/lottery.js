@@ -16,7 +16,9 @@ function Lottery(opts) {
     this.tickCount = 0;
     this.tickPeriod = 0;
     this.lastTickTime = 0;
-    this.lastLottery = null;
+    this.lastLottery = null; //最近开奖
+    this.nextLottery = null; //下期彩票
+    this.identify = null; //彩票标志
     this.lotteryHistory = new Map();
 }
 
@@ -38,10 +40,12 @@ Lottery.prototype.publishNotice = function () {
 };
 
 Lottery.prototype.publishLottery = function (result) {
-    this.lastLottery = result;
-    this.lotteryHistory.set(result.period, result);
+    this.lastLottery = result.last;
+    this.nextLottery = result.next;
+    this.identify = result.identify;
+    this.lotteryHistory.set(result.last.period, result.last);
     this.daoLottery.recordLottery(this.lastLottery);
-    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:result, uids:null});
+    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:null});
 };
 
 Lottery.prototype.publishCurLottery = function (uids) {
@@ -50,8 +54,15 @@ Lottery.prototype.publishCurLottery = function (uids) {
 	}
 };
 
-Lottery.prototype.getLotterys = function (skip, limit, cb
-) {
+Lottery.prototype.getNextPeriod = function () {
+    return this.nextLottery.period;
+}
+
+Lottery.prototype.getIdentify = function () {
+    return this.identify;
+}
+
+Lottery.prototype.getLotterys = function (skip, limit, cb) {
 
 }
 
