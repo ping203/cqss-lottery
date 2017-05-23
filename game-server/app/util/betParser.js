@@ -2,19 +2,312 @@
  * Created by linyng on 17-5-22.
  */
 
+var Code = require('../../../shared/code');
+
 var BetParser = function () {
-    this.features = ['^大\d+小\d+'];
+    this.splitReg=/.{1}/g;
+    this.reg1 = /([大小单双龙虎和合]+)(\d+)/i;
+    this.reg2 = /(\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
+    this.reg3 = /(\d+)\/(\d+)/i; //包数字玩法
+    this.reg4 = /([豹顺]+)(\d+)/i;
+    this.reg5= /([豹顺]+)\/(\d+)\/(\d+)\/(\d+)/i;
+    this.keyValue =['前','中','后'];
 };
 
+BetParser.prototype.handleReg1 = function (val,type) {
+    switch (val){
+        case '大':
+        case '小':
+            type = this.consts.BetType.TotalSize;
+            break;
+        case '单':
+        case '双':
+            type = this.consts.BetType.TotalSingleDouble;
+            break;
+        case '龙':
+        case '虎':
+            type = this.consts.BetType.DragonAndTiger;
+            break;
+        case '和':
+        case '合':
+            type = this.consts.BetType.Equal15;
+            break;
+        default:
+            break;
+    }
+
+    return type === undefined ? false:true;
+}
 
 
-BetParser.prototype.parse = function(data){
+BetParser.prototype.handleReg2 = function (val,type) {
+    switch (val){
+        case '大':
+        case '小':
+        case '单':
+        case '双':
+            type = this.consts.BetType.PerPosSizeSingleDouble;
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            type = this.consts.BetType.PerPosValue;
+            break;
+        default:
+            break;
+    }
 
+    return type === undefined ? false:true;
+}
+
+BetParser.prototype.handleReg3 = function (val,type) {
+    switch (val){
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            type = this.consts.BetType.ContainValue;
+            break;
+        default:
+            break;
+    }
+
+    return type === undefined ? false:true;
+}
+
+BetParser.prototype.handleReg4 = function (val,type) {
+    switch (val){
+        case '豹':
+        case '顺':
+            type = this.consts.BetType.ShunZiPanther;
+            break;
+        default:
+            break;
+    }
+
+    return type === undefined ? false:true;
+}
+
+BetParser.prototype.checksingleMaxLimit = function(type, money){
+
+};
+
+BetParser.prototype.parse = function(data, cb){
+    var betResult = {};
+    var total = 0;
+    var typeTotal ={};
+    var betItems =[];
+    var isValid = false;
+    var err = null;
+    if(data.match(this.reg1)){
+        isValid = true;
+        var result = data.match(this.reg1);
+        var perMoney = result[2];
+        var types = result[1].match(this.splitReg);
+        for (var i = 0; i< types.length;++i){
+            var type,item;
+            if(this.handleReg1(types[i],type)){
+
+                if(this.betLimit.singleLimit(type, perMoney)){
+                    err = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    isValid = false;
+                }
+                item.result = types[i];
+                item.money = perMoney;
+                item.type= type;
+                betItems.push(item);
+
+                total+= perMoney;
+                if(undefined === typeTotal[type]){
+                    typeTotal[type]=0;
+                }
+                typeTotal[type] += perMoney;
+
+            }
+            else {
+                isValid = false;
+                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+                break;
+            }
+        }
+    }else if(data.match(this.reg2)){
+        isValid = true;
+        var result = data.match(this.reg2);
+        var ballPos = result[1];
+        var types = result[2];
+        var perMoney = result[3];
+        var err;
+
+        for (var j=0;j< ballPos.length;++j){
+            for (var i = 0; i< types.size();i++){
+                var item, type;
+                if(this.handleReg2(types[i],type)){
+
+                    if(this.betLimit.singleLimit(type, perMoney)){
+                        cb(Code.GAME.FA_BET_SINGLE_LIMIT, null);
+                        return;
+                    }
+
+                    item.result = types[i];
+                    item.money = perMoney;
+                    item.ballPos = ballPos[j];
+                    item.type = type;
+                    betResult.push(item);
+
+                    total+= perMoney;
+                    if(undefined === typeTotal[type]){
+                        typeTotal[type]=0;
+                    }
+                    typeTotal[type] += perMoney;
+
+                }else {
+                    cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
+                    return;
+                }
+            }
+        }
+    }else if(data.match(this.reg3)){
+        isValid = true;
+        var result = data.match(this.reg3);
+        var types = result[1];
+        var perMoney = result[2];
+
+        for (var i = 0; i< types.length;++i){
+            var type;
+            if(this.handleReg3(types[i],type)){
+
+                if(this.betLimit.singleLimit(type, perMoney)){
+                    isValid = false;
+                    err = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    break;
+                }
+
+                for (var j=1;j<=5;j++){
+                    var tempItem;
+                    tempItem.type = type;
+                    tempItem.result = j + '球:'+ types[i];
+                    tempItem.money = perMoney;
+                    betResult.push(tempItem);
+
+                    total+= perMoney;
+                    if(undefined === typeTotal[type]){
+                        typeTotal[type]=0;
+                    }
+                    typeTotal[type] += perMoney;
+                }
+            }
+            else {
+                isValid = false;
+                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+                break;
+            }
+        }
+    }else if(data.match(this.reg4)){
+        isValid = true;
+        var result = data.match(this.reg4);
+        var types = result[1];
+        var perMoney = result[2];
+
+        for (var i = 0; i< types.length;++i){
+            var type;
+            if(this.handleReg4(types[i],type)){
+
+                if(this.betLimit.singleLimit(type, perMoney)){
+                    isValid = false;
+                    err = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    break;
+                }
+
+                for (var j=0;j<this.keyValue.length;j++){
+                    var tempItem;
+                    tempItem.type = type;
+                    tempItem.result = this.keyValue[j]+types[i];
+                    tempItem.money = perMoney;
+                    betResult.push(tempItem);
+
+                    total+= perMoney;
+                    if(undefined === typeTotal[type]){
+                        typeTotal[type]=0;
+                    }
+                    typeTotal[type] += perMoney;
+                }
+            }
+            else {
+                isValid = false;
+                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+                break;
+            }
+        }
+
+    }else if(data.match(this.reg5)){
+        isValid = true;
+        var result = data.match(this.reg5);
+        var types = result[1];
+        var perMoneys = result[2];
+
+        for (var i = 0; i< types.length;++i){
+            var type;
+            var moneyIndex = 0;
+            if(this.handleReg4(types[i],type)){
+                if(this.betLimit.singleLimit(type, perMoney)){
+                    isValid = false;
+                    err = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    break;
+                }
+                for (var j=0;j<this.keyValue.length;j++){
+                    var tempItem;
+                    tempItem.type = type;
+                    tempItem.result = this.keyValue[j]+types[i];
+                    tempItem.money = perMoneys[moneyIndex++];
+                    betResult.push(tempItem);
+
+                    total+= tempItem.money;
+                    if(undefined === typeTotal[type]){
+                        typeTotal[type]=0;
+                    }
+                    typeTotal[type] += tempItem.money;
+                }
+            }
+            else {
+                isValid = false;
+                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+                break;
+            }
+        }
+    }
+
+    if(isValid){
+        betResult.totalMoney = total;
+        betResult.typeMoney = typeTotal;
+        betResult.betItems = betItems;
+
+        cb(null, betResult);
+        return;
+    }
+
+    cb(err, null);
 };
 
 module.exports = {
     id:"betParser",
-    func:BetParser
+    func:BetParser,
+    props:[
+        {name:'consts',ref:'consts'},
+        {name: "betLimit", ref: "betLimit"}
+    ]
 };
 
 // 1. 投注总数大于50注，开始计入排行（这个是投注数量，不是金额）。
@@ -37,6 +330,7 @@ module.exports = {
 // 为前顺子，以此类推 20915 为中顺子  12890为后顺子  21354 为前顺子和后顺子  10219 为前顺子 中顺子  01234为前顺子 中顺子 后顺子，豹子例如88809 为前豹子   90111为前顺子
 // 后豹子 17770为中豹子  88880为前豹子和中豹子 77777为前豹子中豹子后豹子 识别方式（豹100 代表前中后豹子各买100  豹／100/50/80 代表前豹子 100元 中豹子50 元 后豹子 80元
 // 顺100 代表前中后顺子各100元  顺／100/0/70 代表前顺子100元 中顺子0 元 后顺子 70元  豹顺100  代表前中后顺子和豹子各买100元 一共下注6注 投注金600元）
+
 // 9） 所有的投注方式赔率可以后台设置和修改，每种下注玩家单注限额可以设置，总下注金额限制可设置。例如 总和大小单双  每个玩家下注金额限制8k元  整个平台下注金额限制2w 即 张三下注
 // 总和大不能超过8k  张三下注大8000 李四下注 大8000  王五只能下注 大4000.这样限制方式是分别针对每一个单项下注方式来设定。例如 龙虎玩法 玩家限额5k 平台总限制2w  豹子玩法 玩家
 // 单注限额300 总平台限额1200

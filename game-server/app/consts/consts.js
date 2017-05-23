@@ -64,10 +64,15 @@ var Consts = function () {
         NOT_START:-1
     };
 
-    this.LotteryType = {
-        A:"A",
-        B:"B",
-        C:"C"
+    this.BetType = {
+        TotalSize:1, //和大小 (大100)  (小100)
+        TotalSingleDouble:2, //和单双 (单100  双100)
+        DragonAndTiger:3, //龙虎 (龙100 虎100)
+        Equal15:4, //合/和玩法 (和100 合100)  （大单龙和60）
+        PerPosSizeSingleDouble:5, //每个位置大小单双 (1／大双／100)
+        PerPosValue:6, //每个位置值 (124/579/90)  组合(124/大单579/90)
+        ContainValue:7, //包数字 （75/100） （8/100）
+        ShunZiPanther:8 //豹子、数字玩法 （豹100）代表前中后豹子各买100 （豹/100/50/80） 代表前豹子 100元 中豹子50 元 后豹子 80元 （豹顺100） 代表前中后顺子和豹子各买100元 一共下注6注 投注金600元
     }
 }
 

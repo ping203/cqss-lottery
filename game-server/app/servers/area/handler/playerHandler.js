@@ -56,10 +56,6 @@ PlayerHandler.prototype.enterGame = function (msg, session, next) {
 PlayerHandler.prototype.setRoleName = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
-    if (!player) {
-        next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
-        return;
-    }
     player.setRoleName(msg.roleName);
 
     var action = bearcat.getBean('rename', {
@@ -74,10 +70,6 @@ PlayerHandler.prototype.setRoleName = function (msg, session, next) {
 PlayerHandler.prototype.setPinCode = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
-    if (!player) {
-        next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
-        return;
-    }
     player.setPinCode(msg.roleName);
     next(null, new Answer.NoDataResponse(Code.OK));
 };
@@ -101,30 +93,24 @@ PlayerHandler.prototype.getLotterys = function (msg, session, next) {
 PlayerHandler.prototype.bet = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
-    if (!player) {
-        next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
-        return;
-    }
 
-    player.bet();
+    var betBaseInfo ={
+        period:this.areaService.getLottery().getNextPeriod(),
+        identify:msg.identify,
+        betData:msg.betData,
+    };
+
+    //todo:检查平台类型投注总额是否超限
+
+    player.bet(betBaseInfo, msg.betParseInfo);
 
     var action = bearcat.getBean('bet', {
         entity: player,
-        betInfo: msg.betInfo,
+        betInfo: betBaseInfo
     });
 
-    if (this.areaService.addAction(action)) {
-        next(null, {
-            code: this.consts.MESSAGE.RES,
-            sPos: player.getPos()
-        });
-
-        this.areaService.getChannel().pushMessage({
-            route: 'onMove',
-            entityId: player.entityId,
-            endPos: endPos
-        });
-    }
+    this.areaService.addAction(action)
+    next(null, new Answer.NoDataResponse(Code.OK));
 };
 
 /**

@@ -17,19 +17,31 @@ PlayerFilter.prototype.before = function(msg, session, next){
 			next();
 			return;
 		}else{
-            next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
+            next(new Error(Code.GAME.FA_PLAYER_NOT_FOUND.desc, Code.GAME.FA_PLAYER_NOT_FOUND.code));
 			return;
 		}
 	}
 
 	if(route.search(/bet$/i)){
 		//parse bet info, check bet info is valid.
+		this.betParser.parse(msg.betData, function (err, result) {
+			if(err){
+                next(new Error(Code.GAME.FA_BETINFO_INVALID.desc, Code.GAME.FA_BETINFO_INVALID.code));
+                return;
+			}
+            msg.betParseInfo = result;
+			next();
+        });
 	}
-
-	next();
+	else {
+		next();
+	}
 };
 
 module.exports = {
     id:"playerFilter",
-	func:PlayerFilter
+	func:PlayerFilter,
+	props:[
+		{name:'betParser', ref:'betParser'}
+	]
 };

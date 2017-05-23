@@ -12,6 +12,7 @@ var AreaService = function() {
   this.added = []; // the added entities in one tick
   this.reduced = []; // the reduced entities in one tick
   this.players = {};
+  this.trusteePlayers = {};
   this.entities = {};
   this.channel = null;
   this.actionManagerService = null;
@@ -45,19 +46,34 @@ AreaService.prototype.tick = function() {
   this.entityUpdate();
   this.rankUpdate();
   this.countdown();
-}
+};
+
+AreaService.prototype.openLottery = function (numbers) {
+
+  var openInfo = this.calcOpenInfo(numbers);
+
+  for(var id in this.players){
+      this.players[id].openTheLottery(openInfo);
+  }
+
+  for (var id in this.trusteePlayers){
+      this.trusteePlayers[id].openTheLottery(openInfo);
+  }
+
+  this.trusteePlayers = null;
+};
 
 AreaService.prototype.addAction = function(action) {
   return this.actionManager().addAction(action);
-}
+};
 
 AreaService.prototype.abortAction = function(type, id) {
   return this.actionManager().abortAction(type, id);
-}
+};
 
 AreaService.prototype.abortAllAction = function(id) {
   return this.actionManager().abortAllAction(id);
-}
+};
 
 AreaService.prototype.getChannel = function() {
   if (this.channel) {

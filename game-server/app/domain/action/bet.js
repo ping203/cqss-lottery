@@ -13,7 +13,7 @@ var Bet = function(opts) {
     this.entity = opts.entity;
     opts.id = opts.entity.entityId;
     opts.singleton = false;
-    this.betRecord = opts.betRecord;//{period:'20170519054',time:143432432423423,info:'5/2/100'}
+    this.betInfo = opts.betInfo;//{period:'20170519054',time:143432432423423,info:'5/2/100'}
 
 };
 
