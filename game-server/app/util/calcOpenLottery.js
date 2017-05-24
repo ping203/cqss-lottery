@@ -5,31 +5,17 @@
 function CalcOpenLottery() {
 }
 
-// TotalSize:1, //和大小 (大100)  (小100)
-//     TotalSingleDouble:2, //和单双 (单100  双100)
-//     DragonAndTiger:3, //龙虎 (龙100 虎100)
-//     Equal15:4, //合/和玩法 (和100 合100)  （大单龙和60）
-//     PerPosSizeSingleDouble:5, //每个位置大小单双 (1／大双／100)
-//     PerPosValue:6, //每个位置值 (124/579/90)  组合(124/大单579/90)
-//     ContainValue:7, //包数字 （75/100） （8/100）
-//     ShunZiPanther:8 //豹子、数字玩法 （豹100）代表前中后豹子各买100 （豹/100/50/80） 代表前豹子 100元 中豹子50 元 后豹子 80元 （豹顺100） 代表前中后顺子和豹子各买100元 一共下注6注 投注金600元
-// this.splitReg=/.{1}/g;
-// this.reg1 = /([大小单双龙虎和合]+)(\d+)/i;
-// this.reg2 = /(\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
-// this.reg3 = /(\d+)\/(\d+)/i; //包数字玩法
-// this.reg4 = /([豹顺]+)(\d+)/i;
-// this.reg5= /([豹顺]+)\/(\d+)\/(\d+)\/(\d+)/i;
-// this.keyValue =['前','中','后'];
-
 CalcOpenLottery.prototype.init = function () {
     this.totalSizeResult = null;
     this.totalSingleDoubleResult = null;
     this.dragonAndTigerResult = null;
     this.equal15Result = null;
-    this.perPosSizeSingleDoubleResult = [];
-    this.perPosValueResult = [];
-    this.containValueResult = [];
-    this.shunZiPantherResult = [];
+    this.perPosSizeSingleDoubleResult = new Set();
+    this.perPosValueResult = new Set();
+    this.containValueResult = new Set();
+    this.pantherResult = new Set();
+    this.shunZiResult = new Set();
+    this.openCodeResult = new Set();
 }
 
 // 和大小计算 大>=23  小<23
@@ -41,6 +27,7 @@ CalcOpenLottery.prototype.totalSizeCalc = function (numbers) {
     }
 
     this.totalSizeResult = total >= 23 ? '大':'小';
+    this.openCodeResult.add(total >= 23 ? '大':'小');
 
 };
 
@@ -52,6 +39,7 @@ CalcOpenLottery.prototype.totalSingleDoubleCalc = function (numbers) {
     }
 
     this.totalSingleDoubleResult = total%2 === 0 ? '双':'单';
+    this.openCodeResult.add(total%2 === 0 ? '双':'单');
 };
 
 // 龙虎计算 龙 1>5 虎 1<5
@@ -64,6 +52,7 @@ CalcOpenLottery.prototype.dragonAndTigerCalc = function (numbers) {
     }
 
     this.dragonAndTigerResult = number1 > number5 ? '龙':'虎';
+    this.openCodeResult.add(number1 > number5 ? '龙':'虎');
 };
 
 // 合玩法 1=5
@@ -72,6 +61,7 @@ CalcOpenLottery.prototype.equal15Calc = function (numbers) {
     var number5 = numbers[4];
     if(number1 === number5){
         this.equal15Result = '合';
+        this.openCodeResult.add('合');
     }
 };
 
@@ -80,9 +70,13 @@ CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         var num = parseInt(numbers[i],10);
         var size = num <=4 ? ((i+1)+'小'):((i+1)+'大');
-        this.perPosSizeSingleDoubleResult.push(size);
+        this.perPosSizeSingleDoubleResult.add(size);
+
         var sd = num%2 === 0?((i+1)+'双'):((i+1)+'单');
-        this.perPosSizeSingleDoubleResult.push(sd);
+        this.perPosSizeSingleDoubleResult.add(sd);
+
+        this.openCodeResult.add(size);
+        this.openCodeResult.add(sd);
     }
 };
 
@@ -90,7 +84,8 @@ CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
 CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         var vals = (i+1)+numbers[i];
-        this.perPosValueResult.push(vals);
+        this.perPosValueResult.add(vals);
+        this.openCodeResult.add(vals);
     }
 };
 
@@ -98,25 +93,81 @@ CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
 CalcOpenLottery.prototype.containValueCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         var vals = (i+1)+numbers[i];
-        this.containValueResult.push(vals);
+        this.containValueResult.add(vals);
+        this.openCodeResult.add(vals);
     }
 };
 
 //豹子、顺子 豹子：连续3球相同 顺子：连子
-CalcOpenLottery.prototype.shunZiPantherCalc = function (numbers) {
+CalcOpenLottery.prototype.pantherCalc = function (numbers) {
     if(numbers[0] === numbers[1] === numbers[2]){
-        this.shunZiPantherResult.push('前豹');
+        this.pantherResult.add('前豹');
+        this.openCodeResult.add('前豹');
     }else if(numbers[1] === numbers[2] === numbers[3]){
-        this.shunZiPantherResult.push('中豹');
+        this.pantherResult.add('中豹');
+        this.openCodeResult.add('中豹');
     }else if(numbers[2] === numbers[3] === numbers[4]){
-        this.shunZiPantherResult.push('后豹');
+        this.pantherResult.add('后豹');
+        this.openCodeResult.add('后豹');
     }
+};
 
-    
+CalcOpenLottery.prototype.checkShunZi = function (numbers) {
+   var sortNumbers =  numbers.sort(function (a, b) {
+        return a-b;
+    });
+
+   var index = 0;
+   var isShunZi = true;
+    do {
+        if(sortNumbers[index]+ 1 != sortNumbers[index+1]){
+            isShunZi =false;
+            break;
+        }
+        index++;
+    }while (index < 3);
+
+    return isShunZi;
+}
+
+CalcOpenLottery.prototype.shunZiCalc = function (numbers) {
+    if(this.checkShunZi([numbers[0],numbers[1],numbers[2]])){
+        this.shunZiResult.add('前顺');
+        this.openCodeResult.add('前顺');
+    }else if(this.checkShunZi([numbers[1],numbers[2],numbers[3]])){
+        this.shunZiResult.add('中顺');
+        this.openCodeResult.add('中顺');
+    }else if(this.checkShunZi([numbers[2],numbers[3],numbers[4]])){
+        this.shunZiResult.add('后顺');
+        this.openCodeResult.add('后顺');
+    }
 };
 
 CalcOpenLottery.prototype.calc = function (numbers) {
     this.init();
+    this.totalSizeCalc(numbers);
+    this.totalSingleDoubleCalc(numbers);
+    this.dragonAndTigerCalc(numbers);
+    this.equal15Calc(numbers);
+    this.perPosSizeSingleDoubleCalc(numbers);
+    this.perPosValueCalc(numbers);
+    this.containValueCalc(numbers);
+    this.pantherCalc(numbers);
+    this.shunZiCalc(numbers);
+
+    var r =  {
+        totalSizeResult:this.totalSizeResult,
+        totalSingleDoubleResult:this.totalSingleDoubleResult,
+        dragonAndTigerResult:this.dragonAndTigerResult,
+        equal15Result:this.equal15Result,
+        perPosSizeSingleDoubleResult:this.perPosSizeSingleDoubleResult,
+        perPosValueResult:this.perPosValueResult,
+        containValueResult:this.containValueResult,
+        pantherResult:this.pantherResult,
+        shunZiResult:this.shunZiResult
+    };
+
+    return r;
 }
 
 module.exports ={

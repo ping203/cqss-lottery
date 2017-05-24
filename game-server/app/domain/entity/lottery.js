@@ -44,7 +44,7 @@ Lottery.prototype.publishLottery = function (result) {
     this.nextLottery = result.next;
     this.identify = result.identify;
     this.lotteryHistory.set(result.last.period, result.last);
-    this.daoLottery.recordLottery(this.lastLottery);
+    this.daoLottery.addLottery(this.identify, this.lastLottery.period, this.lastLottery.numbers, Date.parse(this.lastLottery.opentime));
     this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:null});
 };
 
@@ -96,6 +96,15 @@ Lottery.prototype.strip = function() {
 
     return r;
 }
+
+Lottery.prototype.toJSON = function () {
+    var r = this._toJSON();
+
+    //  r['id'] = this.id;
+    r['type'] = this.type;
+
+    return r;
+};
 
 module.exports = {
 	id: "lottery",

@@ -9,9 +9,10 @@ var util = require('util');
 
 function Bets(opts) {
     this.opts = opts;
-    this.id = opts.id;
+//    this.id = opts.id;
     this.betMap = new Map();
     this.syncItems = [];
+    this.typeTotal = new Map();
 };
 
 Bets.prototype.init = function() {
@@ -19,10 +20,6 @@ Bets.prototype.init = function() {
     var Entity = bearcat.getFunction('entity');
     Entity.call(this, this.opts);
     this._init();
-};
-
-Bets.prototype.get = function(id) {
-    return this.betMap.get(id);
 };
 
 Bets.prototype.getData = function() {
@@ -40,30 +37,68 @@ Bets.prototype.getData = function() {
 };
 
 Bets.prototype.addItem = function(item) {
-    this.betMap.set(item.id, item);
+    this.betMap.set(item.entityId, item);
 };
 
-Bets.prototype.setItemState = function(id, state) {
-    var item = this.betMap.get(id);
+Bets.prototype.getItem = function(entityId) {
+    return this.betMap.get(entityId);
+};
+
+// 0 确认，1 撤销，2 结算,3未开奖
+Bets.prototype.setItemState = function(entityId, state) {
+    var item = this.betMap.get(entityId);
     if(item){
-        item.state = state;
+        item.setState(state);
         this.syncItems.push(item);
         this.save();
     }
 };
 
+Bets.prototype.openLottery = function (openInfo) {
+    for(var item of this.betMap.values()){
+        if(item.getState() === this.consts.BetState.BET_WAIT){
+            item.setState(this.consts.BetState.BET_OPENNED);
+            this.syncItems.push(item);
+        }
+    }
+
+    this.betMap.clear();
+};
+
 Bets.prototype.getSyncItems = function(){
     return this.syncItems;
-}
+};
 
 //Get all the items
 Bets.prototype.all = function() {
     return this.betMap;
 };
 
+
+Bets.prototype.canBetType = function (type, value, err) {
+    var betted = this.typeTotal.get(type);
+    var num = !!betted?betted:0;
+    if(this.betLimit.playerLimit(type, num + value)){
+        err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
+        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + this.betLimit.getPlayerValue(type);
+        return false;
+    }
+
+    return true;
+}
+
 // Emit the event 'save'.
 Bets.prototype.save = function () {
     this.emit('save');
+};
+
+Bets.prototype.toJSON = function () {
+    var r = this._toJSON();
+
+  //  r['id'] = this.id;
+    r['type'] = this.type;
+
+    return r;
 };
 
 module.exports = {
@@ -79,5 +114,5 @@ module.exports = {
     props: [{
         name: "consts",
         ref: "consts"
-    }]
+    }, {name: "betLimit", ref: "betLimit"},]
 };

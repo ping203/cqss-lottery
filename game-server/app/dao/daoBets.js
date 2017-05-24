@@ -12,7 +12,7 @@ var DaoBets = function () {
 
 DaoBets.prototype.addBet = function (bet, cb) {
     var sql = 'insert into Bets (playerId,period,identify,betInfo,state,investmentMoney,multiple,harvestMoney,betTime) values(?,?,?,?,?,?,?,?,?)';
-    var args = [bet.playerId, bet.period, bet.identify, bet.betInfo, bet.state, bet.investmentMoney, bet.multiple, 0, Date.now()];
+    var args = [bet.playerId, bet.period, bet.identify, bet.betInfo, bet.state, bet.investmentMoney, bet.multiple, bet.harvestMoney, bet.betTime];
 
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
         if(err !== null){
@@ -20,8 +20,15 @@ DaoBets.prototype.addBet = function (bet, cb) {
         } else {
             var betItem = bearcat.getBean("betItem", {
                 id: res.insertId,
+                playerId:bet.playerId,
                 period:bet.period,
-                identify:bet.identify
+                identify:bet.identify,
+                betInfo:bet.betData,
+                state:bet.state,
+                investmentMoney:bet.investmentMoney,
+                multiple:bet.multiple,
+                harvestMoney:harvestMoney,
+                betTime:betTime
             });
 
             this.utils.invokeCallback(cb, null, betItem);

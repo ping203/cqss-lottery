@@ -19,6 +19,7 @@ var AreaService = function() {
   this.lotteryManagerService = null;
   this.consts = null;
   this.globalEntityId = 0;
+  this.platformTypeBet = {};
 };
 
 /**
@@ -42,6 +43,7 @@ AreaService.prototype.run = function() {
 
 AreaService.prototype.tick = function() {
   //run all the action
+    return;
   this.actionManagerService.update();
   this.entityUpdate();
   this.rankUpdate();
@@ -50,7 +52,7 @@ AreaService.prototype.tick = function() {
 
 AreaService.prototype.openLottery = function (numbers) {
 
-  var openInfo = this.calcOpenInfo(numbers);
+  var openInfo = this.calcOpenLottery.calc(numbers);
 
   for(var id in this.players){
       this.players[id].openTheLottery(openInfo);
@@ -61,6 +63,37 @@ AreaService.prototype.openLottery = function (numbers) {
   }
 
   this.trusteePlayers = null;
+};
+
+AreaService.prototype.canBetPlatform = function (type, value, err) {
+    var num = this.platformTypeBet.get(type);
+    var newNum = (!!num ? num:0) + value;
+
+    if(this.betLimit.platformLimit(type, newNum)){
+        var canBetValue = this.betLimit.getPlatfromValue(type) - num;
+        err.code = Code.GAME.FA_BET_PLATFORM_LIMIT.code;
+        err.desc = Code.GAME.FA_BET_PLATFORM_LIMIT.desc + '最多还能下注'+canBetValue;
+        return false;
+    }
+
+    return true;
+};
+
+AreaService.prototype.addPlatfromBet = function (type, value) {
+    var num = this.platformTypeBet.get(type.code);
+    var newNum = (!!num?num:0) + value;
+    this.platformTypeBet.set(type.code, newNum);
+
+};
+
+AreaService.prototype.reducePlatfromBet = function (type, value) {
+    var num = this.platformTypeBet.get(type.code);
+    var newNum = (!!num?num:0) - value;
+    if(newNum < 0){
+        logger.error('reducePlatfromBet < 0');
+        return;
+    }
+    this.platformTypeBet.set(type.code, newNum);
 };
 
 AreaService.prototype.addAction = function(action) {
@@ -242,6 +275,7 @@ AreaService.prototype.generateGlobalLottery = function() {
       kindName: lotteryData["1"].name,
       imgId: lotteryData["1"].imgId,
   });
+  logger.error('``````````````````````````',t);
   t.areaService = this;
   this.globalEntityId = t.entityId;
   this.addEntity(t);
@@ -316,5 +350,11 @@ module.exports = {
   }, {
     name: "eventManager",
     ref: "eventManager"
+  }, {
+    name: "calcOpenLottery",
+    ref: "calcOpenLottery"
+  }, {
+    name: "betLimit",
+    ref: "betLimit"
   }]
 }

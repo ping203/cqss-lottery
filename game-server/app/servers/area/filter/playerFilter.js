@@ -23,12 +23,35 @@ PlayerFilter.prototype.before = function(msg, session, next){
 	}
 
 	if(route.search(/bet$/i)){
-		//parse bet info, check bet info is valid.
+        //todo:检查平台类型投注总额是否超限
+        if(!msg.betData){
+            next(new Error(Code.PARAMERROR.desc, Code.PARAMERROR.code), Code.PARAMERROR);
+            return;
+        }
+
 		this.betParser.parse(msg.betData, function (err, result) {
 			if(err){
-                next(new Error(Code.GAME.FA_BETINFO_INVALID.desc, Code.GAME.FA_BETINFO_INVALID.code));
+                next(new Error(err.desc, err.code));
                 return;
 			}
+
+            var err;
+            for(var type in result.typeTotal){
+                // 平台限额检查
+                if(!this.areaService.canBetPlatform(type, result.typeTotal[type], err)){
+                    cb(err, null);
+                    return;
+                }
+
+                //玩家限额检查
+                if(!player.canBet(type, result.typeTotal[type], err)){
+                    cb(err, null);
+                    return;
+                }
+            }
+
+            // 玩家限额检查
+
             msg.betParseInfo = result;
 			next();
         });

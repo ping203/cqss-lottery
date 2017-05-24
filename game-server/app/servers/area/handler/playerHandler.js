@@ -94,22 +94,21 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
 
-    var betBaseInfo ={
-        period:this.areaService.getLottery().getNextPeriod(),
-        identify:msg.identify,
-        betData:msg.betData,
-    };
+    var period = this.areaService.getLottery().getNextPeriod();
+    var identify = this.areaService.getLottery().getIdentify();
 
-    //todo:检查平台类型投注总额是否超限
+    var betParseInfo = msg.betParseInfo;
+    betParseInfo.betData = msg.betData;
+    player.bet(period, identify, betParseInfo, function (err, result) {
 
-    player.bet(betBaseInfo, msg.betParseInfo);
-
-    var action = bearcat.getBean('bet', {
-        entity: player,
-        betInfo: betBaseInfo
     });
 
-    this.areaService.addAction(action)
+    // var action = bearcat.getBean('bet', {
+    //     entity: player,
+    //     betInfo: betBaseInfo
+    // });
+    //
+    // this.areaService.addAction(action)
     next(null, new Answer.NoDataResponse(Code.OK));
 };
 

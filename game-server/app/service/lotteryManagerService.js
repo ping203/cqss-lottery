@@ -63,7 +63,7 @@ LotteryManagerService.prototype.tick = function () {
 
         if(!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period === result.last.period)){
             lottery.publishLottery(result);
-            self.areaService.openLottery(result.last);
+            self.areaService.openLottery(result.last.numbers.split(','));
         }
 
         var sysTickTime = new Date(result.tickTime);
@@ -73,7 +73,7 @@ LotteryManagerService.prototype.tick = function () {
         lottery.setTickCount(result.next.period, tick);
 
         self.latestLotteryInfo = result;
-        logger.info(this.latestLotteryInfo);
+     //   logger.info(this.latestLotteryInfo);
 
         // 使用结果
         //self.areaService.addAction();
@@ -142,7 +142,7 @@ LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
 
         var resData = "";
         res.on('data', function (chunk) {
-            console.log('BODY: ' + chunk);
+           // console.log('BODY: ' + chunk);
             if(chunk){
                 resData += chunk;
             }

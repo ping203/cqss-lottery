@@ -83,16 +83,16 @@ CREATE TABLE IF NOT EXISTS `FriendRelation`(
 
 CREATE TABLE IF NOT EXISTS `Bets`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `playerId` bigint(20) unsigned NOT NULL COMMENT '玩家ID'
-  `period` varchar(20) COLLATE uft8_utf8_unicode_ci NOT NULL COMMENT '期数',
-  `identify` varchar(20) COLLATE uft8_utf8_unicode_ci NOT NULL COMMENT '标志',
+  `playerId` bigint(20) unsigned NOT NULL COMMENT '玩家ID',
+  `period` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '期数',
+  `identify` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '标志',
   `betInfo` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '投注信息{type:0,value:0}',
-  `state` smallint(6) unsigned NOT NULL COMMENT '0 确认，1 撤销，2 结算',
+  `state` smallint(6) unsigned NOT NULL COMMENT '0 确认，1 撤销，2 结算,3未开奖',
   `investmentMoney` bigint(20) unsigned NOT NULL COMMENT '投注金额',
   `multiple` smallint(6) unsigned NOT NULL COMMENT '倍数',
   `harvestMoney` bigint(20) unsigned NOT NULL COMMENT '收益金额',
   `betTime` bigint(20) unsigned NOT NULL COMMENT '投注时间',
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
@@ -101,8 +101,8 @@ CREATE TABLE IF NOT EXISTS `Bets`(
 
 CREATE TABLE IF NOT EXISTS `Lottery`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `period` varchar(20) COLLATE uft8_utf8_unicode_ci NOT NULL COMMENT '期数',
-  `identify` varchar(20) COLLATE uft8_utf8_unicode_ci NOT NULL COMMENT '标志',
+  `period` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '期数',
+  `identify` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '标志',
   `numbers` varchar(10) COLLATE utf8_unicode_ci NOT NULL COMMENT '开奖结果',
   `openTime` bigint(20) unsigned NOT NULL COMMENT '开奖时间',
    PRIMARY KEY (`id`),

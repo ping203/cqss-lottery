@@ -91,8 +91,10 @@ BetParser.prototype.handleReg3 = function (val,type) {
 BetParser.prototype.handleReg4 = function (val,type) {
     switch (val){
         case '豹':
+            type = this.consts.BetType.Panther;
+            break;
         case '顺':
-            type = this.consts.BetType.ShunZiPanther;
+            type = this.consts.BetType.ShunZi;
             break;
         default:
             break;
@@ -121,8 +123,9 @@ BetParser.prototype.parse = function(data, cb){
             var type,item;
             if(this.handleReg1(types[i],type)){
 
-                if(this.betLimit.singleLimit(type, perMoney)){
-                    err = Code.GAME.FA_BET_SINGLE_LIMIT;
+                if(this.betLimit.singleLimit(type.code, perMoney)){
+                    err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
                     isValid = false;
                 }
                 item.result = types[i];
@@ -131,10 +134,10 @@ BetParser.prototype.parse = function(data, cb){
                 betItems.push(item);
 
                 total+= perMoney;
-                if(undefined === typeTotal[type]){
-                    typeTotal[type]=0;
+                if(undefined === typeTotal[type.code]){
+                    typeTotal[type.code]=0;
                 }
-                typeTotal[type] += perMoney;
+                typeTotal[type.code] += perMoney;
 
             }
             else {
@@ -156,8 +159,10 @@ BetParser.prototype.parse = function(data, cb){
                 var item, type;
                 if(this.handleReg2(types[i],type)){
 
-                    if(this.betLimit.singleLimit(type, perMoney)){
-                        cb(Code.GAME.FA_BET_SINGLE_LIMIT, null);
+                    if(this.betLimit.singleLimit(type.code, perMoney)){
+                        err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
+                        err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
+                        cb(err, null);
                         return;
                     }
 
@@ -165,13 +170,13 @@ BetParser.prototype.parse = function(data, cb){
                     item.result = ballPos[j] + types[i];
                     item.money = perMoney;
 
-                    betResult.push(item);
+                    betItems.push(item);
 
                     total+= perMoney;
-                    if(undefined === typeTotal[type]){
-                        typeTotal[type]=0;
+                    if(undefined === typeTotal[type.code]){
+                        typeTotal[type.code]=0;
                     }
-                    typeTotal[type] += perMoney;
+                    typeTotal[type.code] += perMoney;
 
                 }else {
                     cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
@@ -189,9 +194,10 @@ BetParser.prototype.parse = function(data, cb){
             var type;
             if(this.handleReg3(types[i],type)){
 
-                if(this.betLimit.singleLimit(type, perMoney)){
+                if(this.betLimit.singleLimit(type.code, perMoney)){
                     isValid = false;
-                    err = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
                     break;
                 }
 
@@ -200,13 +206,13 @@ BetParser.prototype.parse = function(data, cb){
                     tempItem.type = type;
                     tempItem.result = j + '球:'+ types[i];
                     tempItem.money = perMoney;
-                    betResult.push(tempItem);
+                    betItems.push(tempItem);
 
                     total+= perMoney;
-                    if(undefined === typeTotal[type]){
-                        typeTotal[type]=0;
+                    if(undefined === typeTotal[type.code]){
+                        typeTotal[type.code]=0;
                     }
-                    typeTotal[type] += perMoney;
+                    typeTotal[type.code] += perMoney;
                 }
             }
             else {
@@ -225,9 +231,10 @@ BetParser.prototype.parse = function(data, cb){
             var type;
             if(this.handleReg4(types[i],type)){
 
-                if(this.betLimit.singleLimit(type, perMoney)){
+                if(this.betLimit.singleLimit(type.code, perMoney)){
                     isValid = false;
-                    err = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
                     break;
                 }
 
@@ -236,13 +243,13 @@ BetParser.prototype.parse = function(data, cb){
                     tempItem.type = type;
                     tempItem.result = this.keyValue[j]+types[i];
                     tempItem.money = perMoney;
-                    betResult.push(tempItem);
+                    betItems.push(tempItem);
 
                     total+= perMoney;
-                    if(undefined === typeTotal[type]){
-                        typeTotal[type]=0;
+                    if(undefined === typeTotal[type.code]){
+                        typeTotal[type.code]=0;
                     }
-                    typeTotal[type] += perMoney;
+                    typeTotal[type.code] += perMoney;
                 }
             }
             else {
@@ -262,9 +269,10 @@ BetParser.prototype.parse = function(data, cb){
             var type;
             var moneyIndex = 0;
             if(this.handleReg4(types[i],type)){
-                if(this.betLimit.singleLimit(type, perMoney)){
+                if(this.betLimit.singleLimit(type.code, perMoney)){
                     isValid = false;
-                    err = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
                     break;
                 }
                 for (var j=0;j<this.keyValue.length;j++){
@@ -272,13 +280,13 @@ BetParser.prototype.parse = function(data, cb){
                     tempItem.type = type;
                     tempItem.result = this.keyValue[j]+types[i];
                     tempItem.money = perMoneys[moneyIndex++];
-                    betResult.push(tempItem);
+                    betItems.push(tempItem);
 
                     total+= tempItem.money;
-                    if(undefined === typeTotal[type]){
-                        typeTotal[type]=0;
+                    if(undefined === typeTotal[type.code]){
+                        typeTotal[type.code]=0;
                     }
-                    typeTotal[type] += tempItem.money;
+                    typeTotal[type.code] += tempItem.money;
                 }
             }
             else {
@@ -290,8 +298,8 @@ BetParser.prototype.parse = function(data, cb){
     }
 
     if(isValid){
-        betResult.totalMoney = total;
-        betResult.typeMoney = typeTotal;
+        betResult.total = total;
+        betResult.typeTotal = typeTotal;
         betResult.betItems = betItems;
 
         cb(null, betResult);

@@ -1,7 +1,7 @@
 var logger = require('pomelo-logger').getLogger('bearcat-lottery');
 var bearcat = require('bearcat');
 var util = require('util');
-
+var Code = require('../../../../shared/code');
 /**
  * Initialize a new 'Player' with the given 'opts'.
  * Player inherits Character
@@ -33,6 +33,8 @@ Player.prototype.init = function () {
     var Entity = bearcat.getFunction('entity');
     Entity.call(this, this.opts);
     this._init();
+
+    this.bets = bearcat.getBean("bets",{})
 };
 
 Player.prototype.setRank = function () {
@@ -94,21 +96,52 @@ Player.prototype.setPinCode = function (pinCode) {
   this.save();
 };
 
-Player.prototype.bet = function (betBaseInfo, betParseInfo) {
+//todo:检查用户投注类型总额是否超限
+Player.prototype.canBet = function (type, value, err) {
+    return this.bets.canBetType(type, value, err);
+};
 
-    //todo:检查用户投注类型总额是否超限
-    this.daoBet.addBet()
-    this.emit(this.consts.Event.area.playerBet);
+Player.prototype.bet = function (period, identify, betParseInfo, cb) {
+
+    if(betParseInfo.total > this.accountAmount){
+        this.utils.invokeCallback(cb, Code.GAME.FA_ACCOUNTAMOUNT_NOT_ENOUGH, null);
+        return;
+    }
+
+    var self = this;
+    this.daoBet.addBet({
+        playerId:this.id,
+        period:period,
+        identify:identify,
+        betInfo:betParseInfo.betData,
+        state:this.consts.BetState.BET_WAIT,
+        investmentMoney:betParseInfo.total,
+        multiple:betParseInfo.betItems.size(),
+        harvestMoney:0,
+        betTime:Date.now()
+    }, function (err, result) {
+        if(err){
+            self.utils.invokeCallback(cb, err, null);
+            return;
+        }
+        result.setBetItems(betParseInfo.betItems);
+        self.bets.addItem(result);
+        self.utils.invokeCallback(cb, null, null);
+        self.emit(self.consts.Event.area.playerBet,{player:self,betInfo:result});
+    });
+
 };
 
 
-Player.prototype.unBet = function (msg) {
+Player.prototype.unBet = function (entityId) {
+    var betItem = this.bets.getItem(entityId);
+    betItem.setItemState(entityId, this.consts.BetState.BET_CANCLE);
     this.emit(this.consts.Event.area.playerUnBet);
 };
 
 
 Player.prototype.openTheLottery = function (openInfo) {
-
+    this.bets.openLottery(openInfo);
 };
 
 // Emit the event 'save'.
@@ -173,6 +206,6 @@ module.exports = {
         {name: "consts", ref: "consts"},
         {name: "dataApiUtil", ref: "dataApiUtil"},
         {name: "daoBets", ref: "daoBets"},
-        {name: "betLimit", ref: "betLimit"}
+        {name: "utils", ref: "utils"}
     ]
 }

@@ -31,30 +31,50 @@ BetLimit.prototype.update = function (config) {
     });
 };
 
+BetLimit.prototype.getSingleValue = function (type) {
+    var val = this.singleMap.get(type);
+    if(!val) val =300;
+    return val;
+}
+
 BetLimit.prototype.singleLimit = function (type, value) {
     var val = this.singleMap.get(type);
-    if(!!val && val <= value){
+    if(!val) val =300;
+    if(!!val && val >= value){
         return false;
     }
 
     return true;
 };
 
+BetLimit.prototype.getPlayerValue = function (type) {
+    var val = this.playerMap.get(type);
+    if(!val) val = 1000;
+    return val;
+}
+
 BetLimit.prototype.playerLimit = function (type, value) {
     var val = this.playerMap.get(type);
-    if(!!val && val <= value){
+    if(!val) val = 1000;
+    if(!!val && val >= value){
         return false;
     }
 
     return true;
+};
+
+BetLimit.prototype.getPlatfromValue = function (type) {
+    var val = this.platformMap.get(type);
+    if(!val) val = 3000;
+    return val;
 };
 
 BetLimit.prototype.platformLimit = function (type, value) {
     var val = this.platformMap.get(type);
-    if(!!val && val <= value){
+    if(!val) val = 3000;
+    if(!!val && val >= value){
         return false;
     }
-
     return true;
 };
 

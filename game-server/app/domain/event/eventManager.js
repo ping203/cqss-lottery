@@ -15,7 +15,7 @@ EventManager.prototype.addEvent = function(entity){
 			break;
 		case this.consts.EntityType.LOTTERY :
 			this.npcEvent.addEventForNPC(entity);
-            addLotterySaveEvent(entity);
+            //addLotterySaveEvent(entity);
 			break;
 	}
 };

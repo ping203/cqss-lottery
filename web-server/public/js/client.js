@@ -9,6 +9,8 @@ $(document).ready(function() {
 	$('#joinGame').on('click', joinGame);
 	$('#registe').on('click', register);
 	$('#setRoleName').on('click', setRoleName);
+	$('#bet').on('click', bet);
+	$('#unBet').on('click', unBet);
 
      gameMsgInit();
 
@@ -33,6 +35,7 @@ $(document).ready(function() {
 			});
 		}
 	});
+
 
     /**
      * join room
@@ -84,6 +87,28 @@ $(document).ready(function() {
     function setRoleName() {
         var newRoleName = $('#roleName').val();
         pomelo.request("area.playerHandler.setRoleName", {roleName:newRoleName}, function (res) {
+            if(res.result.code != 200){
+                alert('修改名称失败');
+                return;
+            }
+            alert('修改名称成功');
+        });
+    }
+
+    function bet(e) {
+        var betValue = $('#betValue').val();
+        pomelo.request("area.playerHandler.setRoleName", {betData:betValue}, function (res) {
+            if(res.result.code != 200){
+                alert('修改名称失败');
+                return;
+            }
+            alert('修改名称成功');
+        });
+    }
+
+
+    function unBet(e) {
+        pomelo.request("area.playerHandler.setRoleName", {entityId:121}, function (res) {
             if(res.result.code != 200){
                 alert('修改名称失败');
                 return;

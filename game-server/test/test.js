@@ -205,6 +205,23 @@ console.log(typeTotal[itemss.type]);
 // 方便客服人员给玩家充值和下分，并需要显示每个玩家的信息，包括当日输赢情况，充值下分情况，反水情况。下注情况，历史数据，每个玩家发展下线列表和数据。
 // 7. 每个玩家输入推荐人id后，不能再输入其推荐人的id。及每个玩家只能输入一次推荐人id。
 
+console.log('----------------------------------------------------------------------------');
+
+var typestoals ={};
+var typekeys ={
+    code:10,
+    desc:'aa'
+}
+
+var typ1 ={
+};
+typestoals[typekeys]={name:'linyng',age:1010};
+console.log(typestoals[typ1]);
+
+var d = new Date('2017-05-24 18:24:21');
+console.log(d, Date.parse('2017-05-24 18:24:21'));
+
+console.log('----------------------------------------------------------------------------');
 
 
 

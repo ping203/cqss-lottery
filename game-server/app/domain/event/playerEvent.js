@@ -9,19 +9,19 @@ var PlayerEvent = function () {
  * Handle player event
  */
 PlayerEvent.prototype.addEventForPlayer = function (player){
-
+    var self = this;
     player.on(this.consts.Event.area.playerBet, function(args) {
-        var player = self.getEntity(args.entityId);
+        var player = args.player;
         if (player) {
             player.areaService.getChannel().pushMessage(self.consts.Event.area.playerBet,{
                 entityId: args.entityId,
-                betRecord: args.betRecord
+                betInfo: args.betInfo
             });
         }
     });
 
     player.on(this.consts.Event.area.playerUnBet, function(args) {
-        var player = self.getEntity(args.entityId);
+        var player = args.player;
         if (player) {
             player.areaService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
                 entityId: args.entityId,
@@ -31,7 +31,7 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
     });
 
     player.on(this.consts.Event.area.playerRename, function(args) {
-        var player = self.getEntity(args.entityId);
+        var player = args.player;
         if (player) {
             player.areaService.getChannel().pushMessage(self.consts.Event.area.playerRename,{
                 entityId: args.entityId,
