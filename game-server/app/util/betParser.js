@@ -143,7 +143,6 @@ BetParser.prototype.parse = function(data, cb){
                 }
                 betTypeInfo[betType.code].money += perMoney;
                 betTypeInfo[betType.code].type = betType;
-
             }
             else {
                 isValid = false;

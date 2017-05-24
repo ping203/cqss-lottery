@@ -24,7 +24,6 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.unBet = function (msg, session, next) {
-
     var player = this.areaService.getPlayer(session.uid);
     player.unBet(player.entityId, function (err, result) {
         if(err){
