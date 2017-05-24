@@ -44,6 +44,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
                     return;
                 }
                 result.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
+
                 //玩家限额检查
                 err = player.canBet(type, result.betTypeInfo[type].money)
                 if(err){

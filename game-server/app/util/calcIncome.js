@@ -15,7 +15,7 @@ CalcIncome.prototype.playerDefection = function (playerId, callback) {
     var self = this;
     async.waterfall([
         function (cb) {
-            self.daoBets.getDayIncome(playerId.id, self.beginTime, self.endTime, function (err, income) {
+            self.daoBets.getPlayerBetBaseInfo(playerId.id, self.beginTime, self.endTime, function (err, income) {
                 cb(null, income);
             });
         }, function (income, cb) {
@@ -148,10 +148,10 @@ CalcIncome.prototype.playersCalc = function () {
     var self = this;
     async.waterfall([
         function (cb) {
-            self.daoUser.getPlayerIds(cb);
+            self.daoUser.getPlayersIncomeId(cb);
         },
-        function (playerIds, cb) {
-            async.map(playerIds, self.playerDefection.bind(self), function (err, playerIncomes) {
+        function (incomeIds, cb) {
+            async.map(incomeIds, self.playerDefection.bind(self), function (err, playerIncomes) {
                 if (err) {
                     logger.error('run playerDefection failed!' + err);
                 }

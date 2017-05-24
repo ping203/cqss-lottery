@@ -14,16 +14,16 @@ var BetParser = function () {
     this.keyValue =['前','中','后'];
 };
 
-BetParser.prototype.handleReg1 = function (val) {
+BetParser.prototype.handleReg = function (val) {
     var type;
     switch (val){
         case '大':
         case '小':
-            type = this.consts.BetType.TotalSize;
+            type = this.consts.BetType.BetSize;
             break;
         case '单':
         case '双':
-            type = this.consts.BetType.TotalSingleDouble;
+            type = this.consts.BetType.BetSingleDouble;
             break;
         case '龙':
         case '虎':
@@ -33,23 +33,6 @@ BetParser.prototype.handleReg1 = function (val) {
         case '合':
             type = this.consts.BetType.Equal15;
             break;
-        default:
-            break;
-    }
-
-    return type;
-}
-
-
-BetParser.prototype.handleReg2 = function (val) {
-    var type;
-    switch (val){
-        case '大':
-        case '小':
-        case '单':
-        case '双':
-            type = this.consts.BetType.PerPosSizeSingleDouble;
-            break;
         case '0':
         case '1':
         case '2':
@@ -60,40 +43,8 @@ BetParser.prototype.handleReg2 = function (val) {
         case '7':
         case '8':
         case '9':
-            type = this.consts.BetType.PerPosValue;
+            type = this.consts.BetType.number;
             break;
-        default:
-            break;
-    }
-
-    return type;
-}
-
-BetParser.prototype.handleReg3 = function (val) {
-    var type;
-    switch (val){
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            type = this.consts.BetType.ContainValue;
-            break;
-        default:
-            break;
-    }
-
-    return type;
-}
-
-BetParser.prototype.handleReg4 = function (val) {
-    var type;
-    switch (val){
         case '豹':
             type = this.consts.BetType.Panther;
             break;
@@ -106,6 +57,72 @@ BetParser.prototype.handleReg4 = function (val) {
 
     return type;
 }
+
+// BetParser.prototype.handleReg2 = function (val) {
+//     var type;
+//     switch (val){
+//         case '大':
+//         case '小':
+//         case '单':
+//         case '双':
+//             type = this.consts.BetType.PerPosSizeSingleDouble;
+//             break;
+//         case '0':
+//         case '1':
+//         case '2':
+//         case '3':
+//         case '4':
+//         case '5':
+//         case '6':
+//         case '7':
+//         case '8':
+//         case '9':
+//             type = this.consts.BetType.PerPosValue;
+//             break;
+//         default:
+//             break;
+//     }
+//
+//     return type;
+// }
+//
+// BetParser.prototype.handleReg3 = function (val) {
+//     var type;
+//     switch (val){
+//         case '0':
+//         case '1':
+//         case '2':
+//         case '3':
+//         case '4':
+//         case '5':
+//         case '6':
+//         case '7':
+//         case '8':
+//         case '9':
+//             type = this.consts.BetType.ContainValue;
+//             break;
+//         default:
+//             break;
+//     }
+//
+//     return type;
+// }
+//
+// BetParser.prototype.handleReg4 = function (val) {
+//     var type;
+//     switch (val){
+//         case '豹':
+//             type = this.consts.BetType.Panther;
+//             break;
+//         case '顺':
+//             type = this.consts.BetType.ShunZi;
+//             break;
+//         default:
+//             break;
+//     }
+//
+//     return type;
+// }
 
 BetParser.prototype.parse = function(data, cb){
     var total = 0;
@@ -123,7 +140,7 @@ BetParser.prototype.parse = function(data, cb){
         var betTypeInfoItem = {money:0};
         for (var i = 0; i< types.length;++i){
 
-            var betType = this.handleReg1(types[i]);
+            var betType = this.handleReg(types[i]);
             if(betType){
                 if(this.betLimitCfg.singleLimit(betType.code, perMoney)){
                     err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
@@ -158,7 +175,7 @@ BetParser.prototype.parse = function(data, cb){
         perMoney = parseInt(result[3],10);
         for (var j=0;j< ballPos.length;++j){
             for (var i = 0; i< types.length;i++){
-                var betType = this.handleReg2(types[i]);
+                var betType = this.handleReg(types[i]);
                 if(betType){
 
                     if(this.betLimitCfg.singleLimit(betType.code, perMoney)){
@@ -196,7 +213,7 @@ BetParser.prototype.parse = function(data, cb){
         perMoney = parseInt(result[2],10);
 
         for (var i = 0; i< types.length;++i){
-            var betType = this.handleReg3(types[i]);
+            var betType = this.handleReg(types[i]);
             if(betType){
 
                 if(this.betLimitCfg.singleLimit(betType.code, perMoney)){
@@ -234,7 +251,7 @@ BetParser.prototype.parse = function(data, cb){
         perMoney = parseInt(result[2], 10);
 
         for (var i = 0; i< types.length;++i){
-            var betType = this.handleReg4(types[i]);
+            var betType = this.handleReg(types[i]);
             if(betType){
 
                 if(this.betLimitCfg.singleLimit(betType.code, perMoney)){
@@ -287,7 +304,7 @@ BetParser.prototype.parse = function(data, cb){
         }
 
         for (var i = 0; i< types.length;++i){
-            var betType = this.handleReg4(types[i]);
+            var betType = this.handleReg(types[i]);
             var moneyIndex = 0;
             if(betType){
                 if(this.betLimitCfg.singleLimit(betType.code, perMoney)){

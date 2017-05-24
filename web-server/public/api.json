@@ -165,6 +165,14 @@
           "entityId":100
         }
       }
+    }, {
+      "myBets": {
+        "router":"area.playerHandler.myBets",
+        "msg":{
+          "skip":10,
+          "limit":10
+        }
+      }
     },{
       "myIncome": {
         "router":"area.playerHandler.myIncome",
@@ -195,6 +203,17 @@
         "msg":{
           "skip":10,
           "limit":10
+        }
+      }
+    },{
+      "winRateRankList": {
+        "router":"rank.rankHandler.winRateRankList",
+        "msg":null
+      }
+    },{
+      "todayRichRankList": {
+        "router":"rank.rankHandler.todayRichRankList",
+        "msg":null
         }
       }
     }

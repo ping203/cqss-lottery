@@ -80,11 +80,11 @@ var Consts = function () {
     }
 
     this.BetType = {
-        TotalSize:{
+        BetSize:{
             code:1,
             desc:'总和大小'
         }, //和大小 (大100)  (小100)
-        TotalSingleDouble:{
+        BetSingleDouble:{
             code:2,
             desc:'总和单双'
         }, //和单双 (单100  双100)

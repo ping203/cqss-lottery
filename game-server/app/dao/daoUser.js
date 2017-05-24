@@ -63,8 +63,23 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
 };
 
 
-DaoUser.prototype.getPlayerIds = function (cb) {
+DaoUser.prototype.getPlayersIncomeId = function (cb) {
     var sql = 'select id,level from User';
+    var args = [];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql,args,function(err, res){
+        if(err !== null){
+            self.utils.invokeCallback(cb, err.message, null);
+        } else if (!res || res.length <= 0){
+            self.utils.invokeCallback(cb,null,[]);
+        } else{
+            self.utils.invokeCallback(cb,null, res);
+        }
+    });
+};
+
+DaoUser.prototype.getPlayersRankId = function (cb) {
+    var sql = 'select id,roleName from User';
     var args = [];
     var self = this;
     pomelo.app.get('dbclient').query(sql,args,function(err, res){

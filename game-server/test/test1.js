@@ -32,8 +32,8 @@
 // var reg1 = /^大(\d+)小(\d+)/ig;
 
 var betType = {
-    TotalSize:1, //和大小 (大100)  (小100)
-    TotalSingleDouble:2, //和单双 (单100  双100)
+    BetSize:1, //和大小 (大100)  (小100)
+    BetSingleDouble:2, //和单双 (单100  双100)
     DragonAndTiger:3, //龙虎 (龙100 虎100)
     Equal15:4, //合/和玩法 (和100 合100)  （大单龙和60）
     PerPosSizeSingleDouble:5, //每个位置大小单双 (1／大双／100)

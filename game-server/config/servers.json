@@ -12,7 +12,7 @@
     "connector": [
       {
         "id": "connector-server-1",
-        "host": "127.0.0.1",
+        "host": "192.168.0.110",
         "port": 3150,
         "clientPort": 3010,
         "frontend": true,
@@ -42,6 +42,14 @@
         "host": "127.0.0.1",
         "port": 3450,
         "args":"--debug=10014"
+      }
+    ],
+    "rank": [
+      {
+        "id": "rank-server-1",
+        "host": "127.0.0.1",
+        "port": 3550,
+        "args":"--debug=10015"
       }
     ]
   },

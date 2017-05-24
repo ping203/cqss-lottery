@@ -104,6 +104,10 @@ Player.prototype.setImageId = function(imageId){
     this.save();
 }
 
+Player.prototype.getMyBets = function(skip, limit, cb){
+    this.daoBets.getBets(this.id, skip, limit, cb);
+}
+
 Player.prototype.getMyIncomes = function(skip, limit, cb){
     this.daoIncome.getPlayerIncomes(this.id, skip, limit, cb);
 }
@@ -148,7 +152,7 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         self.changeNotify();
 
         betItem.setBetItems(betParseInfo.betItems);
-        betItem.setPlatformFreeBets(betParseInfo.betTypeInfo);
+        betItem.setBetTypeInfo(betParseInfo.betTypeInfo);
         self.bets.addItem(betItem);
         self.utils.invokeCallback(cb, null, null);
         self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});
@@ -170,10 +174,10 @@ Player.prototype.unBet = function (entityId, cb) {
 
         this.accountAmount += betItem.getBetMoney();
         this.betStatistics.betCount -= betItem.getBetCount();
+
+        this.utils.invokeCallback(cb, null, betItem);
+
         this.save();
-
-        this.utils.invokeCallback(cb, null, null);
-
         this.changeNotify();
     }
     else {

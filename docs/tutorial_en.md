@@ -226,7 +226,7 @@ var onUserLeave = function (app, session, reason) {
 ```
 In server: 
 ```javascript
-// area/remote/playerRemote.js
+handler
 exports.playerLeave = function(args, cb) {
   // push message
   area.getChannel().pushMessage({route: 'onUserLeave', code: consts.MESSAGE.RES, playerId: playerId});

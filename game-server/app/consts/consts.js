@@ -80,13 +80,13 @@ var Consts = function () {
     }
 
     this.BetType = {
-        TotalSize:{
+        BetSize:{
             code:1,
-            desc:'总和大小'
-        }, //和大小 (大100)  (小100)
-        TotalSingleDouble:{
+            desc:'大小'
+        }, //和大小 (大100)  (小100) 每个位置大小单双 (1／13大双／100)
+        BetSingleDouble:{
             code:2,
-            desc:'总和单双'
+            desc:'单双'
         }, //和单双 (单100  双100)
         DragonAndTiger:{
             code:3,
@@ -94,26 +94,18 @@ var Consts = function () {
         }, //龙虎 (龙100 虎100)
         Equal15:{
             code:4,
-            desc:'合/和'
+            desc:'和'
         }, //合/和玩法 (和100 合100)  （大单龙和60）
-        PerPosSizeSingleDouble:{
+        number:{
             code:5,
-            desc:'每球大小单双'
-        }, //每个位置大小单双 (1／大双／100)
-        PerPosValue:{
-            code:6,
-            desc:'每球数值'
-        }, //每个位置值 (124/579/90)  组合(124/大单579/90)
-        ContainValue:{
-            code:7,
-            desc:'包数字'
-        }, //包数字 （75/100） （8/100）
+            desc:'数字'
+        }, //包数字 （75/100） （8/100） 每个位置值 (124/579/90)
         Panther:{
-            code:8,
+            code:6,
             desc:'豹子'
         }, //豹子、数字玩法 （豹100）代表前中后豹子各买100 （豹/100/50/80） 代表前豹子 100元 中豹子50 元 后豹子 80元 （豹顺100） 代表前中后顺子和豹子各买100元 一共下注6注 投注金600元
         ShunZi:{
-            code:9,
+            code:7,
             desc:'顺子'
         } //顺子
     }

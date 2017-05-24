@@ -49,11 +49,53 @@ DaoBets.prototype.getBets = function (skip, limit, cb) {
                 var items = [];
                 for (var i = 0; i < res.length; ++i) {
                     var betItem = bearcat.getBean("betItem", {
-                        id: res[i].id,
+                        id: res[i].insertId,
+                        playerId: res[i].playerId,
                         period: res[i].period,
                         identify: res[i].identify,
-                        numbers: res[i].numbers,
-                        openTime: res[i].openTime
+                        betInfo: res[i].betData,
+                        state: res[i].state,
+                        betCount: res[i].betCount,
+                        winCount: res[i].winCount,
+                        betMoney: res[i].betMoney,
+                        winMoney: res[i].winMoney,
+                        betTime: res[i].betTime
+
+                    });
+                    items.push(betItem);
+                }
+
+                self.utils.invokeCallback(cb, null, items);
+            } else {
+                self.utils.invokeCallback(cb, ' Bets not exist ', null);
+            }
+        }
+    });
+};
+
+DaoBets.prototype.getPlayerBetsByTime = function (playerId, beginTime, endTime, cb) {
+    var sql = 'select * from Bets limit ?,?';
+    var args = [skip, limit];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            self.utils.invokeCallback(cb, err.message, null);
+        } else {
+            if (!!res && res.length >= 1) {
+                var items = [];
+                for (var i = 0; i < res.length; ++i) {
+                    var betItem = bearcat.getBean("betItem", {
+                        id: res[i].insertId,
+                        playerId: res[i].playerId,
+                        period: res[i].period,
+                        identify: res[i].identify,
+                        betInfo: res[i].betData,
+                        state: res[i].state,
+                        betCount: res[i].betCount,
+                        winCount: res[i].winCount,
+                        betMoney: res[i].betMoney,
+                        winMoney: res[i].winMoney,
+                        betTime: res[i].betTime
                     });
                     items.push(betItem);
                 }
@@ -86,10 +128,37 @@ DaoBets.prototype.getBetStatistics = function (playerId, cb) {
     });
 };
 
+DaoBets.prototype.getPlayerTodayBets = function (playerId, cb) {
+
+    var now = new Date();
+    var begin = new Date(now);
+    begin.setHours(0, 0, 0, 0);
+    var beginTime = begin.getTime();
+
+    var end = new Date(now);
+    end.setHours(23, 59, 59, 999);
+    var endTime = end.getTime();
+
+    var sql = 'select sum(betMoney) as betMoney from Bets where uid= ? and betTime >= ? and betTime <= ? and state = ?';
+    var args = [playerId, beginTime, endTime, this.consts.BetState.BET_OPENNED];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            self.utils.invokeCallback(cb, err.message, null);
+        } else {
+            if (!!res && res.length === 1) {
+                self.utils.invokeCallback(cb, null, res[0]);
+            } else {
+                self.utils.invokeCallback(cb, ' Bets not exist ', null);
+            }
+        }
+    });
+}
+
 // 获取玩家一天的投注反水基准数据
-DaoBets.prototype.getDayIncome = function (playerId, beginTime, endTime, cb) {
-    var sql = 'select sum(betMoney) as dayBetMoney, sum(winMoney) as dayWinMoney,sum(betCount) as dayBetCount, sum(winCount) as dayWinCount from Bets where betTime >= ? and betTime <= ? and uid=?';
-    var args = [beginTime, endTime, playerId];
+DaoBets.prototype.getPlayerBetBaseInfo = function (playerId, beginTime, endTime, cb) {
+    var sql = 'select sum(betMoney) as dayBetMoney, sum(winMoney) as dayWinMoney,sum(betCount) as dayBetCount, sum(winCount) as dayWinCount from Bets where betTime >= ? and betTime <= ? and uid=? and state =?';
+    var args = [beginTime, endTime, playerId,this.consts.BetState.BET_OPENNED];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
@@ -104,22 +173,6 @@ DaoBets.prototype.getDayIncome = function (playerId, beginTime, endTime, cb) {
     });
 };
 
-DaoBets.prototype.getDayIncomes = function (beginTime, endTime, cb) {
-    var sql = 'select playerId, sum(betMoney) as dayBetMoney, sum(winMoney) as dayWinMoney from Bets where betTime >= ? and betTime <= ?';
-    var args = [beginTime, endTime];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length > 0) {
-                self.utils.invokeCallback(cb, null, res);
-            } else {
-                self.utils.invokeCallback(cb, 'Bets not exist', null);
-            }
-        }
-    });
-};
 
 module.exports = {
     id: "daoBets",

@@ -6,12 +6,12 @@ var logger = require('pomelo-logger').getLogger(__filename);
 var pomelo = require('pomelo');
 var bearcat = require('bearcat');
 
-var DaoLottery = function () {
+var DaoSysParamConfig = function () {
 
 };
 
-DaoLottery.prototype.addLottery = function (identify, period, numbers, openTime, parseResult, cb) {
-    var sql = 'insert into Lottery (period,identify,numbers,openTime, parseResult) values(?,?,?,?,?)';
+DaoSysParamConfig.prototype.initPlatformParam = function (identify, period, numbers, openTime, parseResult, cb) {
+    var sql = 'insert into config (period,identify,numbers,openTime, parseResult) values(?,?,?,?,?)';
     var args = [period, identify, numbers, openTime, parseResult];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
@@ -30,7 +30,7 @@ DaoLottery.prototype.addLottery = function (identify, period, numbers, openTime,
     });
 };
 
-DaoLottery.prototype.getLottery = function (period, cb) {
+DaoSysParamConfig.prototype.getLottery = function (period, cb) {
     var sql = 'select * from Lottery where period = ?';
     var args = [period];
     var self = this;
@@ -47,26 +47,10 @@ DaoLottery.prototype.getLottery = function (period, cb) {
     });
 };
 
-DaoLottery.prototype.getLotterys = function (skip, limit, cb) {
-    var sql = 'select * from Lottery ORDER BY openTime DESC LIMIT ?,?';
-    var args = [skip,limit];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql,args,function(err, res){
-        if(err !== null){
-            self.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length >= 1) {
-                self.utils.invokeCallback(cb, null, res);
-            } else {
-                self.utils.invokeCallback(cb, ' user not exist ', null);
-            }
-        }
-    });
-};
 
 module.exports ={
-    id:"daoLottery",
-    func:DaoLottery,
+    id:"daoSysParamConfig",
+    func:DaoSysParamConfig,
     props:[
         {name:"utils", ref:"utils"}
     ]

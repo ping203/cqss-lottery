@@ -19,9 +19,8 @@ var BetItem = function (opts) {
     this.betMoney = opts.betMoney;
     this.winMoney = opts.winMoney;
     this.betTime = Date.now();
-    this.betParseInfo = null;
     this.betItems = null;
-    this.platformFreeBets = null;
+    this.betTypeInfo = null;
 };
 
 BetItem.prototype.init = function () {
@@ -43,9 +42,18 @@ BetItem.prototype.setBetItems = function (betItems) {
     this.betItems = betItems;
 };
 
-BetItem.prototype.setPlatformFreeBets = function (freeBets) {
-    this.platformFreeBets = freeBets;
+
+BetItem.prototype.setBetTypeInfo = function (betTypeInfo) {
+    this.betTypeInfo = betTypeInfo;
 }
+
+BetItem.prototype.getBetTypeInfo = function (betTypeInfo) {
+    this.betTypeInfo = betTypeInfo;
+}
+
+BetItem.prototype.setFreeBetValue = function (type, freeBetValue) {
+    this.betTypeInfo[type].freeBetValue = freeBetValue;
+};
 
 // 获取本金
 BetItem.prototype.getBetMoney = function () {
@@ -70,55 +78,59 @@ BetItem.prototype.getWinCount = function () {
 BetItem.prototype.getIncomValue = function (openInfo, item) {
     var inc = 0;
     var multi = this.incomeCfg.getBetRate(item.type.code);
-    switch (item.type.code) {
-        case this.consts.BetType.TotalSize.code:
-            if(openInfo.totalSizeResult === item.result){
-                inc = item.money * multi;
-            }
-            break;
-        case this.consts.BetType.TotalSingleDouble.code:
-            if(openInfo.totalSingleDoubleResult === item.result){
-                inc = item.money * multi;
-            }
-            break;
-        case this.consts.BetType.DragonAndTiger.code:
-            if(openInfo.dragonAndTigerResult === item.result){
-                inc = item.money * multi;
-            }
-            break;
-        case this.consts.BetType.Equal15.code:
-            if(openInfo.equal15Result === item.result){
-                inc = item.money * multi;
-            }
-            break;
-        case this.consts.BetType.PerPosSizeSingleDouble.code:
-            if(openInfo.perPosSizeSingleDoubleResult.has(item.result)){
-                inc = item.money * multi;
-            }
-            break;
-        case this.consts.BetType.PerPosValue.code:
-            if(openInfo.perPosValueResult.has(item.result)){
-                inc = item.money * multi;
-            }
-            break;
-        case this.consts.BetType.ContainValue.code:
-            if(openInfo.containValueResult.has(item.result)){
-                inc = item.money * multi;
-            }
-            break;
-        case this.consts.BetType.Panther.code:
-            if(openInfo.pantherResult.has(item.result)){
-                inc = item.money * multi;
-            }
-            break;
-        case this.consts.BetType.ShunZi.code:
-            if(openInfo.shunZiResult.has(item.result)){
-                inc = item.money * multi;
-            }
-            break;
-        default:
-            break;
+
+    if(openInfo.has(item.result)){
+        inc = item.money * multi;
     }
+    // switch (item.type.code) {
+    //     case this.consts.BetType.BetSize.code:
+    //         if(openInfo.totalSizeResult === item.result){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     case this.consts.BetType.BetSingleDouble.code:
+    //         if(openInfo.totalSingleDoubleResult === item.result){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     case this.consts.BetType.DragonAndTiger.code:
+    //         if(openInfo.dragonAndTigerResult === item.result){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     case this.consts.BetType.Equal15.code:
+    //         if(openInfo.equal15Result === item.result){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     case this.consts.BetType.number.code:
+    //         if(openInfo.perPosSizeSingleDoubleResult.has(item.result)){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     case this.consts.BetType.Panther:
+    //         if(openInfo.perPosValueResult.has(item.result)){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     case this.consts.BetType.ShunZi:
+    //         if(openInfo.containValueResult.has(item.result)){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     case this.consts.BetType.Panther.code:
+    //         if(openInfo.pantherResult.has(item.result)){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     case this.consts.BetType.ShunZi.code:
+    //         if(openInfo.shunZiResult.has(item.result)){
+    //             inc = item.money * multi;
+    //         }
+    //         break;
+    //     default:
+    //         break;
+    // }
 
     if(inc > 0) this.winCount++;
 
@@ -131,8 +143,33 @@ BetItem.prototype.calcHarvest = function (openInfo) {
         this.winMoney += this.getIncomValue(openInfo, item);
     }
 };
-
+// {
+//     "5": {
+//     "money": 20,
+//         "type": {
+//         "code": 5,
+//             "desc": "每球大小单双"
+//     },
+//     "freeBetValue": 2980
+// },
+//     "6": {
+//     "money": 10,
+//         "type": {
+//         "code": 6,
+//             "desc": "每球数值"
+//     },
+//     "freeBetValue": 2990
+// }
+// }
 BetItem.prototype.strip = function () {
+
+    var betTypeFormat = "";
+    for (var type in this.betTypeInfo){
+        betTypeFormat += `${this.betTypeInfo[type].type.desc}/${this.betTypeInfo[type].freeBetValue}/`;
+    }
+
+    betTypeFormat = betTypeFormat.substring(0, betTypeFormat.lastIndexOf('/'));
+
     var r= {
         id: this.id,
         entityId:this.entityId,
@@ -147,7 +184,7 @@ BetItem.prototype.strip = function () {
         betMoney:this.betMoney,
         winMoney:this.winMoney,
         betTime: this.betTime,
-        platformFreeBets:this.platformFreeBets
+        betTypeInfo:betTypeFormat
     };
 
     return r;

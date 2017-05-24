@@ -14,26 +14,49 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     var period = this.areaService.getLottery().getNextPeriod();
     var identify = this.areaService.getLottery().getIdentify();
     var player = this.areaService.getPlayer(session.uid);
-    player.bet(period, identify, msg.betData, msg.betParseInfo, function (err, result) {
+    var parseTypeInfo = msg.betParseInfo;
+    player.bet(period, identify, msg.betData, parseTypeInfo, function (err, result) {
         if(err){
             next(null, new Answer.NoDataResponse(err));
             return;
         }
+
+        for(var type in parseTypeInfo){
+            this.areaService.addPlatfromBet(type, parseTypeInfo[type].money);
+        }
+
         next(null, new Answer.NoDataResponse(Code.OK));
     });
 };
 
 PlayerHandler.prototype.unBet = function (msg, session, next) {
     var player = this.areaService.getPlayer(session.uid);
-    player.unBet(player.entityId, function (err, result) {
+    player.unBet(player.entityId, function (err, betItem) {
         if(err){
             next(null, new Answer.NoDataResponse(err));
             return;
         }
+
+        var betTypeInfo = betItem.getBetTypeInfo();
+        for(var type in betTypeInfo){
+            var freeValue = this.areaService.reducePlatfromBet(type, betTypeInfo[type].money);
+            betItem.setFreeBetValue(freeValue);
+        }
+
         next(null, new Answer.NoDataResponse(Code.OK));
     });
 };
 
+PlayerHandler.prototype.myBets = function (msg, session, next) {
+    var player = this.areaService.getPlayer(session.uid);
+    player.getMyBets(msg.skip, msg.limit, function (err, result) {
+        if(err){
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
+            return;
+        }
+        next(null, new Answer.DataResponse(Code.OK, result));
+    });
+};
 
 PlayerHandler.prototype.myIncome = function (msg, session, next) {
     var player = this.areaService.getPlayer(session.uid);
@@ -44,7 +67,6 @@ PlayerHandler.prototype.myIncome = function (msg, session, next) {
         }
         next(null, new Answer.DataResponse(Code.OK, result));
     });
-
 };
 
 PlayerHandler.prototype.friendIncome = function (msg, session, next) {

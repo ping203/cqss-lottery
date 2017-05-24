@@ -100,3 +100,12 @@ CREATE TABLE IF NOT EXISTS `AgentIncome`(
    PRIMARY KEY (`id`),
    FOREIGN KEY(`uid`) REFERENCES User(`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+# ------------------------------------------------------------
+# Dump of table config(代理投注盈亏表)
+# ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `config`(
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `info` json NOT NULL COMMENT '配置信息',
+   PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

@@ -19,7 +19,7 @@ function Lottery(opts) {
     this.lastLottery = null; //最近开奖
     this.nextLottery = null; //下期彩票
     this.identify = null; //彩票标志
-    this.lotteryHistory = new Map();
+    this.lotteryCaches = [];
 }
 
 Lottery.prototype.init = function() {
@@ -27,6 +27,13 @@ Lottery.prototype.init = function() {
 	var Entity = bearcat.getFunction('entity');
 	Entity.call(this, this.opts);
 	this._init();
+
+	var self = this;
+    this.daoLottery.getLotterys(0,10,function (err, results) {
+        if(!err && results.length >= 1){
+            self.lotteryCaches = results;
+        }
+    });
 };
 
 // proof tick timer
@@ -40,22 +47,39 @@ Lottery.prototype.publishNotice = function () {
 };
 
 Lottery.prototype.publishLottery = function (result) {
+
     this.lastLottery = result.last;
     this.nextLottery = result.next;
     this.identify = result.identify;
-    this.lotteryHistory.set(result.last.period, result.last);
     this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:null});
 };
 
+//发布最近一期开奖信息
 Lottery.prototype.publishCurLottery = function (uids) {
 	if(this.lastLottery){
         this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:uids});
 	}
 };
 
+//发布开奖分析结果
 Lottery.prototype.publishParseResult = function (parseResult) {
-    this.daoLottery.addLottery(this.identify, this.lastLottery.period, this.lastLottery.numbers, Date.parse(this.lastLottery.opentime), parseResult);
-    this.emit(this.consts.Event.area.parseLottery, {lottery: this, parseResult:parseResult, uids:null});
+    var self = this;
+    this.daoLottery.addLottery(this.identify, this.lastLottery.period, this.lastLottery.numbers,
+        Date.parse(this.lastLottery.opentime), JSON.stringify(parseResult.parseJson),
+    function (err, result) {
+        if(!err && !!result){
+            if(self.lotteryCaches.push(result) > 10){
+                self.lotteryCaches.pop();
+            }
+        }
+    });
+
+    this.emit(this.consts.Event.area.parseLottery, {lottery: this, parseResult:[parseResult], uids:null});
+};
+
+//发布最近10期开奖分析结果
+Lottery.prototype.initPublishParseResult = function (uids) {
+    this.emit(this.consts.Event.area.parseLottery, {lottery: this, parseResult:this.lotteryCaches, uids:uids});
 };
 
 Lottery.prototype.getNextPeriod = function () {
@@ -67,7 +91,11 @@ Lottery.prototype.getIdentify = function () {
 }
 
 Lottery.prototype.getLotterys = function (skip, limit, cb) {
-
+    this.daoLottery.getLotterys(skip,limit,function (err, results) {
+        if(!err && results.length >= 1){
+            this.lotteryCaches = results;
+        }
+    });
 }
 
 Lottery.prototype.countdown = function () {
