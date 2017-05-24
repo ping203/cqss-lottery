@@ -1,6 +1,3 @@
-/**
- * Created by linyng on 2017/5/23.
- */
 // var util = require('util');
 //
 // var a = function() {
@@ -103,12 +100,12 @@ console.log('--------------------',rs);
 
 //可以组合：（大单龙合60）：大 单 龙 和 各60
 console.log('------大单龙合组合玩法-------');
-var reg51 = /([大小单双龙虎和合]+)(\d+)/i;
+ var reg51 = /([大小单双龙虎和合]+)(\d+)/i;
 //var reg51 = /[ABCDEFGH](\d+)/i;
 //var reg42 = /合(\d+)/i;
-//var type51 = '大单龙合60';
-var type51 = '大小单双龙虎和合200';
-//var type51 = 'ACEH60';
+ //var type51 = '大单龙合60';
+ var type51 = '大小单双龙虎和合200';
+ //var type51 = 'ACEH60';
 var type52 = '小双虎和100';
 console.log(type51.match(reg51));
 var result51 = type51.match(reg51);
