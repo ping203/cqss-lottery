@@ -21,6 +21,7 @@ var BetItem = function (opts) {
     this.betTime = Date.now();
     this.betParseInfo = null;
     this.betItems = null;
+    this.platformFreeBets = null;
 };
 
 BetItem.prototype.init = function () {
@@ -41,6 +42,10 @@ BetItem.prototype.setState = function (state) {
 BetItem.prototype.setBetItems = function (betItems) {
     this.betItems = betItems;
 };
+
+BetItem.prototype.setPlatformFreeBets = function (freeBets) {
+    this.platformFreeBets = freeBets;
+}
 
 // 获取本金
 BetItem.prototype.getBetMoney = function () {
@@ -141,7 +146,8 @@ BetItem.prototype.strip = function () {
         winCount: this.winCount,
         betMoney:this.betMoney,
         winMoney:this.winMoney,
-        betTime: this.betTime
+        betTime: this.betTime,
+        platformFreeBets:this.platformFreeBets
     };
 
     return r;

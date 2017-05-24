@@ -4,15 +4,6 @@ var fs = require('fs');
 var Answer = require('../../../../../shared/answer');
 var Code = require('../../../../../shared/code');
 
-// 非常荣幸您选择我们作为您的开奖数据供应商！
-// 您的数据账号：33C9381371DE3848
-//
-// 您的校验密码：ED10513DF478
-//
-// 快速管理地址：http://face.opencai.net?token=33c9381371de3848&verify=ed10513df478
-//
-//     自助管理平台：(即将上线)
-
 var PlayerHandler = function (app) {
     this.app = app;
     this.consts = null;
@@ -20,15 +11,10 @@ var PlayerHandler = function (app) {
 };
 
 PlayerHandler.prototype.bet = function (msg, session, next) {
-    var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
-
     var period = this.areaService.getLottery().getNextPeriod();
     var identify = this.areaService.getLottery().getIdentify();
-
-    var betParseInfo = msg.betParseInfo;
-    betParseInfo.betData = msg.betData;
-    player.bet(period, identify, betParseInfo, function (err, result) {
+    var player = this.areaService.getPlayer(session.uid);
+    player.bet(period, identify, msg.betData, msg.betParseInfo, function (err, result) {
         if(err){
             next(null, new Answer.NoDataResponse(err));
             return;
@@ -38,10 +24,9 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.unBet = function (msg, session, next) {
-    var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
 
-    player.unBet(msg.entityId, function (err, result) {
+    var player = this.areaService.getPlayer(session.uid);
+    player.unBet(player.entityId, function (err, result) {
         if(err){
             next(null, new Answer.NoDataResponse(err));
             return;

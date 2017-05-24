@@ -14,7 +14,7 @@ function Bets(opts) {
     this.id = 1;
     this.betMap = new Map();
     this.syncItems = [];
-    this.typeTotal = new Map();
+    this.betTypeInfo = new Map();
 };
 
 Bets.prototype.init = function () {
@@ -47,23 +47,6 @@ Bets.prototype.getItem = function (entityId) {
     return this.betMap.get(entityId);
 };
 
-// 0 确认，1 撤销，2 结算,3未开奖
-Bets.prototype.setItemState = function (entityId, state) {
-    var item = this.betMap.get(entityId);
-    if (item) {
-        item.setState(state);
-        //this.syncItems.push(item);
-        item.save();
-    }
-};
-
-Bets.prototype.getItemState = function (entityId, state) {
-    var item = this.betMap.get(entityId);
-    if (item) {
-        return item.getState();
-    }
-};
-
 Bets.prototype.openLottery = function (openInfo) {
 
     var openResult = {winCount:0,winMoney:0};
@@ -94,7 +77,7 @@ Bets.prototype.all = function () {
 
 
 Bets.prototype.canBetType = function (type, value) {
-    var betted = this.typeTotal.get(type);
+    var betted = this.betTypeInfo.get(type);
     var num = !!betted ? betted : 0;
     var err = {};
     if (this.betLimitCfg.playerLimit(type, num + value)) {

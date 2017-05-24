@@ -18,7 +18,7 @@ var Configure = function () {
         "use strict";
         let dbclient = require('./app/dao/mysql/mysql').init(app);
         app.set('dbclient', dbclient);
-        app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient}});
+        app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient,interval:500}});
 
         app.route('area', RouteUtil.area);
         app.route('chat', RouteUtil.chat);

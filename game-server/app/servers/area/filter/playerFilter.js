@@ -36,16 +36,16 @@ PlayerFilter.prototype.before = function(msg, session, next){
                 return;
 			}
 
-            for(var type in result.typeTotal){
+            for(var type in result.betTypeInfo){
                 // 平台限额检查
-                var err = pomelo.app.areaService.canBetPlatform(type, result.typeTotal[type]);
-                if(err){
-                    next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
+                var answer = pomelo.app.areaService.canBetPlatform(type, result.betTypeInfo[type].money);
+                if(answer.result.code != Code.OK.code){
+                    next(new Error(err.desc, err.code), answer);
                     return;
                 }
-
+                result.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
                 //玩家限额检查
-                err = player.canBet(type, result.typeTotal[type])
+                err = player.canBet(type, result.betTypeInfo[type].money)
                 if(err){
                     next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
                     return;

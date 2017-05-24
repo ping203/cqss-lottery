@@ -44,7 +44,6 @@ Lottery.prototype.publishLottery = function (result) {
     this.nextLottery = result.next;
     this.identify = result.identify;
     this.lotteryHistory.set(result.last.period, result.last);
-    this.daoLottery.addLottery(this.identify, this.lastLottery.period, this.lastLottery.numbers, Date.parse(this.lastLottery.opentime));
     this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:null});
 };
 
@@ -55,6 +54,7 @@ Lottery.prototype.publishCurLottery = function (uids) {
 };
 
 Lottery.prototype.publishParseResult = function (parseResult) {
+    this.daoLottery.addLottery(this.identify, this.lastLottery.period, this.lastLottery.numbers, Date.parse(this.lastLottery.opentime), parseResult);
     this.emit(this.consts.Event.area.parseLottery, {lottery: this, parseResult:parseResult, uids:null});
 };
 

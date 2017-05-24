@@ -63,8 +63,9 @@ CREATE TABLE IF NOT EXISTS `Lottery`(
   `identify` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '标志',
   `numbers` varchar(10) COLLATE utf8_unicode_ci NOT NULL COMMENT '开奖结果',
   `openTime` bigint(20) unsigned NOT NULL COMMENT '开奖时间',
+  `parseResult` json NOT NULL COMMENT '开奖分析结果',
    PRIMARY KEY (`id`),
-   UNIQUE KEY `INDEX_PERIOD_IDENTIFY` (`period`)
+   UNIQUE KEY `period_UNIQUE` (`period`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
