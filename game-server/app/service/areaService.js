@@ -5,6 +5,7 @@ var pomelo = require('pomelo');
 var schedule = require('node-schedule');
 var Answer = require('../../../shared/answer');
 var Code = require('../../../shared/code');
+var defaultConfigs = require('../../config/sysParamConfig.json');
 
 var AreaService = function () {
     this.id = 0;
@@ -33,10 +34,21 @@ AreaService.prototype.init = function () {
     this.id = opts.id;
     this.generateGlobalLottery();
     this.lotteryManagerService.init(this);
-    //area run
-    this.run();
+    //初始化系統參數配置
+    var self = this;
+    this.daoSysParamConfig.initPlatformParam(defaultConfigs, function (err, result) {
+        if(!err && !!result){
+            self.sysConfig.setConfigs(result);
+            self.run();
+            schedule.scheduleJob('0 2 0 * * *', self.incomeScheduleTask.bind(self));
+            return;
+        }
 
-    schedule.scheduleJob('0 2 0 * * *', this.incomeScheduleTask.bind(this));
+        logger.error('平台参数配置获取失败，系统无法工作');
+    });
+
+    //this.run();
+    //schedule.scheduleJob('0 2 0 * * *', this.incomeScheduleTask.bind(this));
 };
 
 AreaService.prototype.run = function () {
@@ -248,8 +260,7 @@ AreaService.prototype.addEntity = function (e) {
  */
 AreaService.prototype.countdown = function () {
 
-//    logger.error('AreaService.prototype.generateGlobalLottery:',this.getLottery());
-    if (this.countdownCount >= 5) {
+    if (this.countdownCount >= 6) {
         this.getLottery().countdown();
         this.countdownCount = 0;
     }
@@ -412,5 +423,11 @@ module.exports = {
     }, {
         name: "calcIncome",
         ref: "calcIncome"
+    }, {
+        name: "daoSysParamConfig",
+        ref: "daoSysParamConfig"
+    }, {
+        name: "sysConfig",
+        ref: "sysConfig"
     }]
 }

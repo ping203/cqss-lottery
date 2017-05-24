@@ -71,6 +71,7 @@ BetLimitCfg.prototype.init = function () {
  * @param config
  */
 BetLimitCfg.prototype.update = function (config) {
+    return;
     var self = this;
     config.single.forEach(function (vals) {
         self.singleMap.set(vals.type, vals.limit);

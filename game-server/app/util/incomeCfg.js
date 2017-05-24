@@ -16,16 +16,17 @@ IncomeCfg.prototype.init = function () {
  * @param config
  */
 IncomeCfg.prototype.update = function (configs) {
+    return;
     var self = this;
     configs.betRates.forEach(function (val) {
         self.betRate.set(val.key, val.value);
     });
 
-    configs.defectionRates.forEach(function (val) {
+    configs.playerDefection.forEach(function (val) {
         self.defectionRate.set(val.key, val.value);
     });
 
-    configs.rebateRates.forEach(function (val) {
+    configs.platformRebate.forEach(function (val) {
         self.rebateRate.set(val.key, val.value);
     });
 };
@@ -44,7 +45,7 @@ IncomeCfg.prototype.getDefectionRate = function (level) {
     return val;
 };
 
-// 获取玩家分成倍率
+// 获取代理商分成
 IncomeCfg.prototype.getRebateRate = function (level) {
     var val = this.rebateRate.get(level);
     if(!val) val = 0.2;

@@ -5,29 +5,57 @@
 var logger = require('pomelo-logger').getLogger(__filename);
 var pomelo = require('pomelo');
 var bearcat = require('bearcat');
+var async = require('async');
 
 var DaoSysParamConfig = function () {
 
 };
 
-DaoSysParamConfig.prototype.initPlatformParam = function (identify, period, numbers, openTime, parseResult, cb) {
-    var sql = 'insert into config (period,identify,numbers,openTime, parseResult) values(?,?,?,?,?)';
-    var args = [period, identify, numbers, openTime, parseResult];
+DaoSysParamConfig.prototype.initPlatformParam = function (configs, callback) {
     var self = this;
-    pomelo.app.get('dbclient').insert(sql, args, function(err,res){
-        if(err !== null){
-            self.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
-        } else {
-            self.utils.invokeCallback(cb, null, {
-                id: res.insertId,
-                period:period,
-                identify:identify,
-                numbers:numbers,
-                openTime:openTime,
-                parseResult:parseResult
+    var sysConfig = null;
+    async.waterfall([function (cb) {
+        var sql = 'insert into config (info) values(?,?)';
+        var args = [1, JSON.stringify(configs)];
+        pomelo.app.get('dbclient').insert(sql, args, function(err,res){
+            if(err !== null){
+                cb(null,null);
+            } else {
+                cb(null, configs);
+            }
+        });
+    },function (res,cb) {
+        if(res){
+            sysConfig = res;
+            cb();
+        }
+        else {
+            var sql = 'select * from config where id = ?';
+            var args = [1];
+
+            pomelo.app.get('dbclient').query(sql,args,function(err, res){
+                if(err !== null){
+                    cb(err);
+                } else {
+                    if (!!res && res.length === 1) {
+                        sysConfig = JSON.parse(res[0].info);
+                        cb();
+                    } else {
+                        cb('sys config not exist');
+                    }
+                }
             });
+
+        }
+    }],function (err) {
+        if(err){
+            self.utils.invokeCallback(callback, err, null);
+        }
+        else {
+            self.utils.invokeCallback(callback, null, sysConfig);
         }
     });
+
 };
 
 DaoSysParamConfig.prototype.getLottery = function (period, cb) {

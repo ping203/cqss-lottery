@@ -34,7 +34,7 @@ RankService.prototype.winRateCalc = function (rankId, callback) {
         if(!!result && result.betCount >0){
             rankPlayer.betCount = result.betCount;
             rankPlayer.winCount = result.winCount;
-            rankPlayer.winRate = (result.winCount/result.betCount).toFixed(2);//Math.round((result.winCount/result.betCount)*100/100)
+            rankPlayer.winRate = Number((result.winCount/result.betCount).toFixed(2));//Math.round((result.winCount/result.betCount)*100/100)
         }
         self.utils.invokeCallback(callback, null, rankPlayer);
     });
@@ -45,7 +45,7 @@ RankService.prototype.todayRichCalc = function (rankId, callback) {
     var self = this;
     this.daoBets.getPlayerTodayBets(rankId.id, function (err, result) {
         if(!!result){
-            rankPlayer.betMoney = result.betMoney;
+            rankPlayer.betMoney = !!result.betMoney?result.betMoney:0;
         }
         self.utils.invokeCallback(callback, null, rankPlayer);
     });
