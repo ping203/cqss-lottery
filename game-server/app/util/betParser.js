@@ -161,10 +161,10 @@ BetParser.prototype.parse = function(data, cb){
                         return;
                     }
 
-                    item.result = types[i];
-                    item.money = perMoney;
-                    item.ballPos = ballPos[j];
                     item.type = type;
+                    item.result = ballPos[j] + types[i];
+                    item.money = perMoney;
+
                     betResult.push(item);
 
                     total+= perMoney;

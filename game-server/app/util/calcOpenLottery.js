@@ -26,6 +26,10 @@ CalcOpenLottery.prototype.init = function () {
     this.totalSingleDoubleResult = null;
     this.dragonAndTigerResult = null;
     this.equal15Result = null;
+    this.perPosSizeSingleDoubleResult = [];
+    this.perPosValueResult = [];
+    this.containValueResult = [];
+    this.shunZiPantherResult = [];
 }
 
 // 和大小计算 大>=23  小<23
@@ -73,22 +77,42 @@ CalcOpenLottery.prototype.equal15Calc = function (numbers) {
 
 //球大小单双 0-4 小 5-9 大
 CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
-
+    for (var i = 0; i<numbers.length;++i){
+        var num = parseInt(numbers[i],10);
+        var size = num <=4 ? ((i+1)+'小'):((i+1)+'大');
+        this.perPosSizeSingleDoubleResult.push(size);
+        var sd = num%2 === 0?((i+1)+'双'):((i+1)+'单');
+        this.perPosSizeSingleDoubleResult.push(sd);
+    }
 };
 
 //球值
 CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
-
+    for (var i = 0; i<numbers.length;++i){
+        var vals = (i+1)+numbers[i];
+        this.perPosValueResult.push(vals);
+    }
 };
 
 //包数字
 CalcOpenLottery.prototype.containValueCalc = function (numbers) {
-
+    for (var i = 0; i<numbers.length;++i){
+        var vals = (i+1)+numbers[i];
+        this.containValueResult.push(vals);
+    }
 };
 
 //豹子、顺子 豹子：连续3球相同 顺子：连子
 CalcOpenLottery.prototype.shunZiPantherCalc = function (numbers) {
+    if(numbers[0] === numbers[1] === numbers[2]){
+        this.shunZiPantherResult.push('前豹');
+    }else if(numbers[1] === numbers[2] === numbers[3]){
+        this.shunZiPantherResult.push('中豹');
+    }else if(numbers[2] === numbers[3] === numbers[4]){
+        this.shunZiPantherResult.push('后豹');
+    }
 
+    
 };
 
 CalcOpenLottery.prototype.calc = function (numbers) {
