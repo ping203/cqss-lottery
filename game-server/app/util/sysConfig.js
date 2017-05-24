@@ -14,8 +14,8 @@ SysConfig.prototype.getConfigs = function () {
 
 SysConfig.prototype.setConfigs = function (configs) {
     this._configs = configs;
-    this.betLimitCfg.update(this._configs.norm);
-    this.incomeCfg.update({betRates:this._configs.odds, playerDefection:this._configs.bw, []}); //todo 代理商
+   // this.betLimitCfg.update(this._configs.norm);
+    //this.incomeCfg.update({betRates:this._configs.odds, playerDefection:this._configs.bw, []}); //todo 代理商
 }
 
 //获取玩家初始化金币
