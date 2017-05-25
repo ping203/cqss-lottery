@@ -27,6 +27,22 @@ DaoUser.prototype.getPlayer = function(playerId, cb){
     });
 };
 
+// 获取我的好友
+DaoUser.prototype.getMyFriends = function(playerId, cb){
+    var sql = 'select friends from User where id = ?';
+    var args = [playerId];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql,args,function(err, res){
+        if(err !== null){
+            self.utils.invokeCallback(cb, err.message, null);
+        } else if (!res || res.length <= 0){
+            self.utils.invokeCallback(cb,null,[]);
+        } else{
+            self.utils.invokeCallback(cb,null, res[0].friends);
+        }
+    });
+};
+
 // 获取玩家综合信息
 DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
     var self = this;

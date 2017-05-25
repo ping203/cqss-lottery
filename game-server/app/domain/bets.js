@@ -47,12 +47,12 @@ Bets.prototype.getItem = function (entityId) {
     return this.betMap.get(entityId);
 };
 
-Bets.prototype.openLottery = function (openInfo) {
+Bets.prototype.openLottery = function (openInfo, level) {
 
     var openResult = {winCount:0,winMoney:0};
     for (var item of this.betMap.values()) {
         if (item.getState() === this.consts.BetState.BET_WAIT) {
-            item.calcHarvest(openInfo);
+            item.calcHarvest(openInfo, level);
             item.setState(this.consts.BetState.BET_OPENNED);
             item.save();
             openResult.winCount += item.getWinCount();

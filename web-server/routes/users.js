@@ -4,6 +4,7 @@ const router = require('koa-router')()
 const Token = require('../../shared/token');
 const secret = require('../../shared/config/session').secret;
 const daoUser = require('../lib/dao/daoUser');
+const daoSysParam = require('../lib/dao/daoSysParam');
 const code = require('../../shared/code');
 var async = require('async');
 
@@ -156,6 +157,8 @@ router.post('/register', function (ctx, next) {
         return;
     }
 
+    var _sysConfig;
+
     return new Promise((resolve, reject) => {
 
         async.waterfall([
@@ -180,17 +183,25 @@ router.post('/register', function (ctx, next) {
                 }
             },function (inviter, cb) {
                 if(inviter){
-                    cb(null, null);
+                    daoSysParam.getPlatformParam(cb);
                 }else {
                     cb(code.USER.FA_INVITOR_NOT_EXIST);
                 }
+            },function (sysConfig, cb) {
+                if(!sysConfig){
+                    cb(code.USER.FA_USER_SYS_CONFIG_ERR);
+                    return;
+                }
+
+                _sysConfig = sysConfig;
+                cb();
             }
         ], function (err) {
             if(err){
                 ctx.body = err;
                 resolve();
             }else {
-                daoUser.createUser(msg.username, msg.password, msg.phone, msg.inviter, from, function (err, uid) {
+                daoUser.createUser(msg.username, msg.password, msg.phone, msg.inviter, from, _sysConfig.rank[0], _sysConfig.initial, function (err, uid) {
                     if (err) {
                         console.error(err);
                         ctx.body = code.DBFAIL;
@@ -199,6 +210,7 @@ router.post('/register', function (ctx, next) {
                         ctx.body = {
                             code: code.OK.code
                         };
+                        daoUser.addUserToFriendList(msg.username, msg.inviter);
                     }
                     resolve();
                 });

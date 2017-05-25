@@ -12,6 +12,10 @@ $(document).ready(function() {
 	$('#bet').on('click', bet);
 	$('#unBet').on('click', unBet);
 	$('#myIncome').on('click', myIncome);
+	$('#myBets').on('click', myBets);
+	$('#friendIncome').on('click', friendIncome);
+	$('#winRateRankList').on('click', winRateRankList);
+	$('#todayRichRankList').on('click', todayRichRankList);
 
      gameMsgInit();
 
@@ -125,7 +129,52 @@ $(document).ready(function() {
                 console.log('獲取收益失敗');
                 return;
             }
+            console.log(res);
             alert('獲取收益成功');
+        });
+    }
+
+    function myBets(e) {
+        pomelo.request("area.playerHandler.myBets", {skip:10, limit:10}, function (res) {
+            if(res.result.code != 200){
+                console.log('獲取收益失敗');
+                return;
+            }
+            console.log(res);
+            alert('獲取收益成功');
+        });
+    }
+
+    function friendIncome(e) {
+        pomelo.request("area.playerHandler.friendIncome", {skip:10, limit:10}, function (res) {
+            if(res.result.code != 200){
+                console.log('獲取朋友收益失敗');
+                return;
+            }
+            console.log(res);
+            alert('獲取朋友收益成功');
+        });
+    }
+
+    function winRateRankList(e) {
+        pomelo.request("rank.rankHandler.winRateRankList", {skip:10, limit:10}, function (res) {
+            if(res.result.code != 200){
+                console.log('獲取朋友收益失敗');
+                return;
+            }
+            console.log(res);
+            alert('獲取朋友收益成功');
+        });
+    }
+
+    function todayRichRankList(e) {
+        pomelo.request("rank.rankHandler.todayRichRankList", {skip:10, limit:10}, function (res) {
+            if(res.result.code != 200){
+                console.log('獲取朋友收益失敗');
+                return;
+            }
+            console.log(res);
+            alert('獲取朋友收益成功');
         });
     }
 

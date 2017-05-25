@@ -40,7 +40,7 @@ AreaService.prototype.init = function () {
         if(!err && !!result){
             self.sysConfig.setConfigs(result);
             self.run();
-            schedule.scheduleJob('0 2 0 * * *', self.incomeScheduleTask.bind(self));
+            schedule.scheduleJob('10 * * * * *', self.incomeScheduleTask.bind(self));
             return;
         }
 
@@ -48,7 +48,7 @@ AreaService.prototype.init = function () {
     });
 
     //this.run();
-    //schedule.scheduleJob('0 2 0 * * *', this.incomeScheduleTask.bind(this));
+    //schedule.scheduleJob('10 * * * * *', this.incomeScheduleTask.bind(this));
 };
 
 AreaService.prototype.run = function () {
@@ -66,60 +66,6 @@ AreaService.prototype.incomeScheduleTask = function () {
     this.calcIncome.calc();
 };
 
-AreaService.prototype.convertParseToJson = function (openInfo) {
-    var parseResult = {};
-
-    for (let item of openInfo.perPosValueResult) {
-        parseResult.perPosValueResult.push(item);
-    }
-    return parseResult;
-
-    parseResult.totalSizeResult = openInfo.totalSizeResult;
-    parseResult.totalSingleDoubleResult = openInfo.totalSingleDoubleResult;
-
-    parseResult.dragonAndTigerResult = [];
-    if (openInfo.dragonAndTigerResult) {
-        for (let item of openInfo.dragonAndTigerResult) {
-            parseResult.dragonAndTigerResult.push(item);
-        }
-    }
-
-    parseResult.equal15Result = openInfo.equal15Result;
-    parseResult.perPosSizeSingleDoubleResult = [];
-    if (openInfo.perPosSizeSingleDoubleResult) {
-        for (let item of openInfo.perPosSizeSingleDoubleResult) {
-            parseResult.perPosSizeSingleDoubleResult.push(item);
-        }
-    }
-
-    parseResult.perPosValueResult = [];
-    if (openInfo.perPosValueResult) {
-        for (let item of openInfo.perPosValueResult) {
-            parseResult.perPosValueResult.push(item);
-        }
-    }
-
-    parseResult.containValueResult = [];
-    if (openInfo.containValueResult) {
-        for (let item of openInfo.containValueResult) {
-            parseResult.containValueResult.push(item);
-        }
-    }
-
-    parseResult.pantherResult = [];
-    for (let item of openInfo.pantherResult) {
-        parseResult.pantherResult.push(item);
-    }
-    parseResult.shunZiResult = [];
-    if (openInfo.shunZiResult) {
-        for (let item of openInfo.shunZiResult) {
-            parseResult.shunZiResult.push(item);
-        }
-    }
-
-    return parseResult;
-}
-
 AreaService.prototype.openLottery = function (numbers, period, opentime) {
 
     var paserResult = {numbers: numbers, period: period, opentime: opentime};
@@ -128,7 +74,6 @@ AreaService.prototype.openLottery = function (numbers, period, opentime) {
     for (let item of openCodeResult) {
         paserResult.parseJson.push(item);
     }
-    //this.convertParseToJson(openCodeResult);
 
     this.getLottery().publishParseResult(paserResult);
 
@@ -143,6 +88,13 @@ AreaService.prototype.openLottery = function (numbers, period, opentime) {
     this.trusteePlayers = {};
 };
 
+AreaService.prototype.canBetNow = function () {
+    if(this.getLottery().getTickCount() < this.consts.BetCloseTime){
+        return false;
+    }
+
+    return true;
+};
 AreaService.prototype.canBetPlatform = function (type, value) {
     var num = this.platformTypeBet.get(type);
     var newNum = (!!num ? num : 0) + value;
@@ -260,7 +212,7 @@ AreaService.prototype.addEntity = function (e) {
  */
 AreaService.prototype.countdown = function () {
 
-    if (this.countdownCount >= 6) {
+    if (this.countdownCount >= 5) {
         this.getLottery().countdown();
         this.countdownCount = 0;
     }

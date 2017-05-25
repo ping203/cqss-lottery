@@ -112,8 +112,8 @@ Player.prototype.getMyIncomes = function(skip, limit, cb){
     this.daoIncome.getPlayerIncomes(this.id, skip, limit, cb);
 }
 
-Player.prototype.getFriendIncome = function(skip, limit, cb){
-    this.daoIncome.getPlayerIncomes(this.id, skip, limit, cb);
+Player.prototype.getFriendIncomes = function(skip, limit, cb){
+    this.daoIncome.getMyFriendIncomes(this.id, skip, limit, cb);
 }
 
 //todo:检查用户投注类型总额是否超限
@@ -122,7 +122,6 @@ Player.prototype.canBet = function (type, value) {
 };
 
 Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
-
     if (betParseInfo.total > this.accountAmount) {
         this.utils.invokeCallback(cb, Code.GAME.FA_ACCOUNTAMOUNT_NOT_ENOUGH, null);
         return;
@@ -186,7 +185,7 @@ Player.prototype.unBet = function (entityId, cb) {
 };
 
 Player.prototype.openTheLottery = function (openInfo) {
-    var openResult = this.bets.openLottery(openInfo);
+    var openResult = this.bets.openLottery(openInfo, this.level);
     if(openResult.winCount != 0){
         this.betStatistics.winCount += openResult.winCount;
         this.accountAmount += openResult.winMoney;

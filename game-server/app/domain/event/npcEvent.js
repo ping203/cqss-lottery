@@ -32,11 +32,13 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
                 pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.lottery,{
                     entityId: args.lottery.entityId,
                     lotteryResult: args.lotteryResult,
+                    preLottery:args.preLottery
                 },args.uids);
             }else {
                 args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.lottery,{
                     entityId: args.entityId,
                     lotteryResult: args.lotteryResult,
+                    preLottery:args.preLottery
                 });
             }
         }

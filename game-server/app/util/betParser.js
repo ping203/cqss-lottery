@@ -58,72 +58,6 @@ BetParser.prototype.handleReg = function (val) {
     return type;
 }
 
-// BetParser.prototype.handleReg2 = function (val) {
-//     var type;
-//     switch (val){
-//         case '大':
-//         case '小':
-//         case '单':
-//         case '双':
-//             type = this.consts.BetType.PerPosSizeSingleDouble;
-//             break;
-//         case '0':
-//         case '1':
-//         case '2':
-//         case '3':
-//         case '4':
-//         case '5':
-//         case '6':
-//         case '7':
-//         case '8':
-//         case '9':
-//             type = this.consts.BetType.PerPosValue;
-//             break;
-//         default:
-//             break;
-//     }
-//
-//     return type;
-// }
-//
-// BetParser.prototype.handleReg3 = function (val) {
-//     var type;
-//     switch (val){
-//         case '0':
-//         case '1':
-//         case '2':
-//         case '3':
-//         case '4':
-//         case '5':
-//         case '6':
-//         case '7':
-//         case '8':
-//         case '9':
-//             type = this.consts.BetType.ContainValue;
-//             break;
-//         default:
-//             break;
-//     }
-//
-//     return type;
-// }
-//
-// BetParser.prototype.handleReg4 = function (val) {
-//     var type;
-//     switch (val){
-//         case '豹':
-//             type = this.consts.BetType.Panther;
-//             break;
-//         case '顺':
-//             type = this.consts.BetType.ShunZi;
-//             break;
-//         default:
-//             break;
-//     }
-//
-//     return type;
-// }
-
 BetParser.prototype.parse = function(data, cb){
     var total = 0;
     var betTypeInfo = {};
@@ -157,9 +91,11 @@ BetParser.prototype.parse = function(data, cb){
 
                 if(undefined === betTypeInfo[betType.code]){
                     betTypeInfo[betType.code]= {money:0,type:{}};
+                    betTypeInfo[betType.code].desc ="";
                 }
                 betTypeInfo[betType.code].money += perMoney;
                 betTypeInfo[betType.code].type = betType;
+                betTypeInfo[betType.code].desc += `${item.result}:${perMoney} `
             }
             else {
                 isValid = false;
@@ -196,9 +132,11 @@ BetParser.prototype.parse = function(data, cb){
 
                     if(undefined === betTypeInfo[betType.code]){
                         betTypeInfo[betType.code]= {money:0,type:{}};
+                        betTypeInfo[betType.code].desc ="";
                     }
                     betTypeInfo[betType.code].money += perMoney;
                     betTypeInfo[betType.code].type = betType;
+                    betTypeInfo[betType.code].desc += `${item.result}:${perMoney} `
 
                 }else {
                     cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
@@ -233,9 +171,11 @@ BetParser.prototype.parse = function(data, cb){
                     total+= perMoney;
                     if(undefined === betTypeInfo[betType.code]){
                         betTypeInfo[betType.code]= {money:0,type:{}};
+                        betTypeInfo[betType.code].desc ="";
                     }
                     betTypeInfo[betType.code].money += perMoney;
                     betTypeInfo[betType.code].type = betType;
+                    betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `;
                 }
             }
             else {
@@ -271,9 +211,11 @@ BetParser.prototype.parse = function(data, cb){
                     total+= perMoney;
                     if(undefined === betTypeInfo[betType.code]){
                         betTypeInfo[betType.code]= {money:0,type:{}};
+                        betTypeInfo[betType.code].desc ="";
                     }
                     betTypeInfo[betType.code].money += tempItem.money;
                     betTypeInfo[betType.code].type = betType;
+                    betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `
                 }
             }
             else {
@@ -318,14 +260,17 @@ BetParser.prototype.parse = function(data, cb){
                     tempItem.type = betType;
                     tempItem.result = this.keyValue[j]+types[i];
                     tempItem.money = perMoneys[moneyIndex++];
+                    if(tempItem.money === 0) continue;
                     betItems.push(tempItem);
 
                     total+= tempItem.money;
                     if(undefined === betTypeInfo[betType.code]){
                         betTypeInfo[betType.code]= {money:0,type:{}};
+                        betTypeInfo[betType.code].desc ="";
                     }
                     betTypeInfo[betType.code].money += tempItem.money;
                     betTypeInfo[betType.code].type = betType;
+                    betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `
                 }
             }
             else {

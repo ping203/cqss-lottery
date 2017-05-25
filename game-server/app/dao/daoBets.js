@@ -37,9 +37,9 @@ DaoBets.prototype.addBet = function (bet, cb) {
     });
 };
 
-DaoBets.prototype.getBets = function (skip, limit, cb) {
-    var sql = 'select * from Bets limit ?,?';
-    var args = [skip, limit];
+DaoBets.prototype.getBets = function (playerId, skip, limit, cb) {
+    var sql = 'select * from Bets where uid=? limit ?,?';
+    var args = [playerId, skip, limit];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
@@ -62,7 +62,7 @@ DaoBets.prototype.getBets = function (skip, limit, cb) {
                         betTime: res[i].betTime
 
                     });
-                    items.push(betItem);
+                    items.push(betItem.strip());
                 }
 
                 self.utils.invokeCallback(cb, null, items);

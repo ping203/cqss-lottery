@@ -31,6 +31,17 @@ var lotteryResultSample = {
     "time": "2017-05-18 10:01:31"
 };
 
+// {
+//     "rows":2,
+//     "code":"cqssc",
+//     "remain":"155hrs",
+//     "next":[{"expect": "20170601066", "opentime": "2017-06-01 17:00:40"}],
+//     "open":[{"expect": "20170601065", "opencode": "7,3,0,0,8", "opentime": "2017-06-01 16:50:43"},
+//             {"expect": "20170601064", "opencode": "3,5,8,9,2", "opentime": "2017-06-01 16:40:45"}
+//            ],
+//     "time":"2017-06-01 17:00:15"
+// }
+
 LotteryManagerService.prototype.init = function (service) {
     this.lotteryData = this.dataApiUtil.lotteryApi().data;
     this.lotteryIds = this.dataApiUtil.lotteryApi().ids;
@@ -40,11 +51,11 @@ LotteryManagerService.prototype.init = function (service) {
 };
 
 LotteryManagerService.prototype.nextAddr = function () {
-    if(this.lotteryIds.length <=0) return null;
+    if (this.lotteryIds.length <= 0) return null;
 
     this.addrIndex = (this.addrIndex + 1) % this.lotteryIds.length;
     var addr = this.lotteryData[this.addrIndex];
-    var retVal = {header:{host:addr.host, port:addr.port,path:addr.path,method:addr.method},type:addr.type};
+    var retVal = {header: {host: addr.host, port: addr.port, path: addr.path, method: addr.method}, type: addr.type};
     return retVal;
 };
 
@@ -52,16 +63,16 @@ LotteryManagerService.prototype.tick = function () {
 
     var self = this;
     this.getLotteryInfo(this.nextAddr(), function (err, result) {
-        if(err || !result){
+        if (err || !result) {
             return;
         }
 
         var lottery = self.areaService.getLottery();
-        if(!lottery){
+        if (!lottery) {
             return;
         }
 
-        if(!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period != result.last.period)){
+        if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period != result.last.period)) {
             lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
         }
@@ -69,49 +80,75 @@ LotteryManagerService.prototype.tick = function () {
         var sysTickTime = new Date(result.tickTime);
         var nextOpenTime = new Date(result.next.opentime);
 
-        var tick = (nextOpenTime - sysTickTime)/1000;
+        var tick = (nextOpenTime - sysTickTime) / 1000;
         lottery.setTickCount(result.next.period, tick);
 
         self.latestLotteryInfo = result;
-     //   logger.info(this.latestLotteryInfo);
+        //   logger.info(this.latestLotteryInfo);
 
         // 使用结果
         //self.areaService.addAction();
     });
 };
 
-LotteryManagerService.prototype.checkA = function(result){
-    var lotteryInfo ={};
-    if(!result.code || !result.time){
+
+
+// {
+//     "rows":2,
+//     "code":"cqssc",
+//     "remain":"155hrs",
+//     "next":[{"expect": "20170601066", "opentime": "2017-06-01 17:00:40"}],
+//     "open":[{"expect": "20170601065", "opencode": "7,3,0,0,8", "opentime": "2017-06-01 16:50:43"},
+//             {"expect": "20170601064", "opencode": "3,5,8,9,2", "opentime": "2017-06-01 16:40:45"}
+//            ],
+//     "time":"2017-06-01 17:00:15"
+// }
+LotteryManagerService.prototype.checkA = function (result) {
+    var lotteryInfo = {};
+    if (!result.code || !result.time) {
         return null;
     }
 
     lotteryInfo.identify = result.code;
     lotteryInfo.tickTime = result.time;
 
-    if(!result.next || !result.next[0] || !result.next[0].expect || !result.next[0].opentime){
+    if (!result.next || !result.next[0] || !result.next[0].expect || !result.next[0].opentime) {
         return null;
     }
-    lotteryInfo.next = {period:result.next[0].expect, opentime:result.next[0].opentime};
-    if(!result.open || !result.open[0] || !result.open[0].expect || !result.open[0].opentime || !result.open[0].opencode){
+    lotteryInfo.next = {period: result.next[0].expect, opentime: result.next[0].opentime};
+
+    if (!result.open || !result.open[0] || !result.open[0].expect || !result.open[0].opentime || !result.open[0].opencode) {
         return null;
     }
-    lotteryInfo.last = {period:result.open[0].expect, opentime:result.open[0].opentime, numbers:result.open[0].opencode};
+    lotteryInfo.last = {
+        period: result.open[0].expect,
+        opentime: result.open[0].opentime,
+        numbers: result.open[0].opencode
+    };
+
+    if (!result.open || !result.open[1] || !result.open[1].expect || !result.open[1].opentime || !result.open[1].opencode) {
+        return null;
+    }
+    lotteryInfo.pre = {
+        period: result.open[1].expect,
+        opentime: result.open[1].opentime,
+        numbers: result.open[1].opencode
+    };
 
     return lotteryInfo;
 };
 
-LotteryManagerService.prototype.checkB = function(result){
+LotteryManagerService.prototype.checkB = function (result) {
 
 };
 
-LotteryManagerService.prototype.checkC = function(result){
+LotteryManagerService.prototype.checkC = function (result) {
 
 };
 
 LotteryManagerService.prototype.parse = function (type, result) {
     var resultInfo = null;
-    switch (type){
+    switch (type) {
         case this.consts.LotteryType.A:
             resultInfo = this.checkA(result);
             break;
@@ -127,7 +164,7 @@ LotteryManagerService.prototype.parse = function (type, result) {
 
 LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
 
-    if(!options){
+    if (!options) {
         callback('Request err', null);
         return;
     }
@@ -135,28 +172,28 @@ LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
     var self = this;
 
     var req = http.request(options.header, function (res) {
-        if(res.statusCode != 200){
+        if (res.statusCode != 200) {
             self.getLotteryInfo(this.nextAddr(), callback);
             return;
         }
 
         var resData = "";
         res.on('data', function (chunk) {
-           // console.log('BODY: ' + chunk);
-            if(chunk){
+            // console.log('BODY: ' + chunk);
+            if (chunk) {
                 resData += chunk;
             }
         });
 
         res.on("end", function () {
             var jsData = JSON.parse(resData);
-            if(!jsData){
+            if (!jsData) {
                 self.getLotteryInfo(self.nextAddr(), callback);
                 return;
             }
 
             var parseResult = self.parse(options.type, jsData)
-            if(parseResult){
+            if (parseResult) {
                 callback(null, parseResult);
             }
             else {

@@ -18,8 +18,10 @@ function Lottery(opts) {
     this.lastTickTime = 0;
     this.lastLottery = null; //最近开奖
     this.nextLottery = null; //下期彩票
+    this.preLottery = null; //上期开奖
     this.identify = null; //彩票标志
     this.lotteryCaches = [];
+    this.lastTick = 0;
 }
 
 Lottery.prototype.init = function() {
@@ -43,15 +45,15 @@ Lottery.prototype.setTickCount = function(period, tick) {
 };
 
 Lottery.prototype.publishNotice = function () {
-    this.emit(this.consts.Event.area.notice, {lottery: this, content:'三季娱乐, 技术封测'});
+    this.emit(this.consts.Event.area.notice, {lottery: this, content:this.sysConfig.getSysNotice()});
 };
 
 Lottery.prototype.publishLottery = function (result) {
-
     this.lastLottery = result.last;
     this.nextLottery = result.next;
+    this.preLottery = result.pre;
     this.identify = result.identify;
-    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, uids:null});
+    this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, preLottery:this.preLottery, uids:null});
 };
 
 //发布最近一期开奖信息
@@ -71,10 +73,9 @@ Lottery.prototype.publishParseResult = function (parseResult) {
             if(self.lotteryCaches.push(result) > 10){
                 self.lotteryCaches.pop();
             }
+            self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult:[result], uids:null});
         }
     });
-
-    this.emit(this.consts.Event.area.parseLottery, {lottery: this, parseResult:[parseResult], uids:null});
 };
 
 //发布最近10期开奖分析结果
@@ -98,17 +99,27 @@ Lottery.prototype.getLotterys = function (skip, limit, cb) {
     });
 }
 
+Lottery.prototype.getTickCount = function () {
+    return this.tickCount;
+};
+
 Lottery.prototype.countdown = function () {
 	var subTick = 0;
 	if(this.lastTickTime != 0){
         subTick = (Date.now() - this.lastTickTime)/1000;
 	}
     this.tickCount -= subTick;
+
+	if(Math.floor(this.tickCount) > this.lastTick && this.lastTick != 0){
+        this.tickCount = this.lastTick;
+    }
 	if(this.tickCount < 0) this.tickCount = 0;
 
     this.emit(this.consts.Event.area.countdown, {lottery: this});
 
     this.lastTickTime = Date.now();
+
+    this.lastTick = Math.floor(this.tickCount);
 };
 
 
@@ -154,5 +165,8 @@ module.exports = {
 	},{
 	    name:"daoLottery",
         ref:"daoLottery"
+    },{
+	    name:"sysConfig",
+        ref:"sysConfig"
     }]
 };

@@ -14,10 +14,10 @@ const default_rank = '江湖小虾';
  * @param {String} from Register source
  * @param {function} cb Call back function.
  */
-daoUser.createUser = function (username, password, phone, inviter, from, cb){
-    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount) values(?,?,?,?,?,?,?,?,?,?)';
+daoUser.createUser = function (username, password, phone, inviter, from, rank, accountAmount, cb){
+    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount,friends) values(?,?,?,?,?,?,?,?,?,?,?)';
     var regTime = Date.now(), roleName = random_name();
-    var args = [username, password, phone, from, regTime,inviter,default_role,roleName, default_rank, 3000];
+    var args = [username, password, phone, from, regTime,inviter, default_role, roleName, rank, accountAmount, "[]"];
 
     mysql.insert(sql, args, function(err,res){
         if(err !== null){
@@ -66,4 +66,15 @@ daoUser.getUserByPhone = function(phone, cb){
     });
 };
 
+daoUser.addUserToFriendList = function (source, target, cb) {
+    var sql = 'UPDATE User SET friends=json_array_append(friends,"$",?) WHERE username =?';
+    var args = [source, target];
+    mysql.update(sql,args,function(err, res){
+        if(err !== null){
+            !!cb && cb(err, null);
+        } else {
+            !!cb && cb(null, null);
+        }
+    });
+};
 

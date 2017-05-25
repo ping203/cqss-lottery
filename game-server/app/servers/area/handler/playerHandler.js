@@ -75,7 +75,7 @@ PlayerHandler.prototype.myIncome = function (msg, session, next) {
 
 PlayerHandler.prototype.friendIncome = function (msg, session, next) {
     var player = this.areaService.getPlayer(session.uid);
-    player.getMyIncomes(msg.skip, msg.limit, function (err, result) {
+    player.getFriendIncomes(msg.skip, msg.limit, function (err, result) {
         if(err){
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
             return;

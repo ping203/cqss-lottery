@@ -10,7 +10,6 @@ NoDataResponse.prototype.toString = function () {
     return JSON.stringify(this);
 };
 
-
 function DataResponse(result, data) {
     this.result = result;
     this.data = data;

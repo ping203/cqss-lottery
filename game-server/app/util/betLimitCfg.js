@@ -70,20 +70,46 @@ BetLimitCfg.prototype.init = function () {
  * update the config data
  * @param config
  */
-BetLimitCfg.prototype.update = function (config) {
-    return;
-    var self = this;
-    config.single.forEach(function (vals) {
-        self.singleMap.set(vals.type, vals.limit);
-    });
+BetLimitCfg.prototype.update = function (configs) {
+    for(var type in configs){
+        switch (type){
+            case 'size':
+                this.singleMap.set(this.consts.BetType.BetSize.code, configs[type].s);
+                this.singleMap.set(this.consts.BetType.BetSingleDouble.code, configs[type].s);
+                this.singleMap.set(this.consts.BetType.DragonAndTiger.code, configs[type].s);
 
-    config.player.forEach(function (vals) {
-        self.playerMap.set(vals.type, vals.limit);
-    });
+                this.playerMap.set(this.consts.BetType.BetSize.code, configs[type].m);
+                this.playerMap.set(this.consts.BetType.BetSingleDouble.code, configs[type].m);
+                this.playerMap.set(this.consts.BetType.DragonAndTiger.code, configs[type].m);
 
-    config.platform.forEach(function (vals) {
-        self.platformMap.set(vals.type, vals.limit);
-    });
+                this.platformMap.set(this.consts.BetType.BetSize.code, configs[type].p);
+                this.platformMap.set(this.consts.BetType.BetSingleDouble.code, configs[type].p);
+                this.platformMap.set(this.consts.BetType.DragonAndTiger.code, configs[type].p);
+                break;
+            case 'sz':
+                this.singleMap.set(this.consts.BetType.ShunZi.code, configs[type].s);
+                this.playerMap.set(this.consts.BetType.ShunZi.code, configs[type].m);
+                this.platformMap.set(this.consts.BetType.ShunZi.code, configs[type].p);
+                break;
+            case 'bz':
+                this.singleMap.set(this.consts.BetType.Panther.code, configs[type].s);
+                this.playerMap.set(this.consts.BetType.Panther.code, configs[type].m);
+                this.platformMap.set(this.consts.BetType.Panther.code, configs[type].p);
+                break;
+            case 'num':
+                this.singleMap.set(this.consts.BetType.number.code, configs[type].s);
+                this.playerMap.set(this.consts.BetType.number.code, configs[type].m);
+                this.platformMap.set(this.consts.BetType.number.code, configs[type].p);
+                break;
+            case 'sum':
+                this.singleMap.set(this.consts.BetType.Equal15.code, configs[type].s);
+                this.playerMap.set(this.consts.BetType.Equal15.code, configs[type].m);
+                this.platformMap.set(this.consts.BetType.Equal15.code, configs[type].p);
+                break;
+            default:
+                break;
+        }
+    }
 };
 
 BetLimitCfg.prototype.getSingleValue = function (type) {
@@ -136,5 +162,8 @@ BetLimitCfg.prototype.platformLimit = function (type, value) {
 module.exports = {
     id:"betLimitCfg",
     func:BetLimitCfg,
-    init:"init"
+    init:"init",
+    props:[
+        {name:'consts',ref:'consts'}
+    ]
 };

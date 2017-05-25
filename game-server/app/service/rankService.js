@@ -16,7 +16,7 @@ var RankService = function () {
 };
 
 RankService.prototype.init = function () {
-    setInterval(this.tick.bind(this), 500);
+    setInterval(this.tick.bind(this), 1000);
 };
 
 RankService.prototype.getWinRankList = function () {
@@ -66,7 +66,7 @@ RankService.prototype.tick = function() {
                     return;
                 }
                 rankPlayers.sort(function (rankPlayerA, rankPlayerB) {
-                    return rankPlayerA.winRate < rankPlayerB.winRate;
+                    return rankPlayerB.winRate - rankPlayerA.winRate;
                 });
                 self.winRankPlayers = rankPlayers.slice(0,100).map(function (rankPlayer) {
                     return rankPlayer;
@@ -79,7 +79,7 @@ RankService.prototype.tick = function() {
                     return;
                 }
                 rankPlayers.sort(function (rankPlayerA, rankPlayerB) {
-                    return rankPlayerA.betMoney < rankPlayerB.betMoney;
+                    return rankPlayerB.betMoney - rankPlayerA.betMoney;
                 });
                 self.richRankPlayers = rankPlayers.slice(0,200).map(function (rankPlayer) {
                     return rankPlayer;

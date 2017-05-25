@@ -5,6 +5,7 @@
 var logger = require('pomelo-logger').getLogger(__filename);
 var pomelo = require('pomelo');
 var bearcat = require('bearcat');
+var async = require('async');
 
 var DaoIncome = function () {
 
@@ -68,11 +69,35 @@ DaoIncome.prototype.getPlayerIncomes = function (playerId, skip, limit, cb) {
     });
 };
 
+DaoIncome.prototype.getMyFriendIncomes = function (playerId, skip, limit, callaback) {
+
+    var self = this;
+    async.waterfall([function (cb) {
+        self.daoUser.getMyFriends(playerId, cb);
+    },function (friends, cb) {
+        var newf = friends.replace(/\[/g,"").replace(/\]/g,"");
+        var sql = 'select * from PlayerIncome where uid in(?) ORDER BY incomeTime DESC limit ?,?';
+        var args = [newf, skip, limit];
+        pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+            if (err !== null) {
+                self.utils.invokeCallback(callaback, err.message, null);
+            } else {
+                if (!!res && res.length > 1) {
+                    self.utils.invokeCallback(callaback, null, res);
+                } else {
+                    self.utils.invokeCallback(callaback, 'income not exist ', null);
+                }
+            }
+        });
+    }]);
+};
+
 module.exports = {
     id: "daoIncome",
     func: DaoIncome,
     props: [
         {name: "utils", ref: "utils"},
-        {name: "consts", ref: "consts"}
+        {name: "consts", ref: "consts"},
+        {name: "daoUser", ref: "daoUser"}
     ]
 }

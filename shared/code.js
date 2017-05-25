@@ -29,7 +29,8 @@ module.exports = {
         FA_USER_NOT_EXIST:      {code:4003,desc:'用户不存在'},
         FA_USER_LOGIN_ERROR:    {code:4004,desc:'用户或密码错误'},
         FA_INVITOR_NOT_EXIST:   {code:4005,desc:'推荐人不存在'},
-        FA_USER_AREADY_LOGIN:   {code:4006,desc:'用户已经登录，请勿重复登录'}
+        FA_USER_AREADY_LOGIN:   {code:4006,desc:'用户已经登录，请勿重复登录'},
+        FA_USER_SYS_CONFIG_ERR:   {code:4007,desc:'系统配置信息异常'}
     },
     GAME:{
         FA_ADD_ENTITY_ERROR: {code:5001, desc:"加入对象失败"},
@@ -44,6 +45,7 @@ module.exports = {
         FA_BET_STATE: {code:5010, desc:"投注状态异常"},
         FA_ENTITY_NOT_EXIST: {code:5011, desc:"对象不存在"},
         FA_BET_MONEY_NOTZERO: {code:5012, desc:"投注金额不能为0"},
-        FA_QUERY_INFO_IS_EMPTY: {code:5012, desc:"查詢不到指定信息"}
+        FA_QUERY_INFO_IS_EMPTY: {code:5013, desc:"查詢不到指定信息"},
+        FA_BET_CHANNEL_CLOSE: {code:5014, desc:"投注通道已经关闭，等待下期投注"},
     }
 };
