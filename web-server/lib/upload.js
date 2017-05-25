@@ -2,7 +2,7 @@
  * Created by linyng on 17-5-25.
  */
 
-const inspect = require('util').inspect
+// const inspect = require('util').inspect
 const path = require('path')
 const os = require('os')
 const fs = require('fs')
@@ -97,10 +97,9 @@ function uploadFile( ctx, options) {
 
         req.pipe(busboy)
     })
-
 }
 
 
 module.exports =  {
     uploadFile
-}
+};

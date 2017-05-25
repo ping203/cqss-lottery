@@ -100,7 +100,11 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     var betParseInfo = msg.betParseInfo;
     betParseInfo.betData = msg.betData;
     player.bet(period, identify, betParseInfo, function (err, result) {
-
+        if(err){
+            next(null, new Answer.NoDataResponse(err));
+            return;
+        }
+        next(null, new Answer.NoDataResponse(Code.OK));
     });
 
     // var action = bearcat.getBean('bet', {
@@ -109,7 +113,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     // });
     //
     // this.areaService.addAction(action)
-    next(null, new Answer.NoDataResponse(Code.OK));
+    // next(null, new Answer.NoDataResponse(Code.OK));
 };
 
 /**

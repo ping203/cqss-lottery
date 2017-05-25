@@ -11,12 +11,12 @@ var DaoBets = function () {
 };
 
 DaoBets.prototype.addBet = function (bet, cb) {
-    var sql = 'insert into Bets (playerId,period,identify,betInfo,state,investmentMoney,multiple,harvestMoney,betTime) values(?,?,?,?,?,?,?,?,?)';
-    var args = [bet.playerId, bet.period, bet.identify, bet.betInfo, bet.state, bet.investmentMoney, bet.multiple, bet.harvestMoney, bet.betTime];
-
+    var sql = 'insert into Bets (playerId,period,identify,betInfo,state,investmentMoney,multiple,harvestMoney,harvestMultiple,betTime) values(?,?,?,?,?,?,?,?,?,?)';
+    var args = [bet.playerId, bet.period, bet.identify, bet.betData, bet.state, bet.investmentMoney, bet.multiple, bet.harvestMoney, bet.harvestMultiple, bet.betTime];
+    var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
         if(err !== null){
-            this.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
+            self.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
         } else {
             var betItem = bearcat.getBean("betItem", {
                 id: res.insertId,
@@ -27,11 +27,12 @@ DaoBets.prototype.addBet = function (bet, cb) {
                 state:bet.state,
                 investmentMoney:bet.investmentMoney,
                 multiple:bet.multiple,
-                harvestMoney:harvestMoney,
-                betTime:betTime
+                harvestMoney:bet.harvestMoney,
+                harvestMultiple:bet.harvestMultiple,
+                betTime:bet.betTime
             });
 
-            this.utils.invokeCallback(cb, null, betItem);
+            self.utils.invokeCallback(cb, null, betItem);
         }
     });
 };
@@ -39,9 +40,10 @@ DaoBets.prototype.addBet = function (bet, cb) {
 DaoBets.prototype.getBets = function (skip, limit, cb) {
     var sql = 'select * from Bets limit ?,?';
     var args = [skip,limit];
+    var self = this;
     pomelo.app.get('dbclient').query(sql,args,function(err, res){
         if(err !== null){
-            this.utils.invokeCallback(cb, err.message, null);
+            self.utils.invokeCallback(cb, err.message, null);
         } else {
             if (!!res && res.length >= 1) {
                 var items =[];
@@ -56,9 +58,9 @@ DaoBets.prototype.getBets = function (skip, limit, cb) {
                     items.push(betItem);
                 }
 
-                this.utils.invokeCallback(cb, null, items);
+                self.utils.invokeCallback(cb, null, items);
             } else {
-                this.utils.invokeCallback(cb, ' user not exist ', null);
+                self.utils.invokeCallback(cb, ' user not exist ', null);
             }
         }
     });

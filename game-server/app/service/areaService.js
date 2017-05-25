@@ -19,7 +19,7 @@ var AreaService = function() {
   this.lotteryManagerService = null;
   this.consts = null;
   this.globalEntityId = 0;
-  this.platformTypeBet = {};
+  this.platformTypeBet = new Map();
 };
 
 /**
@@ -55,7 +55,7 @@ AreaService.prototype.openLottery = function (numbers) {
   var openInfo = this.calcOpenLottery.calc(numbers);
 
   for(var id in this.players){
-      this.players[id].openTheLottery(openInfo);
+      this.getEntity(this.players[id]).openTheLottery(openInfo);
   }
 
   for (var id in this.trusteePlayers){
@@ -65,18 +65,21 @@ AreaService.prototype.openLottery = function (numbers) {
   this.trusteePlayers = null;
 };
 
-AreaService.prototype.canBetPlatform = function (type, value, err) {
+AreaService.prototype.canBetPlatform = function (type, value) {
     var num = this.platformTypeBet.get(type);
     var newNum = (!!num ? num:0) + value;
 
+    var err = {};
     if(this.betLimit.platformLimit(type, newNum)){
         var canBetValue = this.betLimit.getPlatfromValue(type) - num;
         err.code = Code.GAME.FA_BET_PLATFORM_LIMIT.code;
         err.desc = Code.GAME.FA_BET_PLATFORM_LIMIT.desc + '最多还能下注'+canBetValue;
-        return false;
+    }
+    else {
+      err = null;
     }
 
-    return true;
+    return err;
 };
 
 AreaService.prototype.addPlatfromBet = function (type, value) {

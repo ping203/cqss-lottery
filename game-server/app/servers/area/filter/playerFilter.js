@@ -1,6 +1,7 @@
 var logger = require('pomelo-logger').getLogger(__filename);
 var pomelo = require('pomelo');
 var Code = require('../../../../../shared/code');
+var Answer = require('../../../../../shared/answer');
 
 var PlayerFilter = function() {
 };
@@ -17,7 +18,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
 			next();
 			return;
 		}else{
-            next(new Error(Code.GAME.FA_PLAYER_NOT_FOUND.desc, Code.GAME.FA_PLAYER_NOT_FOUND.code));
+            next(new Error(Code.GAME.FA_PLAYER_NOT_FOUND.desc, Code.GAME.FA_PLAYER_NOT_FOUND.code), new Answer.NoDataResponse(Code.FA_PLAYER_NOT_FOUND));
 			return;
 		}
 	}
@@ -25,27 +26,28 @@ PlayerFilter.prototype.before = function(msg, session, next){
 	if(route.search(/bet$/i)){
         //todo:检查平台类型投注总额是否超限
         if(!msg.betData){
-            next(new Error(Code.PARAMERROR.desc, Code.PARAMERROR.code), Code.PARAMERROR);
+            next(new Error(Code.PARAMERROR.desc, Code.PARAMERROR.code), new Answer.NoDataResponse(Code.PARAMERROR));
             return;
         }
 
 		this.betParser.parse(msg.betData, function (err, result) {
 			if(err){
-                next(new Error(err.desc, err.code));
+                next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
                 return;
 			}
 
-            var err;
             for(var type in result.typeTotal){
                 // 平台限额检查
-                if(!this.areaService.canBetPlatform(type, result.typeTotal[type], err)){
-                    cb(err, null);
+                var err = pomelo.app.areaService.canBetPlatform(type, result.typeTotal[type]);
+                if(err){
+                    next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
                     return;
                 }
 
                 //玩家限额检查
-                if(!player.canBet(type, result.typeTotal[type], err)){
-                    cb(err, null);
+                err = player.canBet(type, result.typeTotal[type])
+                if(err){
+                    next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
                     return;
                 }
             }

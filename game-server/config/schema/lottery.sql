@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS `Player` (
   `loginCount` smallint(6) unsigned NOT NULL COMMENT '登录次数',
   `lastOnlineTime` bigint(20) unsigned NOT NULL COMMENT '最后在线时间',
   `areaId` bigint(20) unsigned NOT NULL COMMENT '场景id',
+  `betCount` smallint(6) unsigned NOT NULL COMMENT '投注总数',
+  `winCount` smallint(6) unsigned NOT NULL COMMENT '投赢注数',
   PRIMARY KEY (`id`),
   UNIQUE KEY `INDEX_PALYER_USER_ID` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -89,8 +91,9 @@ CREATE TABLE IF NOT EXISTS `Bets`(
   `betInfo` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '投注信息{type:0,value:0}',
   `state` smallint(6) unsigned NOT NULL COMMENT '0 确认，1 撤销，2 结算,3未开奖',
   `investmentMoney` bigint(20) unsigned NOT NULL COMMENT '投注金额',
-  `multiple` smallint(6) unsigned NOT NULL COMMENT '倍数',
+  `multiple` smallint(6) unsigned NOT NULL COMMENT '投注数',
   `harvestMoney` bigint(20) unsigned NOT NULL COMMENT '收益金额',
+  `harvestMultiple` smallint(6) unsigned NOT NULL COMMENT '中奖注数',
   `betTime` bigint(20) unsigned NOT NULL COMMENT '投注时间',
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

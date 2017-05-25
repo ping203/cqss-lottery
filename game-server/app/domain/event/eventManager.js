@@ -7,17 +7,20 @@ var EventManager = function () {
 /**
  * Listen event for entity
  */
-EventManager.prototype.addEvent = function(entity){
-	switch(entity.type){
-		case this.consts.EntityType.PLAYER :
-			this.playerEvent.addEventForPlayer(entity);
-			addPlayerSaveEvent(entity);
-			break;
-		case this.consts.EntityType.LOTTERY :
-			this.npcEvent.addEventForNPC(entity);
-            //addLotterySaveEvent(entity);
-			break;
-	}
+EventManager.prototype.addEvent = function (entity) {
+    switch (entity.type) {
+        case this.consts.EntityType.PLAYER :
+            this.playerEvent.addEventForPlayer(entity);
+            addPlayerSaveEvent(entity);
+            break;
+        case this.consts.EntityType.LOTTERY :
+            this.npcEvent.addEventForNPC(entity);
+            break;
+        case this.consts.EntityType.ITEM :
+            this.betItemEvent.addEventForBetItem(entity);
+            addBetItemSaveEvent(entity);
+            break;
+    }
 };
 
 /**
@@ -25,34 +28,35 @@ EventManager.prototype.addEvent = function(entity){
  * @param {Object} player The player to add save event for.
  */
 function addPlayerSaveEvent(player) {
-	var app = pomelo.app;
-	player.on('save', function() {
-		app.get('sync').exec('playerSync.updatePlayer', player.id, player.strip());
-	});
-
-    player.bets.on('save', function () {
-        app.get('sync').exec('betSync.updateBet', player.bet.id, player.bet);
+    var app = pomelo.app;
+    player.on('save', function () {
+        app.get('sync').exec('playerSync.updatePlayer', player.id, player.strip());
     });
+
+    // player.bets.on('save', function () {
+    //     app.get('sync').exec('betSync.updateBet', player.bets.id, player.bets.getSyncItems());
+    // });
     //
     // player.task.on('save', function () {
     //     app.get('sync').exec('taskSync.updateTask', player.task.id, player.task);
     // })
 }
 
-function addLotterySaveEvent(lottery) {
+function addBetItemSaveEvent(betItem) {
     var app = pomelo.app;
-    lottery.on('save', function() {
-        app.get('sync').exec('lotterySync.updateLottery', player.id, player.strip());
+    betItem.on('save', function () {
+        app.get('sync').exec('betSync.updateBet', betItem.id, betItem.strip());
     });
 }
 
-module.exports ={
-	id:"eventManager",
-	func:EventManager,
+module.exports = {
+    id: "eventManager",
+    func: EventManager,
     props: [
-    	{name: "consts", ref: "consts"},
-		{name:"playerEvent", ref:"playerEvent"},
-		{name:"npcEvent", ref:"npcEvent"}
-	]
+        {name: "consts", ref: "consts"},
+        {name: "playerEvent", ref: "playerEvent"},
+        {name: "npcEvent", ref: "npcEvent"},
+        {name: "betItemEvent", ref: "betItemEvent"}
+    ]
 }
 

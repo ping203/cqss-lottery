@@ -97,23 +97,23 @@ $(document).ready(function() {
 
     function bet(e) {
         var betValue = $('#betValue').val();
-        pomelo.request("area.playerHandler.setRoleName", {betData:betValue}, function (res) {
+        pomelo.request("area.playerHandler.bet", {betData:betValue}, function (res) {
             if(res.result.code != 200){
-                alert('修改名称失败');
+                alert('投注失败',res.result.desc);
                 return;
             }
-            alert('修改名称成功');
+            alert('投注成功');
         });
     }
 
 
     function unBet(e) {
-        pomelo.request("area.playerHandler.setRoleName", {entityId:121}, function (res) {
+        pomelo.request("area.playerHandler.unBet", {entityId:121}, function (res) {
             if(res.result.code != 200){
-                alert('修改名称失败');
+                alert('撤销投注失败');
                 return;
             }
-            alert('修改名称成功');
+            alert('撤销投注成功');
         });
     }
 

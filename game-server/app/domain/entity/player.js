@@ -17,12 +17,14 @@ function Player(opts) {
     this.roleName = opts.roleName;
     this.sex = opts.sex;
     this.pinCode = opts.pinCode;
-    this.accountAmount = opts.accountAmount;
+    this.accountAmount = opts.accountAmount || 3000;
     this.level = opts.level;
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastOnlineTime = opts.lastOnlineTime;
-    this.bets = opts.bets;
+    this.harvestMultiple = opts.harvestMultiple;
+    this.betCount = opts.betCount;
+    this.winCount = opts.winCount;
 }
 
 Player.prototype.init = function () {
@@ -34,17 +36,17 @@ Player.prototype.init = function () {
     Entity.call(this, this.opts);
     this._init();
 
-    this.bets = bearcat.getBean("bets",{})
+    this.bets = bearcat.getBean("bets", {})
 };
 
 Player.prototype.setRank = function () {
     var rankData = this.dataApiUtil.rank().data;
     var preId = null;
-    for (var id in rankData){
-        if(this.level === rankData[id].level){
+    for (var id in rankData) {
+        if (this.level === rankData[id].level) {
             this.rank = rankData[id].name;
             break;
-        }else if(this.level < rankData[id].level){
+        } else if (this.level < rankData[id].level) {
             this.rank = rankData[preId].name;
             break;
         }
@@ -52,7 +54,7 @@ Player.prototype.setRank = function () {
     }
 };
 
-Player.prototype.setNextLevelExp = function(){
+Player.prototype.setNextLevelExp = function () {
 
     var _exp = this.dataApiUtil.experience().findById(this.level + 1);
     if (!!_exp) {
@@ -87,61 +89,80 @@ Player.prototype._upgrade = function () {
 };
 
 Player.prototype.setRoleName = function (name) {
-  this.roleName = name;
-  this.save();
+    this.roleName = name;
+    this.save();
 };
 
 Player.prototype.setPinCode = function (pinCode) {
-  this.pinCode = pinCode;
-  this.save();
+    this.pinCode = pinCode;
+    this.save();
 };
 
 //todo:检查用户投注类型总额是否超限
-Player.prototype.canBet = function (type, value, err) {
-    return this.bets.canBetType(type, value, err);
+Player.prototype.canBet = function (type, value) {
+    return this.bets.canBetType(type, value);
 };
 
 Player.prototype.bet = function (period, identify, betParseInfo, cb) {
 
-    if(betParseInfo.total > this.accountAmount){
+    if (betParseInfo.total > this.accountAmount) {
         this.utils.invokeCallback(cb, Code.GAME.FA_ACCOUNTAMOUNT_NOT_ENOUGH, null);
         return;
     }
 
     var self = this;
-    this.daoBet.addBet({
-        playerId:this.id,
-        period:period,
-        identify:identify,
-        betInfo:betParseInfo.betData,
-        state:this.consts.BetState.BET_WAIT,
-        investmentMoney:betParseInfo.total,
-        multiple:betParseInfo.betItems.size(),
-        harvestMoney:0,
-        betTime:Date.now()
-    }, function (err, result) {
-        if(err){
+    this.daoBets.addBet({
+        playerId: this.id,
+        period: period,
+        identify: identify,
+        betData: betParseInfo.betData,
+        state: this.consts.BetState.BET_WAIT,
+        investmentMoney: betParseInfo.total,
+        multiple: betParseInfo.betItems.length,
+        harvestMoney: 0,
+        harvestMultiple: 0,
+        betTime: Date.now()
+    }, function (err, betItem) {
+        if (err) {
             self.utils.invokeCallback(cb, err, null);
             return;
         }
-        result.setBetItems(betParseInfo.betItems);
-        self.bets.addItem(result);
+
+        this.betCount += betParseInfo.betItems.length;
+        self.accountAmount -= betParseInfo.total;
+        self.save();
+        betItem.setBetItems(betParseInfo.betItems);
+        self.bets.addItem(betItem);
         self.utils.invokeCallback(cb, null, null);
-        self.emit(self.consts.Event.area.playerBet,{player:self,betInfo:result});
+        self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});
+        //通知玩家信息变化吧
     });
 
 };
 
-
 Player.prototype.unBet = function (entityId) {
     var betItem = this.bets.getItem(entityId);
-    betItem.setItemState(entityId, this.consts.BetState.BET_CANCLE);
-    this.emit(this.consts.Event.area.playerUnBet);
+    if(betItem){
+        betItem.setItemState(entityId, this.consts.BetState.BET_CANCLE);
+        this.emit(this.consts.Event.area.playerUnBet, {player: self, betItem: betItem});
+
+        this.accountAmount += betItem.getPrincipal();
+        this.betCount -= betItem.getMultiple();
+        this.save();
+        //通知玩家信息变化吧
+    }
 };
 
 
 Player.prototype.openTheLottery = function (openInfo) {
-    this.bets.openLottery(openInfo);
+    var openResult = this.bets.openLottery(openInfo);
+
+    if(openInfo.harvestMultiple != 0){
+        this.winCount += openInfo.harvestMultiple;
+        this.accountAmount += openInfo.harvestMoney;
+        this.save();
+        //通知玩家信息变化吧
+    }
 };
 
 // Emit the event 'save'.
@@ -150,7 +171,7 @@ Player.prototype.save = function () {
 };
 
 Player.prototype.strip = function () {
-    var r= {
+    var r = {
         id: this.id,
         entityId: this.entityId,
         kindId: this.kindId,
@@ -163,8 +184,8 @@ Player.prototype.strip = function () {
         pinCode: this.pinCode,
         accountAmount: this.accountAmount,
         level: this.level,
-        experience:this.experience,
-        rank:this.rank,
+        experience: this.experience,
+        rank: this.rank,
         loginCount: this.loginCount,
         lastOnlineTime: this.lastOnlineTime
     };

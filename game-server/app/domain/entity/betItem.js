@@ -4,6 +4,7 @@
 
 var bearcat = require('bearcat');
 var util = require('util');
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'BetItem');
 
 var BetItem = function (opts) {
     this.opts = opts;
@@ -16,6 +17,7 @@ var BetItem = function (opts) {
     this.investmentMoney = opts.investmentMoney;
     this.multiple = opts.multiple;
     this.harvestMoney = opts.harvestMoney;
+    this.harvestMultiple = opts.harvestMultiple;
     this.betTime = Date.now();
     this.betParseInfo = null;
     this.betItems = null;
@@ -39,6 +41,23 @@ BetItem.prototype.setState = function (state) {
 BetItem.prototype.setBetItems = function (betItems) {
     this.betItems = betItems;
 };
+
+// 获取本金
+BetItem.prototype.getPrincipal = function () {
+    return this.investmentMoney;
+};
+
+BetItem.prototype.getMultiple = function () {
+    return this.multiple;
+}
+
+BetItem.prototype.getHarvestMoney = function () {
+    return this.harvestMoney;
+}
+
+BetItem.prototype.getHarvestMultiple = function () {
+    return this.harvestMultiple;
+}
 
 BetItem.prototype.getIncomValue = function (openInfo, item) {
     var inc = 0;
@@ -93,15 +112,34 @@ BetItem.prototype.getIncomValue = function (openInfo, item) {
             break;
     }
 
+    if(inc > 0) this.harvestMultiple++;
+
     return inc;
 
 };
-
 
 BetItem.prototype.calcHarvest = function (openInfo) {
     for (var item of this.betItems) {
         this.harvestMoney += this.getIncomValue(openInfo, item);
     }
+};
+
+BetItem.prototype.strip = function () {
+    var r= {
+        id: this.id,
+        playerId: this.playerId,
+        period: this.period,
+        identify: this.identify,
+        betInfo: this.betInfo,
+        state: this.state,
+        investmentMoney: this.investmentMoney,
+        multiple: this.multiple,
+        harvestMoney:this.harvestMoney,
+        harvestMultiple:this.harvestMultiple,
+        betTime: this.betTime
+    };
+
+    return r;
 };
 
 BetItem.prototype.toJSON = function () {
@@ -111,6 +149,11 @@ BetItem.prototype.toJSON = function () {
     r['type'] = this.type;
 
     return r;
+};
+
+// Emit the event 'save'.
+BetItem.prototype.save = function () {
+    this.emit('save');
 };
 
 module.exports = {
