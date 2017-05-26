@@ -39,6 +39,8 @@ module.exports = {
         FA_BET_SINGLE_LIMIT: {code:5006, desc:"单注投注金额超限"},
         FA_BET_PLAYER_LIMIT: {code:5007, desc:"玩家投注金额超限"},
         FA_BET_PLATFORM_LIMIT: {code:5008, desc:"平台投注金额超限"},
-        FA_ACCOUNTAMOUNT_NOT_ENOUGH: {code:5009, desc:"余额不足"}
+        FA_ACCOUNTAMOUNT_NOT_ENOUGH: {code:5009, desc:"余额不足"},
+        FA_BET_STATE: {code:5010, desc:"投注状态异常"},
+        FA_ENTITY_NOT_EXIST: {code:5010, desc:"对象不存在"}
     }
 };

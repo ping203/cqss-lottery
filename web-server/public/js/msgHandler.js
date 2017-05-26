@@ -58,11 +58,11 @@ function gameMsgInit() {
         $('#lottery').html('period: ' + data.lotteryResult.period + '  lottery: ' + data.lotteryResult.numbers);
     });
 
-    pomelo.on('onPlayerRename', function (data) {
-        players[data.entityId].roleName = data.roleName;
-        console.log('onPlayerRename data:', data);
+    pomelo.on('onPlayerChange', function (data) {
+        players[data.entityId]  = data.player;
+        console.log('onPlayerChange data:', data);
 
-        var str = JSON.stringify(players[data.entityId]);
+        var str = JSON.stringify(data.player);
         console.log(str);
         $('#playerInfo').html(str);
     });

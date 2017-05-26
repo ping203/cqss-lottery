@@ -14,7 +14,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
     var route = msg.__route__;
 
 	if(!player){
-		if(route.search(/^area\.resourceHandler/i) == 0 || route.search(/enterGame$/i) >= 0){
+		if(route.search(/enterGame$/) >= 0){
 			next();
 			return;
 		}else{
@@ -23,7 +23,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
 		}
 	}
 
-	if(route.search(/bet$/i)){
+	if(route.match(/.bet$/)){
         //todo:检查平台类型投注总额是否超限
         if(!msg.betData){
             next(new Error(Code.PARAMERROR.desc, Code.PARAMERROR.code), new Answer.NoDataResponse(Code.PARAMERROR));

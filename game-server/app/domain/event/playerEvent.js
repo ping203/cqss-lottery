@@ -1,6 +1,6 @@
 
 var logger = require('pomelo-logger').getLogger(__filename);
-
+var pomelo = require('pomelo');
 var PlayerEvent = function () {
 
 };
@@ -14,8 +14,8 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
         var player = args.player;
         if (player) {
             player.areaService.getChannel().pushMessage(self.consts.Event.area.playerBet,{
-                entityId: args.entityId,
-                betInfo: args.betInfo
+                entityId:player.entityId,
+                betItem: args.betItem.strip()
             });
         }
     });
@@ -24,30 +24,28 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
         var player = args.player;
         if (player) {
             player.areaService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
-                entityId: args.entityId,
-                betRecord: args.betRecord
+                entityId:player.entityId,
+                betItem: args.betItem.strip()
             });
         }
     });
 
-    player.on(this.consts.Event.area.playerRename, function(args) {
+    player.on(this.consts.Event.area.playerChange, function(args) {
         var player = args.player;
         if (player) {
-            player.areaService.getChannel().pushMessage(self.consts.Event.area.playerRename,{
-                entityId: args.entityId,
-                roleName: args.roleName
-            });
+            if(args.uids){
+                pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.playerChange,{
+                    entityId:player.entityId,
+                    player: player.strip()
+                },args.uids);
+            }else {
+                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.playerChange,{
+                    entityId:player.entityId,
+                    player: player.strip()
+                });
+            }
         }
     });
-
-	/**
-	 * Handler upgrade event for player, the message will be pushed only to the one who upgrade
-	 */
-	player.on(this.consts.Event.area.playerUpgrade, function() {
-		logger.debug('event.onUpgrade: ' + player.level + ' id: ' + player.id);
-		var uid = {uid:player.userId, sid : player.serverId};
-		//this.messageService.pushMessageToPlayer(uid, 'onUpgrade', player.strip());
-	});
 };
 
 module.exports = {

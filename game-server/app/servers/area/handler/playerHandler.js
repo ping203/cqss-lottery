@@ -106,14 +106,6 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
         }
         next(null, new Answer.NoDataResponse(Code.OK));
     });
-
-    // var action = bearcat.getBean('bet', {
-    //     entity: player,
-    //     betInfo: betBaseInfo
-    // });
-    //
-    // this.areaService.addAction(action)
-    // next(null, new Answer.NoDataResponse(Code.OK));
 };
 
 /**
@@ -125,10 +117,14 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
 PlayerHandler.prototype.unBet = function (msg, session, next) {
     var playerId = session.get('playerId');
     var player = this.areaService.getPlayer(playerId);
-    if (!player) {
-        next(null, new Answer.NoDataResponse(Code.GAME.FA_PLAYER_NOT_FOUND));
-        return;
-    }
+
+    player.unBet(player.entityId, function (err, result) {
+        if(err){
+            next(null, new Answer.NoDataResponse(err));
+            return;
+        }
+        next(null, new Answer.NoDataResponse(Code.OK));
+    });
 };
 
 /**

@@ -225,6 +225,7 @@ body, table {
 #rank{
     position: absolute;
     width: 600px;
+    height: 800px;
     /*opacity: 0.75;*/
     /*background-color: #333;*/
     color: #fff;

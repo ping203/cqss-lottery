@@ -20,9 +20,9 @@ var DaoUser = function () {
  * @param {function} cb Call back function.
  */
 DaoUser.prototype.createUser = function (username, password, phone, inviter, from, cb){
-    var sql = 'insert into User (name,password,phone,email,`from`,regTime,inviter) values(?,?,?,?,?,?,?)';
+    var sql = 'insert into User (username,password,phone,email,`from`,regTime,inviter,active,friends) values(?,?,?,?,?,?,?,?,?)';
     var regTime = Date.now();
-    var args = [username, password, phone,"", from, regTime,inviter];
+    var args = [username, password, phone,"", from, regTime,inviter,false,'[]'];
 
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
         if(err !== null){
@@ -159,11 +159,13 @@ DaoUser.prototype.getUserInfo = function (username, passwd, cb) {
  */
 DaoUser.prototype.createPlayer = function (uid, roleName, sex, cb){
     var self = this;
-    var sql = 'insert into Player (userId, roleName, sex, pinCode,accountAmount,level,rank,experience,loginCount,lastOnlineTime,areaId) values(?,?,?,?,?,?,?,?,?,?,?)';
+    var sql = 'insert into Player (userId, roleName, imageId, sex, pinCode,accountAmount,level,rank,experience,loginCount,lastLoinTime,areaId,forbidTalk) ' +
+        'values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
     var loginTime = Date.now();
     var playerData = this.dataApiUtil.player().findById(211);
 
-    var args = [uid, roleName, sex, playerData.pinCode,playerData.accountAmount,playerData.level,playerData.rank,playerData.experience,playerData.loginCount,loginTime,playerData.areaId];
+    var args = [uid, roleName, playerData.imageId, sex, playerData.pinCode,playerData.accountAmount,playerData.level,playerData.rank,playerData.experience,
+        playerData.loginCount,loginTime,playerData.areaId, playerData.forbidTalk];
 
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
         if(err !== null){
@@ -181,10 +183,30 @@ DaoUser.prototype.createPlayer = function (uid, roleName, sex, cb){
                 level:playerData.level,
                 experience:playerData.experience,
                 loginCount:playerData.loginCount,
-                lastOnlineTime:loginTime,
-                areaId:playerData.areaId
+                lastLoinTime:loginTime,
+                areaId:playerData.areaId,
+                forbidTalk:playerData.forbidTalk,
+                betStatistics:{betCount:0,winCount:0}
             });
             self.utils.invokeCallback(cb,null,[player]);
+        }
+    });
+};
+
+DaoUser.prototype.getAgents = function (cb) {
+
+    var sql = 'select id, playerId, level from Player where role = ?';
+    var args = [1];
+    pomelo.app.get('dbclient').query(sql,args,function(err, res){
+        if(err !== null){
+            this.utils.invokeCallback(cb, err.message, null);
+        } else {
+            if (!!res && res.length > 1) {
+
+                this.utils.invokeCallback(cb, null, res);
+            } else {
+                this.utils.invokeCallback(cb, ' user not exist ', null);
+            }
         }
     });
 };
@@ -195,8 +217,10 @@ DaoUser.prototype.createPlayer = function (uid, roleName, sex, cb){
  * @param {function} cb Callback function.
  */
 DaoUser.prototype.updatePlayer = function (player, cb){
-    var sql = 'update Player set roleName = ? ,rank = ? , sex = ?, pinCode = ? , accountAmount = ?, level = ?, experience = ?, loginCount = ?, lastOnlineTime = ?, areaId = ? where id = ?';
-    var args = [player.roleName, player.rank, player.sex, player.pinCode, player.accountAmount, player.level, player.experience, player.loginCount, player.lastOnlineTime, player.areaId, player.id];
+    var sql = 'update Player set roleName = ? ,imageId=?,rank = ? , sex = ?, pinCode = ? , accountAmount = ?, level = ?,' +
+        ' experience = ?, loginCount = ?, lastLoinTime = ?, areaId = ?,forbidTalk = ? where id = ?';
+    var args = [player.roleName, player.imageId, player.rank, player.sex, player.pinCode, player.accountAmount,
+        player.level, player.experience, player.loginCount, player.lastLoinTime, player.areaId, player.forbidTalk, player.id];
 
     pomelo.app.get('dbclient').query(sql,args,function(err, res){
         if(err !== null){
@@ -206,6 +230,26 @@ DaoUser.prototype.updatePlayer = function (player, cb){
                 this.utils.invokeCallback(cb,null,true);
             } else {
                 logger.error('update player failed!');
+                this.utils.invokeCallback(cb,null,false);
+            }
+        }
+    });
+
+
+};
+
+DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
+    var sql = 'update Player set accountAmount = accountAmount + ?  where id = ?';
+    var args = [add, playerId];
+
+    pomelo.app.get('dbclient').query(sql,args,function(err, res){
+        if(err !== null){
+            this.utils.invokeCallback(cb,err.message, null);
+        } else {
+            if (!!res && res.affectedRows>0) {
+                this.utils.invokeCallback(cb,null,true);
+            } else {
+                logger.error('updateAccountAmount player failed!');
                 this.utils.invokeCallback(cb,null,false);
             }
         }
@@ -278,6 +322,21 @@ DaoUser.prototype.getPlayer = function(playerId, cb){
     });
 };
 
+
+DaoUser.prototype.getPlayers = function (cb) {
+    var sql = 'select id,level from Player';
+    var args = [];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql,args,function(err, res){
+        if(err !== null){
+            self.utils.invokeCallback(cb, err.message, null);
+        } else if (!res || res.length <= 0){
+            self.utils.invokeCallback(cb,null,[]);
+        } else{
+            self.utils.invokeCallback(cb,null, res);
+        }
+    });
+};
 /**
  * get by Name
  * @param {String} name Player name
@@ -315,18 +374,19 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
                 });
             },
             function(callback){
-                self.daoTask.getCurTasksByPlayId(playerId, function(err, tasks) {
+                self.daoBets.getBetStatistics(playerId, function(err, betStatistics) {
                     if(!!err) {
                         logger.error('Get task for taskDao failed!');
                     }
-                    callback(err, tasks);
+                    callback(err, betStatistics);
                 });
             }
         ],
         function(err, results) {
             var player = results[0];
-            var tasks = results[1];
-            player.curTasks = tasks || {};
+            var betStatistics = results[1];
+
+            player.betStatistics = betStatistics;
 
             if (!!err){
                 self.utils.invokeCallback(cb,err);
@@ -342,7 +402,7 @@ module.exports ={
     props:[
         {name:"utils", ref:"utils"},
         {name:"dataApiUtil", ref:"dataApiUtil"},
-        {name:"daoTask", ref:"daoTask"}
+        {name:"daoBets", ref:"daoBets"}
     ]
 }
 

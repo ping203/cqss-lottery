@@ -14,10 +14,10 @@ var BetItem = function (opts) {
     this.identify = opts.identify;
     this.betInfo = opts.betInfo;
     this.state = opts.state;
-    this.investmentMoney = opts.investmentMoney;
-    this.multiple = opts.multiple;
-    this.harvestMoney = opts.harvestMoney;
-    this.harvestMultiple = opts.harvestMultiple;
+    this.betCount = opts.betCount;
+    this.winCount = opts.winCount;
+    this.betMoney = opts.betMoney;
+    this.winMoney = opts.winMoney;
     this.betTime = Date.now();
     this.betParseInfo = null;
     this.betItems = null;
@@ -43,25 +43,28 @@ BetItem.prototype.setBetItems = function (betItems) {
 };
 
 // 获取本金
-BetItem.prototype.getPrincipal = function () {
-    return this.investmentMoney;
+BetItem.prototype.getBetMoney = function () {
+    return this.betMoney;
 };
 
-BetItem.prototype.getMultiple = function () {
-    return this.multiple;
-}
+//获取投注柱数
+BetItem.prototype.getBetCount = function () {
+    return this.betCount;
+};
 
-BetItem.prototype.getHarvestMoney = function () {
-    return this.harvestMoney;
-}
+//获取中奖金额
+BetItem.prototype.getWinMoney = function () {
+    return this.winMoney;
+};
+//获取中奖柱数
+BetItem.prototype.getWinCount = function () {
+    return this.winCount;
+};
 
-BetItem.prototype.getHarvestMultiple = function () {
-    return this.harvestMultiple;
-}
-
+//计算一柱中奖收益
 BetItem.prototype.getIncomValue = function (openInfo, item) {
     var inc = 0;
-    var multi = this.income.getMultiple(item.type.code);
+    var multi = this.incomeCfg.getBetRate(item.type.code);
     switch (item.type.code) {
         case this.consts.BetType.TotalSize.code:
             if(openInfo.totalSizeResult === item.result){
@@ -112,7 +115,7 @@ BetItem.prototype.getIncomValue = function (openInfo, item) {
             break;
     }
 
-    if(inc > 0) this.harvestMultiple++;
+    if(inc > 0) this.winCount++;
 
     return inc;
 
@@ -120,22 +123,24 @@ BetItem.prototype.getIncomValue = function (openInfo, item) {
 
 BetItem.prototype.calcHarvest = function (openInfo) {
     for (var item of this.betItems) {
-        this.harvestMoney += this.getIncomValue(openInfo, item);
+        this.winMoney += this.getIncomValue(openInfo, item);
     }
 };
 
 BetItem.prototype.strip = function () {
     var r= {
         id: this.id,
+        entityId:this.entityId,
+        type:this.type,
         playerId: this.playerId,
         period: this.period,
         identify: this.identify,
         betInfo: this.betInfo,
         state: this.state,
-        investmentMoney: this.investmentMoney,
-        multiple: this.multiple,
-        harvestMoney:this.harvestMoney,
-        harvestMultiple:this.harvestMultiple,
+        betCount: this.betCount,
+        winCount: this.winCount,
+        betMoney:this.betMoney,
+        winMoney:this.winMoney,
         betTime: this.betTime
     };
 
@@ -168,7 +173,7 @@ module.exports = {
     }],
     props: [
         {name: 'betParser', ref: 'betParser'},
-        {name: 'income', ref: 'income'},
+        {name: 'incomeCfg', ref: 'incomeCfg'},
         {name: 'consts', ref: 'consts'}
     ]
 }

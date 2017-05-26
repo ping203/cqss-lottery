@@ -57,16 +57,23 @@ Bets.prototype.setItemState = function (entityId, state) {
     }
 };
 
+Bets.prototype.getItemState = function (entityId, state) {
+    var item = this.betMap.get(entityId);
+    if (item) {
+        return item.getState();
+    }
+};
+
 Bets.prototype.openLottery = function (openInfo) {
 
-    var openResult = {harvestMultiple:0,harvestMoney:0};
+    var openResult = {winCount:0,winMoney:0};
     for (var item of this.betMap.values()) {
         if (item.getState() === this.consts.BetState.BET_WAIT) {
             item.calcHarvest(openInfo);
             item.setState(this.consts.BetState.BET_OPENNED);
             item.save();
-            openResult.harvestMultiple += item.getHarvestMultiple();
-            openResult.harvestMoney += item.getHarvestMoney();
+            openResult.winCount += item.getWinCount();
+            openResult.winMoney += item.getWinMoney();
             //this.syncItems.push(item);
         }
     }
@@ -90,9 +97,9 @@ Bets.prototype.canBetType = function (type, value) {
     var betted = this.typeTotal.get(type);
     var num = !!betted ? betted : 0;
     var err = {};
-    if (this.betLimit.playerLimit(type, num + value)) {
+    if (this.betLimitCfg.playerLimit(type, num + value)) {
         err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
-        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + this.betLimit.getPlayerValue(type);
+        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + this.betLimitCfg.getPlayerValue(type);
     } else {
         err = null;
     }
@@ -126,7 +133,7 @@ module.exports = {
     }],
     props: [
         {name: "consts", ref: "consts"},
-        {name: "betLimit", ref: "betLimit"},
+        {name: "betLimitCfg", ref: "betLimitCfg"},
         {name: "eventManager", ref: "eventManager"},
     ]
 };

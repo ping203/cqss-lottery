@@ -108,7 +108,8 @@ $(document).ready(function() {
 
 
     function unBet(e) {
-        pomelo.request("area.playerHandler.unBet", {entityId:121}, function (res) {
+        var entityId = $('#betValue').val();
+        pomelo.request("area.playerHandler.unBet", {entityId:entityId}, function (res) {
             if(res.result.code != 200){
                 alert('撤销投注失败');
                 return;

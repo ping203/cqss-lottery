@@ -2,11 +2,11 @@
  * Created by linyng on 17-5-23.
  */
 
-function BetLimit() {
+function BetLimitCfg() {
 
 };
 
-BetLimit.prototype.init = function () {
+BetLimitCfg.prototype.init = function () {
     this.singleMap = new Map();
     this.playerMap = new Map();
     this.platformMap = new Map();
@@ -16,7 +16,7 @@ BetLimit.prototype.init = function () {
  * update the config data
  * @param config
  */
-BetLimit.prototype.update = function (config) {
+BetLimitCfg.prototype.update = function (config) {
     var self = this;
     config.single.forEach(function (vals) {
         self.singleMap.set(vals.type, vals.limit);
@@ -31,13 +31,13 @@ BetLimit.prototype.update = function (config) {
     });
 };
 
-BetLimit.prototype.getSingleValue = function (type) {
+BetLimitCfg.prototype.getSingleValue = function (type) {
     var val = this.singleMap.get(type);
     if(!val) val =300;
     return val;
 }
 
-BetLimit.prototype.singleLimit = function (type, value) {
+BetLimitCfg.prototype.singleLimit = function (type, value) {
     var val = this.singleMap.get(type);
     if(!val) val =300;
     if(!!val && val >= value){
@@ -47,13 +47,13 @@ BetLimit.prototype.singleLimit = function (type, value) {
     return true;
 };
 
-BetLimit.prototype.getPlayerValue = function (type) {
+BetLimitCfg.prototype.getPlayerValue = function (type) {
     var val = this.playerMap.get(type);
     if(!val) val = 1000;
     return val;
 }
 
-BetLimit.prototype.playerLimit = function (type, value) {
+BetLimitCfg.prototype.playerLimit = function (type, value) {
     var val = this.playerMap.get(type);
     if(!val) val = 1000;
     if(!!val && val >= value){
@@ -63,13 +63,13 @@ BetLimit.prototype.playerLimit = function (type, value) {
     return true;
 };
 
-BetLimit.prototype.getPlatfromValue = function (type) {
+BetLimitCfg.prototype.getPlatfromValue = function (type) {
     var val = this.platformMap.get(type);
     if(!val) val = 3000;
     return val;
 };
 
-BetLimit.prototype.platformLimit = function (type, value) {
+BetLimitCfg.prototype.platformLimit = function (type, value) {
     var val = this.platformMap.get(type);
     if(!val) val = 3000;
     if(!!val && val >= value){
@@ -79,7 +79,7 @@ BetLimit.prototype.platformLimit = function (type, value) {
 };
 
 module.exports = {
-    id:"betLimit",
-    func:BetLimit,
+    id:"betLimitCfg",
+    func:BetLimitCfg,
     init:"init"
 };

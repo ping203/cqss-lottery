@@ -18,6 +18,7 @@ function Entity(opts) {
 	this.kindName = opts.kindName;
 	this.areaId = opts.areaId || 1;
 	this.area = opts.area;
+    this.serverId = -1;
 }
 
 util.inherits(Entity, EventEmitter);

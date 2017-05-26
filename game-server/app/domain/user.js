@@ -13,7 +13,7 @@ var util = require('util');
 
 var User = function(opts) {
 	this.id = opts.id;
-	this.name = opts.name;
+	this.username = opts.username;
     this.from = opts.from;
 	this.password = opts.password;
 	this.email = opts.email;

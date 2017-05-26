@@ -123,9 +123,9 @@ BetParser.prototype.parse = function(data, cb){
 
             var type = this.handleReg1(types[i]);
             if(type){
-                if(this.betLimit.singleLimit(type.code, perMoney)){
+                if(this.betLimitCfg.singleLimit(type.code, perMoney)){
                     err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
-                    err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
+                    err.desc = type.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(type.code);
                     isValid = false;
                 }
                 var item = {};
@@ -160,16 +160,16 @@ BetParser.prototype.parse = function(data, cb){
                 var type = this.handleReg2(types[i]);
                 if(type){
 
-                    if(this.betLimit.singleLimit(type.code, perMoney)){
+                    if(this.betLimitCfg.singleLimit(type.code, perMoney)){
                         err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
-                        err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
+                        err.desc = type.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(type.code);
                         cb(err, null);
                         return;
                     }
 
                     var item = {};
                     item.type = type;
-                    item.result = ballPos[j] + ':'+types[i];
+                    item.result = ballPos[j] + types[i];
                     item.money = perMoney;
 
                     betItems.push(item);
@@ -196,10 +196,10 @@ BetParser.prototype.parse = function(data, cb){
             var type = this.handleReg3(types[i]);
             if(type){
 
-                if(this.betLimit.singleLimit(type.code, perMoney)){
+                if(this.betLimitCfg.singleLimit(type.code, perMoney)){
                     isValid = false;
                     err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
-                    err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
+                    err.desc = type.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(type.code);
                     break;
                 }
 
@@ -233,10 +233,10 @@ BetParser.prototype.parse = function(data, cb){
             var type = this.handleReg4(types[i]);
             if(type){
 
-                if(this.betLimit.singleLimit(type.code, perMoney)){
+                if(this.betLimitCfg.singleLimit(type.code, perMoney)){
                     isValid = false;
                     err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
-                    err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
+                    err.desc = type.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(type.code);
                     break;
                 }
 
@@ -271,10 +271,10 @@ BetParser.prototype.parse = function(data, cb){
             var type = this.handleReg4(types[i]);
             var moneyIndex = 0;
             if(type){
-                if(this.betLimit.singleLimit(type.code, perMoney)){
+                if(this.betLimitCfg.singleLimit(type.code, perMoney)){
                     isValid = false;
                     err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
-                    err.desc = type.desc + '单注最大限额'+this.betLimit.getSingleValue(type.code);
+                    err.desc = type.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(type.code);
                     break;
                 }
                 for (var j=0;j<this.keyValue.length;j++){
@@ -316,7 +316,7 @@ module.exports = {
     func:BetParser,
     props:[
         {name:'consts',ref:'consts'},
-        {name: "betLimit", ref: "betLimit"}
+        {name: "betLimitCfg", ref: "betLimitCfg"}
     ]
 };
 

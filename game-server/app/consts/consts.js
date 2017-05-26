@@ -49,6 +49,7 @@ var Consts = function () {
             playerUnBet:'onPlayerUnBet',
             playerRename:'onPlayerRename',
             playerUpgrade:'onPlayerUpgrade',
+            playerChange:'onPlayerChange',
             addEntities:'onAddEntities',
             removeEntities:'onRemoveEntities',
             countdown:'onCountdown',

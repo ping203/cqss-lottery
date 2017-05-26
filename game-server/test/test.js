@@ -36,6 +36,22 @@
     
     
 function test() {
+
+    var curr_time = new Date();
+    var begin_time = new Date(curr_time);
+    begin_time.setHours(0,0,0,0)
+    var end_time = new Date(curr_time);
+    end_time.setHours(23,59,59,999);
+
+
+    console.log(begin_time+':'+end_time)
+    console.log(begin_time.getTime());
+    console.log(end_time.getTime());
+
+    console.log((end_time.getTime() - begin_time.getTime())/1000/60/60.0)
+
+    return;
+
     var betType = {
         TotalSize:1, //和大小 (大100)  (小100)
         TotalSingleDouble:2, //和单双 (单100  双100)

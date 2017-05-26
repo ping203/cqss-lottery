@@ -2,29 +2,22 @@ var logger = require('pomelo-logger').getLogger('bearcat-lottery');
 var bearcat = require('bearcat');
 var util = require('util');
 var Code = require('../../../../shared/code');
-/**
- * Initialize a new 'Player' with the given 'opts'.
- * Player inherits Character
- *
- * @param {Object} opts
- * @api public
- */
 
 function Player(opts) {
     this.opts = opts;
     this.id = opts.id;
     this.userId = opts.userId;
     this.roleName = opts.roleName;
+    this.imageId = opts.imageId;
     this.sex = opts.sex;
     this.pinCode = opts.pinCode;
     this.accountAmount = opts.accountAmount || 3000;
     this.level = opts.level;
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
-    this.lastOnlineTime = opts.lastOnlineTime;
-    this.harvestMultiple = opts.harvestMultiple;
-    this.betCount = opts.betCount;
-    this.winCount = opts.winCount;
+    this.lastLoinTime = opts.lastLoinTime;
+    this.betStatistics = opts.betStatistics;
+    this.forbidTalk = opts.forbidTalk;
 }
 
 Player.prototype.init = function () {
@@ -77,7 +70,7 @@ Player.prototype.upgrade = function () {
         //logger.error('player.upgrade ' + this.experience + ' nextLevelExp: ' + this.nextLevelExp);
         this._upgrade();
     }
-    this.emit('upgrade');
+    this.changeNotify();
 };
 
 //Upgrade, update player's state
@@ -91,6 +84,7 @@ Player.prototype._upgrade = function () {
 Player.prototype.setRoleName = function (name) {
     this.roleName = name;
     this.save();
+    this.changeNotify();
 };
 
 Player.prototype.setPinCode = function (pinCode) {
@@ -117,10 +111,10 @@ Player.prototype.bet = function (period, identify, betParseInfo, cb) {
         identify: identify,
         betData: betParseInfo.betData,
         state: this.consts.BetState.BET_WAIT,
-        investmentMoney: betParseInfo.total,
-        multiple: betParseInfo.betItems.length,
-        harvestMoney: 0,
-        harvestMultiple: 0,
+        betCount: betParseInfo.betItems.length,
+        winCount:0,
+        betMoney: betParseInfo.total,
+        winMoney:0,
         betTime: Date.now()
     }, function (err, betItem) {
         if (err) {
@@ -128,46 +122,64 @@ Player.prototype.bet = function (period, identify, betParseInfo, cb) {
             return;
         }
 
-        this.betCount += betParseInfo.betItems.length;
+        self.betStatistics.betCount += betParseInfo.betItems.length;
         self.accountAmount -= betParseInfo.total;
         self.save();
+        //todo 通知玩家信息变化吧
+        self.changeNotify();
         betItem.setBetItems(betParseInfo.betItems);
         self.bets.addItem(betItem);
         self.utils.invokeCallback(cb, null, null);
         self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});
-        //通知玩家信息变化吧
+
     });
 
 };
 
-Player.prototype.unBet = function (entityId) {
+Player.prototype.unBet = function (entityId, cb) {
     var betItem = this.bets.getItem(entityId);
     if(betItem){
+        if(betItem.getItemState(entityId) != this.consts.BetState.BET_WAIT){
+            this.utils.invokeCallback(cb, Code.GAME.FA_BET_STATE, null);
+            return;
+        }
+
         betItem.setItemState(entityId, this.consts.BetState.BET_CANCLE);
         this.emit(this.consts.Event.area.playerUnBet, {player: self, betItem: betItem});
 
-        this.accountAmount += betItem.getPrincipal();
-        this.betCount -= betItem.getMultiple();
+        this.accountAmount += betItem.getBetMoney();
+        this.betStatistics.betCount -= betItem.getBetCount();
         this.save();
-        //通知玩家信息变化吧
+
+        this.utils.invokeCallback(cb, null, null);
+
+        //todo 通知玩家信息变化吧
+        this.changeNotify();
+    }
+    else {
+        this.utils.invokeCallback(cb, Code.GAME.FA_ENTITY_NOT_EXIST, null);
     }
 };
 
 
 Player.prototype.openTheLottery = function (openInfo) {
     var openResult = this.bets.openLottery(openInfo);
-
-    if(openInfo.harvestMultiple != 0){
-        this.winCount += openInfo.harvestMultiple;
-        this.accountAmount += openInfo.harvestMoney;
+    if(openResult.winCount != 0){
+        this.betStatistics.winCount += openResult.winCount;
+        this.accountAmount += openResult.winMoney;
         this.save();
-        //通知玩家信息变化吧
+        //todo 通知玩家信息变化吧
+        this.changeNotify();
     }
 };
 
 // Emit the event 'save'.
 Player.prototype.save = function () {
     this.emit('save');
+};
+
+Player.prototype.changeNotify = function(){
+    this.emit(this.consts.Event.area.playerChange, {player: this,uids:[{uid:this.userId, sid:this.serverId}]});
 };
 
 Player.prototype.strip = function () {
@@ -180,6 +192,7 @@ Player.prototype.strip = function () {
         type: this.type,
         userId: this.userId,
         roleName: this.roleName,
+        imageId:this.imageId,
         sex: this.sex,
         pinCode: this.pinCode,
         accountAmount: this.accountAmount,
@@ -187,7 +200,9 @@ Player.prototype.strip = function () {
         experience: this.experience,
         rank: this.rank,
         loginCount: this.loginCount,
-        lastOnlineTime: this.lastOnlineTime
+        lastLoinTime: this.lastLoinTime,
+        forbidTalk:this.forbidTalk,
+        betStatistics:this.betStatistics
     };
 
     return r;

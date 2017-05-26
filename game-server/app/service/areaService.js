@@ -2,6 +2,7 @@ var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'AreaService'
 var EventEmitter = require('events').EventEmitter;
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');
+var schedule = require('node-schedule');
 
 var AreaService = function() {
   this.id = 0;
@@ -28,13 +29,14 @@ var AreaService = function() {
  * @api public
  */
 AreaService.prototype.init = function() {
-
   var opts  = this.dataApiUtil.area().findById(1);
   this.id = opts.id;
   this.generateGlobalLottery();
   this.lotteryManagerService.init(this);
   //area run
   this.run();
+
+  schedule.scheduleJob('0 03 19 * * *', this.incomeScheduleTask.bind(this));
 };
 
 AreaService.prototype.run = function() {
@@ -48,6 +50,11 @@ AreaService.prototype.tick = function() {
   this.entityUpdate();
   this.rankUpdate();
   this.countdown();
+};
+
+AreaService.prototype.incomeScheduleTask = function () {
+    //bearcat.getBean("calcIncome")
+    this.calcIncome.calc();
 };
 
 AreaService.prototype.openLottery = function (numbers) {
@@ -70,8 +77,8 @@ AreaService.prototype.canBetPlatform = function (type, value) {
     var newNum = (!!num ? num:0) + value;
 
     var err = {};
-    if(this.betLimit.platformLimit(type, newNum)){
-        var canBetValue = this.betLimit.getPlatfromValue(type) - num;
+    if(this.betLimitCfg.platformLimit(type, newNum)){
+        var canBetValue = this.betLimitCfg.getPlatfromValue(type) - num;
         err.code = Code.GAME.FA_BET_PLATFORM_LIMIT.code;
         err.desc = Code.GAME.FA_BET_PLATFORM_LIMIT.desc + '最多还能下注'+canBetValue;
     }
@@ -357,7 +364,10 @@ module.exports = {
     name: "calcOpenLottery",
     ref: "calcOpenLottery"
   }, {
-    name: "betLimit",
-    ref: "betLimit"
+    name: "betLimitCfg",
+    ref: "betLimitCfg"
+  }, {
+    name: "calcIncome",
+    ref: "calcIncome"
   }]
 }
