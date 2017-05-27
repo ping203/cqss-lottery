@@ -36,7 +36,7 @@ AreaService.prototype.init = function() {
   //area run
   this.run();
 
-  schedule.scheduleJob('0 03 19 * * *', this.incomeScheduleTask.bind(this));
+  schedule.scheduleJob('0 * * * * *', this.incomeScheduleTask.bind(this));
 };
 
 AreaService.prototype.run = function() {
@@ -45,7 +45,6 @@ AreaService.prototype.run = function() {
 
 AreaService.prototype.tick = function() {
   //run all the action
-    return;
   this.actionManagerService.update();
   this.entityUpdate();
   this.rankUpdate();
@@ -57,9 +56,47 @@ AreaService.prototype.incomeScheduleTask = function () {
     this.calcIncome.calc();
 };
 
-AreaService.prototype.openLottery = function (numbers) {
+AreaService.prototype.convertParseToJson = function (openInfo) {
+    var parseResult = {};
+    parseResult.totalSizeResult = openInfo.totalSizeResult;
+    parseResult.totalSingleDoubleResult = openInfo.totalSingleDoubleResult;
+    parseResult.dragonAndTigerResult = [];
+    for (let item of openInfo.dragonAndTigerResult){
+        parseResult.dragonAndTigerResult.push(item);
+    }
+    parseResult.equal15Result = openInfo.equal15Result;
+    parseResult.perPosSizeSingleDoubleResult = [];
+    for (let item of openInfo.perPosSizeSingleDoubleResult){
+        parseResult.perPosSizeSingleDoubleResult.push(item);
+    }
+    parseResult.perPosValueResult = [];
+    for (let item of openInfo.perPosValueResult){
+        parseResult.perPosValueResult.push(item);
+    }
 
+    parseResult.containValueResult = [];
+    for (let item of openInfo.containValueResult){
+        parseResult.containValueResult.push(item);
+    }
+    parseResult.pantherResult = [];
+    for (let item of openInfo.pantherResult){
+        parseResult.pantherResult.push(item);
+    }
+    parseResult.shunZiResult = [];
+    for (let item of openInfo.shunZiResult){
+        parseResult.shunZiResult.push(item);
+    }
+
+    return parseResult;
+}
+
+AreaService.prototype.openLottery = function (numbers, period, opentime) {
+
+  var paserResult = {numbers:numbers,period:period, opentime:opentime};
   var openInfo = this.calcOpenLottery.calc(numbers);
+    paserResult.parseResult = this.convertParseToJson(openInfo);
+
+  this.getLottery().publishParseResult(paserResult);
 
   for(var id in this.players){
       this.getEntity(this.players[id]).openTheLottery(openInfo);
@@ -233,7 +270,7 @@ AreaService.prototype.removeEntity = function(entityId) {
   }
 
   if (e.type === this.consts.EntityType.PLAYER) {
-    this.getChannel().leave(e.userId, e.serverId);
+    this.getChannel().leave(e.id, e.serverId);
     this.actionManagerService.abortAllAction(entityId);
 
     delete this.players[e.id];

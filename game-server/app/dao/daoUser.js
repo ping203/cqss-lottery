@@ -63,6 +63,40 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
 };
 
 
+DaoUser.prototype.getPlayerIds = function (cb) {
+    var sql = 'select id,level from User';
+    var args = [];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql,args,function(err, res){
+        if(err !== null){
+            self.utils.invokeCallback(cb, err.message, null);
+        } else if (!res || res.length <= 0){
+            self.utils.invokeCallback(cb,null,[]);
+        } else{
+            self.utils.invokeCallback(cb,null, res);
+        }
+    });
+};
+
+
+DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
+    var sql = 'update User set accountAmount = accountAmount + ?  where id = ?';
+    var args = [add, playerId];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql,args,function(err, res){
+        if(err !== null){
+            self.utils.invokeCallback(cb,err.message, null);
+        } else {
+            if (!!res && res.affectedRows>0) {
+                self.utils.invokeCallback(cb,null,true);
+            } else {
+                logger.error('updateAccountAmount player failed!');
+                self.utils.invokeCallback(cb,null,false);
+            }
+        }
+    });
+};
+
 /**
  * Get userInfo by username
  * @param {String} username
@@ -201,24 +235,6 @@ DaoUser.prototype.updatePlayer = function (player, cb){
     });
 };
 
-DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
-    var sql = 'update Player set accountAmount = accountAmount + ?  where id = ?';
-    var args = [add, playerId];
-
-    pomelo.app.get('dbclient').query(sql,args,function(err, res){
-        if(err !== null){
-            this.utils.invokeCallback(cb,err.message, null);
-        } else {
-            if (!!res && res.affectedRows>0) {
-                this.utils.invokeCallback(cb,null,true);
-            } else {
-                logger.error('updateAccountAmount player failed!');
-                this.utils.invokeCallback(cb,null,false);
-            }
-        }
-    });
-};
-
 /**
  * Get an user's all players by userId
  * @param {Number} uid User Id.
@@ -244,23 +260,6 @@ DaoUser.prototype.getPlayersByUid = function(uid, cb){
     });
 };
 
-
-
-
-DaoUser.prototype.getPlayers = function (cb) {
-    var sql = 'select id,level from Player';
-    var args = [];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql,args,function(err, res){
-        if(err !== null){
-            self.utils.invokeCallback(cb, err.message, null);
-        } else if (!res || res.length <= 0){
-            self.utils.invokeCallback(cb,null,[]);
-        } else{
-            self.utils.invokeCallback(cb,null, res);
-        }
-    });
-};
 /**
  * get by Name
  * @param {String} name Player name

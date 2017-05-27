@@ -7,8 +7,8 @@ var Code = require('../../../shared/code');
 var BetParser = function () {
     this.splitReg=/.{1}/g;
     this.reg1 = /(^[大小单双龙虎和合]+)(\d+)/i;
-    this.reg2 = /(\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
-    this.reg3 = /(\d+)\/(\d+)/i; //包数字玩法
+    this.reg2 = /(^\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
+    this.reg3 = /(^\d+)\/(\d+)/i; //包数字玩法
     this.reg4 = /(^[豹顺]+)(\d+)/i;
     this.reg5= /(^[豹顺]+)\/(\d+)\/(\d+)\/(\d+)/i;
     this.keyValue =['前','中','后'];
@@ -113,11 +113,12 @@ BetParser.prototype.parse = function(data, cb){
     var typeTotal ={};
     var betItems =[];
     var isValid = false;
-    var err = null;
+    var err = {};
+    var perMoney = 0;
     if(data.match(this.reg1)){
         isValid = true;
         var result = data.match(this.reg1);
-        var perMoney = parseInt(result[2],10);
+        perMoney = parseInt(result[2],10);
         var types = result[1].match(this.splitReg);
         for (var i = 0; i< types.length;++i){
 
@@ -150,11 +151,9 @@ BetParser.prototype.parse = function(data, cb){
     }else if(data.match(this.reg2)){
         isValid = true;
         var result = data.match(this.reg2);
-        var ballPos = result[1];
-        var types = result[2];
-        var perMoney = parseInt(result[3],10);
-        var err;
-
+        var ballPos = result[1].match(this.splitReg);
+        var types = result[2].match(this.splitReg);
+        perMoney = parseInt(result[3],10);
         for (var j=0;j< ballPos.length;++j){
             for (var i = 0; i< types.length;i++){
                 var type = this.handleReg2(types[i]);
@@ -169,7 +168,7 @@ BetParser.prototype.parse = function(data, cb){
 
                     var item = {};
                     item.type = type;
-                    item.result = ballPos[j] + types[i];
+                    item.result = ballPos[j] +':' + types[i];
                     item.money = perMoney;
 
                     betItems.push(item);
@@ -189,8 +188,8 @@ BetParser.prototype.parse = function(data, cb){
     }else if(data.match(this.reg3)){
         isValid = true;
         var result = data.match(this.reg3);
-        var types = result[1];
-        var perMoney = parseInt(result[2],10);
+        var types = result[1].match(this.splitReg);
+        perMoney = parseInt(result[2],10);
 
         for (var i = 0; i< types.length;++i){
             var type = this.handleReg3(types[i]);
@@ -226,8 +225,8 @@ BetParser.prototype.parse = function(data, cb){
     }else if(data.match(this.reg4)){
         isValid = true;
         var result = data.match(this.reg4);
-        var types = result[1];
-        var perMoney = parseInt(result[2], 10);
+        var types = result[1].match(this.splitReg);
+        perMoney = parseInt(result[2], 10);
 
         for (var i = 0; i< types.length;++i){
             var type = this.handleReg4(types[i]);
@@ -264,8 +263,22 @@ BetParser.prototype.parse = function(data, cb){
     }else if(data.match(this.reg5)){
         isValid = true;
         var result = data.match(this.reg5);
-        var types = result[1];
-        var perMoneys = parseInt(result[2], 10);
+        var types = result[1].match(this.splitReg);
+        var perMoneys = [];
+        perMoneys.push(parseInt(result[2], 10));
+        perMoneys.push(parseInt(result[3], 10));
+        perMoneys.push(parseInt(result[4], 10));
+
+        var sum =  perMoneys.reduce(function (previous, current, index, array) {
+            return previous + current;
+        })
+
+        if(sum === 0){
+            perMoney = 0;
+        }
+        else {
+            perMoney = 1;
+        }
 
         for (var i = 0; i< types.length;++i){
             var type = this.handleReg4(types[i]);
@@ -300,6 +313,10 @@ BetParser.prototype.parse = function(data, cb){
     }
 
     if(isValid){
+        if(perMoney === 0){
+            cb(Code.GAME.FA_BET_MONEY_NOTZERO, null);
+            return;
+        }
         betResult.total = total;
         betResult.typeTotal = typeTotal;
         betResult.betItems = betItems;

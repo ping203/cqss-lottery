@@ -45,12 +45,20 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 	/**
 	 * Publish notice
 	 */
-	lottery.on(this.consts.Event.area.notice, function(data){
-        var lottery = self.getEntity(args.entityId);
-        if (lottery) {
-            lottery.areaService.getChannel().pushMessage(self.consts.Event.area.notice,{
+	lottery.on(this.consts.Event.area.notice, function(args){
+        if (args.lottery) {
+            args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.notice,{
                 entityId: args.entityId,
-                lotteryResult: args.lotteryResult,
+                lotteryResult: args.sysNotice,
+            });
+        }
+	});
+
+	lottery.on(this.consts.Event.area.parseLottery, function(args){
+        if (args.lottery) {
+            args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.parseLottery,{
+                entityId: args.entityId,
+                parseResult: args.parseResult,
             });
         }
 	});

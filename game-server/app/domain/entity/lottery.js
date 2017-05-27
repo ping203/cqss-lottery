@@ -54,6 +54,10 @@ Lottery.prototype.publishCurLottery = function (uids) {
 	}
 };
 
+Lottery.prototype.publishParseResult = function (parseResult) {
+    this.emit(this.consts.Event.area.parseLottery, {lottery: this, parseResult:parseResult, uids:null});
+};
+
 Lottery.prototype.getNextPeriod = function () {
     return this.nextLottery.period;
 }

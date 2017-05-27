@@ -63,7 +63,7 @@ LotteryManagerService.prototype.tick = function () {
 
         if(!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period != result.last.period)){
             lottery.publishLottery(result);
-            self.areaService.openLottery(result.last.numbers.split(','));
+            self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
         }
 
         var sysTickTime = new Date(result.tickTime);

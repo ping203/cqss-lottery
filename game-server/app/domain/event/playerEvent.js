@@ -13,9 +13,11 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
     player.on(this.consts.Event.area.playerBet, function(args) {
         var player = args.player;
         if (player) {
+            var betItem = args.betItem.strip();
+            betItem.roleName = player.roleName;
             player.areaService.getChannel().pushMessage(self.consts.Event.area.playerBet,{
                 entityId:player.entityId,
-                betItem: args.betItem.strip()
+                betItem: betItem
             });
         }
     });
@@ -23,9 +25,11 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
     player.on(this.consts.Event.area.playerUnBet, function(args) {
         var player = args.player;
         if (player) {
+            var betItem = args.betItem.strip();
+            betItem.roleName = player.roleName;
             player.areaService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
                 entityId:player.entityId,
-                betItem: args.betItem.strip()
+                betItem: betItem
             });
         }
     });

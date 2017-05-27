@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `User` (
   `active` tinyint(3) unsigned DEFAULT '0' COMMENT '是否激活',
   `forbidTalk` tinyint(3) unsigned DEFAULT '0' COMMENT '玩家禁言',
   `friends` json DEFAULT NULL COMMENT '朋友列表',
-  `role` smallint(6) unsigned NOT NULL COMMENT '0 玩家，1 代理商，2 管理员',
+  `role` smallint(6) unsigned NOT NULL COMMENT '0:玩家,1:一级代理商,2:二级代理商',
   `roleName` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '角色名称',
   `imageId` smallint(6) unsigned DEFAULT '1' COMMENT '头像id(1~6)',
   `rank` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '荣誉称号',
@@ -68,18 +68,34 @@ CREATE TABLE IF NOT EXISTS `Lottery`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
-# Dump of table Income(投注盈亏表)
+# Dump of table PlayerIncome(玩家投注盈亏表)
 # ------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `Income`(
+CREATE TABLE IF NOT EXISTS `PlayerIncome`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
   `betMoney` bigint(20) unsigned NOT NULL COMMENT '投注金额',
   `incomeMoney` bigint(20) NOT NULL COMMENT '盈亏金额',
-  `defection` bigint(20) unsigned NOT NULL COMMENT '反水',
+  `defection` DECIMAL(20,2) NOT NULL COMMENT '反水金額',
+  `defectionRate` FLOAT(6,2) NOT NULL COMMENT '反水比例',
+  `winRate` FLOAT(6,2) NOT NULL COMMENT '勝率',
+  `incomeTime` bigint(20) unsigned NOT NULL COMMENT '反水日期',
+   PRIMARY KEY (`id`),
+   FOREIGN KEY(`uid`) REFERENCES User(`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+# ------------------------------------------------------------
+# Dump of table AgentIncome(代理投注盈亏表)
+# ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `AgentIncome`(
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
+  `betMoney` bigint(20) unsigned NOT NULL COMMENT '投注金额',
+  `incomeMoney` bigint(20) NOT NULL COMMENT '盈亏金额',
   `rebateRate` FLOAT(6.2) NOT NULL COMMENT '分成比例',
-  `rebateMoney` bigint(20) NOT NULL COMMENT '分成金额',
-  `incomeTime` bigint(20) unsigned NOT NULL COMMENT '收益日期',
+  `rebateMoney` DECIMAL(20,2) NOT NULL COMMENT '分成金额',
+  `incomeTime` bigint(20) unsigned NOT NULL COMMENT '分成日期',
    PRIMARY KEY (`id`),
    FOREIGN KEY(`uid`) REFERENCES User(`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

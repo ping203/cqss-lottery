@@ -19,77 +19,6 @@ var PlayerHandler = function (app) {
     this.areaService = null;
 };
 
-/**
- * Player enter scene, and response the related information such as
- * playerInfo, areaInfo and mapData to client.
- *
- * @param {Object} msg
- * @param {Object} session
- * @param {Function} next
- * @api public
- */
-PlayerHandler.prototype.enterGame = function (msg, session, next) {
-
-    var playerId = session.uid;
-
-    var self = this;
-
-    this.daoUser.getPlayerAllInfo(playerId, function (err, player) {
-        if (err || !player) {
-            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_PLAYER_INFO_ERROR));
-            return;
-        }
-        player.serverId = session.frontendId;
-        player.areaService = self.areaService;
-        if (!self.areaService.addEntity(player)) {
-            next(null, new Answer.NoDataResponse(Code.GAME.FA_ADD_ENTITY_ERROR));
-            return;
-        }
-
-        next(null, new Answer.DataResponse(Code.OK, {
-            area: self.areaService.getAreaInfo(),
-            player:player.strip()
-        }));
-    });
-};
-
-PlayerHandler.prototype.setRoleName = function (msg, session, next) {
-    var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
-    player.setRoleName(msg.roleName);
-
-    var action = bearcat.getBean('rename', {
-        entity: player,
-        roleName: msg.roleName,
-    });
-
-    this.areaService.addAction(action);
-    next(null, new Answer.NoDataResponse(Code.OK));
-};
-
-PlayerHandler.prototype.setPinCode = function (msg, session, next) {
-    var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
-    player.setPinCode(msg.roleName);
-    next(null, new Answer.NoDataResponse(Code.OK));
-};
-
-PlayerHandler.prototype.getLotterys = function (msg, session, next) {
-    var lottery =  this.areaService.getLottery();
-    lottery.getLotterys(msg.skip, msg.limit, function (err, result) {
-        if(!!err){
-            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_LOTTERY_INFO_ERROR));
-        }else {
-            next(null, new Answer.DataResponse(Code.OK, result));
-        }
-    });
-};
-/**
- * lottery bet
- * @param msg
- * @param session
- * @param next
- */
 PlayerHandler.prototype.bet = function (msg, session, next) {
     var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
@@ -108,12 +37,6 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     });
 };
 
-/**
- * cancle lottery bet
- * @param msg
- * @param session
- * @param next
- */
 PlayerHandler.prototype.unBet = function (msg, session, next) {
     var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
@@ -124,6 +47,63 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
+    });
+};
+
+
+PlayerHandler.prototype.myIncome = function (msg, session, next) {
+    var player = this.areaService.getPlayer(session.uid);
+    player.getMyIncomes(msg.skip, msg.limit, function (err, result) {
+        if(err){
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
+            return;
+        }
+        next(null, new Answer.DataResponse(Code.OK, result));
+    });
+
+};
+
+PlayerHandler.prototype.friendIncome = function (msg, session, next) {
+    var player = this.areaService.getPlayer(session.uid);
+    player.getMyIncomes(msg.skip, msg.limit, function (err, result) {
+        if(err){
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
+            return;
+        }
+        next(null, new Answer.DataResponse(Code.OK, result));
+    });
+};
+
+PlayerHandler.prototype.setRoleName = function (msg, session, next) {
+    var playerId = session.uid;
+    var player = this.areaService.getPlayer(playerId);
+    player.setRoleName(msg.roleName);
+
+    next(null, new Answer.NoDataResponse(Code.OK));
+};
+
+PlayerHandler.prototype.setPinCode = function (msg, session, next) {
+    var playerId = session.uid;
+    var player = this.areaService.getPlayer(playerId);
+    player.setPinCode(msg.pinCode);
+    next(null, new Answer.NoDataResponse(Code.OK));
+};
+
+PlayerHandler.prototype.setImageId = function (msg, session, next) {
+    var playerId = session.uid;
+    var player = this.areaService.getPlayer(playerId);
+    player.setImageId(msg.imageId);
+    next(null, new Answer.NoDataResponse(Code.OK));
+};
+
+PlayerHandler.prototype.getLotterys = function (msg, session, next) {
+    var lottery =  this.areaService.getLottery();
+    lottery.getLotterys(msg.skip, msg.limit, function (err, result) {
+        if(!!err){
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_LOTTERY_INFO_ERROR));
+        }else {
+            next(null, new Answer.DataResponse(Code.OK, result));
+        }
     });
 };
 

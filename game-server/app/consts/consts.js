@@ -54,7 +54,8 @@ var Consts = function () {
             removeEntities:'onRemoveEntities',
             countdown:'onCountdown',
             lottery:'onLottery',
-            notice:'onNotice'
+            notice:'onNotice',
+            parseLottery:'onParseLottery'
         }
     };
 

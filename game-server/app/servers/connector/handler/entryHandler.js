@@ -18,7 +18,7 @@ EntryHandler.prototype.login = function (msg, session, next) {
         return;
     }
 
-    var _player;
+    var _player, _playerJoinResult;
     async.waterfall([
         function (cb) {
             // auth token
@@ -43,14 +43,28 @@ EntryHandler.prototype.login = function (msg, session, next) {
             session.set('roleName', _player.roleName);
             session.on('closed', onUserLeave.bind(null, self.app));
             session.pushAll(cb);
+        },function (cb) {
+            self.app.rpc.area.playerRemote.playerJoin(session, _player.id, session.frontendId, cb);
+        },function (playerJoinResult, cb) {
+            if(playerJoinResult.result.code != Code.OK.code){
+                cb(playerJoinResult.result);
+            }
+            else {
+                _playerJoinResult = playerJoinResult;
+                cb();
+            }
         }
     ], function (err) {
         if (err) {
             next(err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
-        next(null, new Answer.DataResponse(Code.OK, {player: _player.strip()}));
+        next(null, _playerJoinResult);
     });
+};
+
+EntryHandler.prototype.logout = function (msg, session, next) {
+    onUserLeave(this.app, session, '用户主动推出');
 };
 
 var onUserLeave = function (app, session, reason) {

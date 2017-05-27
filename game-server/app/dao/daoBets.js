@@ -11,7 +11,7 @@ var DaoBets = function () {
 };
 
 DaoBets.prototype.addBet = function (bet, cb) {
-    var sql = 'insert into Bets (playerId,period,identify,betInfo,state,betCount,winCount,betMoney,winMoney,betTime) values(?,?,?,?,?,?,?,?,?,?)';
+    var sql = 'insert into Bets (uid,period,identify,betInfo,state,betCount,winCount,betMoney,winMoney,betTime) values(?,?,?,?,?,?,?,?,?,?)';
     var args = [bet.playerId, bet.period, bet.identify, bet.betData, bet.state, bet.betCount, bet.winCount, bet.betMoney, bet.winMoney, bet.betTime];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
@@ -86,8 +86,9 @@ DaoBets.prototype.getBetStatistics = function (playerId, cb) {
     });
 };
 
+// 获取玩家一天的投注反水基准数据
 DaoBets.prototype.getDayIncome = function (playerId, beginTime, endTime, cb) {
-    var sql = 'select sum(betMoney) as dayBetMoney, sum(winMoney) as dayWinMoney from Bets where betTime >= ? and betTime <= ? and playerId=?';
+    var sql = 'select sum(betMoney) as dayBetMoney, sum(winMoney) as dayWinMoney,sum(betCount) as dayBetCount, sum(winCount) as dayWinCount from Bets where betTime >= ? and betTime <= ? and uid=?';
     var args = [beginTime, endTime, playerId];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {

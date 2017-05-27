@@ -73,6 +73,7 @@
       }
     }
   ],
+
   "game": [
     {
       "connect":{
@@ -89,6 +90,16 @@
 
       "login":{
         "router":"connector.entryHandler.login",
+        "msg":{
+          "token":{
+            "type":"string",
+            "required":true
+          }
+        }
+      }
+    },{
+      "logout":{
+        "router":"connector.entryHandler.logout",
         "msg":{
           "token":{
             "type":"string",
@@ -141,9 +152,50 @@
         }
       }
     },{
-      "enterScene": {
-        "router":"area.playerHandler.enterGame",
-        "msg":null
+      "bet": {
+        "router":"area.playerHandler.bet",
+        "msg":{
+          "betData":"1/223/100"
+        }
+      }
+    },{
+      "unBet": {
+        "router":"area.playerHandler.unBet",
+        "msg":{
+          "entityId":100
+        }
+      }
+    },{
+      "myIncome": {
+        "router":"area.playerHandler.myIncome",
+        "msg":{
+          "skip":10,
+          "limit":10
+        }
+      }
+    },{
+      "friendIncome": {
+        "router":"area.playerHandler.friendIncome",
+        "msg":{
+          "skip":10,
+          "limit":10
+        }
+      }
+    },{
+      "setRoleName": {
+        "router":"area.playerHandler.setRoleName",
+        "msg":{
+          "skip":10,
+          "limit":10
+        }
+      }
+    },{
+      "setPinCode": {
+        "router":"area.playerHandler.setImageId",
+        "msg":{
+          "skip":10,
+          "limit":10
+        }
       }
     }
   ]

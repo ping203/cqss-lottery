@@ -11,32 +11,46 @@ var CalcIncome = function () {
 };
 
 //玩家反水
-CalcIncome.prototype.playerDefection = function (player, callback) {
+CalcIncome.prototype.playerDefection = function (playerId, callback) {
     var self = this;
     async.waterfall([
         function (cb) {
-            self.daoBets.getDayIncome(player.id, this.beginTime, this.endTime, cb);
+            self.daoBets.getDayIncome(playerId.id, self.beginTime, self.endTime, function (err, income) {
+                cb(null, income);
+            });
         }, function (income, cb) {
-            if (!income) {
-                return;
+
+            var playerDayIncomeInfo = {
+                playerId: playerId.id,
+                betMoney: 0,
+                incomeMoney: 0,
+                defection: 0,
+                defectionRate: 0,
+                winRate: 0.0,
+                incomeTime: self.beginTime
+            };
+
+            if (!!income) {
+                if (income.dayBetCount > 0) {
+                    playerDayIncomeInfo.winRate = income.dayWinCount/income.dayBetCount/100;
+                }
+
+                var defection = 0; //反水 todo:>0
+                var defectionRate = self.incomeCfg.getDefectionRate(playerId.level);
+                //盈亏金额
+                var incomeMoney = income.dayWinMoney - income.dayBetMoney;
+                if (incomeMoney < 0 && income.dayBetMoney >= 50) {
+                    defection = Math.abs(incomeMoney) * defectionRate;
+                    playerDayIncomeInfo.defectionRate = defectionRate;
+                }
+
+
+                playerDayIncomeInfo.betMoney = income.dayBetMoney;
+                playerDayIncomeInfo.incomeMoney = incomeMoney;
+                playerDayIncomeInfo.defection = defection;
             }
 
-            var defection = 0; //反水
-            //盈亏金额
-            var incomeMoney = income.dayWinMoney - income.dayBetMoney;
-            if (incomeMoney < 0 && income.dayBetMoney >= 50) {
-                defection = Math.abs(incomeMoney) * this.incomeCfg.getDefectionRate(player.level);
-            }
-
-            self.daoIncome.addIncome({
-                playerId: item.id,
-                betMoney: income.dayBetMoney,
-                incomeMoney: income.dayWinMoney,
-                defection: defection,
-                rebateRate: 0,
-                rebateMoney: 0,
-                incomeTime: begin_time.getTime()
-            }, function (err, res) {
+            self.daoIncome.addPlayerIncome(playerDayIncomeInfo, function (err, res) {
                 if (err) {
                     logger.error('run addIncome failed!' + err.stack);
                     return;
@@ -47,7 +61,6 @@ CalcIncome.prototype.playerDefection = function (player, callback) {
     ]);
 
 };
-
 
 CalcIncome.prototype.getPlayerIncome = function (playerId, callback) {
 
@@ -73,12 +86,12 @@ CalcIncome.prototype.agentRebate = function (agent, callback) {
             }
 
             var playerIds = JSON.parse(user.friends);
-            if(!playerIds){
+            if (!playerIds) {
                 return;
             }
 
             async.map(playerIds, self.getPlayerIncome.bind(self), function (err, incomes) {
-                async.reduce(incomes, {betMoney:0, incomeMoney:0,}, function (reduce, item, callback) {
+                async.reduce(incomes, {betMoney: 0, incomeMoney: 0,}, function (reduce, item, callback) {
                     reduce.betMoney += item.betMoney;
                     reduce.incomeMoney += item.incomeMoney;
                     reduce.defection += item.defection;
@@ -111,7 +124,7 @@ CalcIncome.prototype.agentRebate = function (agent, callback) {
 
 
                     winston.info("代理商分成总额:" + income.incomeMoney);
-                    callback(null, {playerId:incomes[0].playerId, income:income});
+                    callback(null, {playerId: incomes[0].playerId, income: income});
                 });
             });
 
@@ -119,24 +132,23 @@ CalcIncome.prototype.agentRebate = function (agent, callback) {
     ]);
 };
 
-//收益入账
+//玩家反水入账
 CalcIncome.prototype.playerIncomeInsertAccount = function (income, callback) {
     if (income.defection > 0) {
         this.daoUser.updateAccountAmount(income.playerId, income.defection, callback);
     }
 };
 
-
 //代理商分成入账
 CalcIncome.prototype.agentsRebateInsertAccount = function (income, callback) {
 
 };
 
-CalcIncome.prototype.playersDefect = function () {
+CalcIncome.prototype.playersCalc = function () {
     var self = this;
     async.waterfall([
         function (cb) {
-            self.daoUser.getPlayers(cb);
+            self.daoUser.getPlayerIds(cb);
         },
         function (playerIds, cb) {
             async.map(playerIds, self.playerDefection.bind(self), function (err, playerIncomes) {
@@ -146,16 +158,11 @@ CalcIncome.prototype.playersDefect = function () {
                 cb(null, playerIncomes)
             });
         }, function (playerIncomes, cb) {
-            // if (!playerIncomes || playerIncomes.length === 0) {
-            //     return;
-            // }
-            async.map(playerIncomes, self.defectionInsertAccount.bind(this), function (err, result) {
+            async.map(playerIncomes, self.playerIncomeInsertAccount.bind(self), function (err, result) {
                 if (err) {
                     logger.error('run getPlayers failed!' + err.stack);
                 }
-
-                cb(null, result)
-
+                cb(null);
             });
         }
 
@@ -165,13 +172,13 @@ CalcIncome.prototype.playersDefect = function () {
             return;
         }
 
-        self.agentsRebate();
+       // self.agentsCalc();
 
     });
 };
 
 //代理商分成
-CalcIncome.prototype.agentsRebate = function () {
+CalcIncome.prototype.agentsCalc = function () {
 
     var self = this;
     async.waterfall([
@@ -214,7 +221,7 @@ CalcIncome.prototype.calc = function () {
 
     this.incomeTime = begin.getTime();
 
-    this.playersDefect();
+    this.playersCalc();
 };
 
 module.exports = {

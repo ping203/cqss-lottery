@@ -99,6 +99,19 @@ Player.prototype.setPinCode = function (pinCode) {
     this.save();
 };
 
+Player.prototype.setImageId = function(imageId){
+    this.imageId = imageId;
+    this.save();
+}
+
+Player.prototype.getMyIncomes = function(skip, limit, cb){
+    this.daoIncome.getPlayerIncomes(this.id, skip, limit, cb);
+}
+
+Player.prototype.getFriendIncome = function(skip, limit, cb){
+    this.daoIncome.getPlayerIncomes(this.id, skip, limit, cb);
+}
+
 //todo:检查用户投注类型总额是否超限
 Player.prototype.canBet = function (type, value) {
     return this.bets.canBetType(type, value);
@@ -168,7 +181,6 @@ Player.prototype.unBet = function (entityId, cb) {
     }
 };
 
-
 Player.prototype.openTheLottery = function (openInfo) {
     var openResult = this.bets.openLottery(openInfo);
     if(openResult.winCount != 0){
@@ -186,7 +198,7 @@ Player.prototype.save = function () {
 };
 
 Player.prototype.changeNotify = function(){
-    this.emit(this.consts.Event.area.playerChange, {player: this,uids:[{uid:this.userId, sid:this.serverId}]});
+    this.emit(this.consts.Event.area.playerChange, {player: this,uids:[{uid:this.id, sid:this.serverId}]});
 };
 
 Player.prototype.strip = function () {
@@ -253,6 +265,7 @@ module.exports = {
         {name: "consts", ref: "consts"},
         {name: "dataApiUtil", ref: "dataApiUtil"},
         {name: "daoBets", ref: "daoBets"},
-        {name: "utils", ref: "utils"}
+        {name: "utils", ref: "utils"},
+        {name: "daoIncome", ref: "daoIncome"}
     ]
 }

@@ -35,6 +35,7 @@ RouteUtil.area = function(session, msg, app, cb) {
         return;
     }
 
+    logger.error('------------------------------------', session.uid,'----------------', session)
     var res = RouteUtil.routeDispatch(session.uid, areaServers);
 
     cb(null, res.id);

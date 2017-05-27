@@ -11,6 +11,7 @@ $(document).ready(function() {
 	$('#setRoleName').on('click', setRoleName);
 	$('#bet').on('click', bet);
 	$('#unBet').on('click', unBet);
+	$('#myIncome').on('click', myIncome);
 
      gameMsgInit();
 
@@ -99,7 +100,7 @@ $(document).ready(function() {
         var betValue = $('#betValue').val();
         pomelo.request("area.playerHandler.bet", {betData:betValue}, function (res) {
             if(res.result.code != 200){
-                alert('投注失败',res.result.desc);
+                console.log('投注失败',res.result.desc);
                 return;
             }
             alert('投注成功');
@@ -111,10 +112,20 @@ $(document).ready(function() {
         var entityId = $('#betValue').val();
         pomelo.request("area.playerHandler.unBet", {entityId:entityId}, function (res) {
             if(res.result.code != 200){
-                alert('撤销投注失败');
+                console.log('撤销投注失败');
                 return;
             }
             alert('撤销投注成功');
+        });
+    }
+
+    function myIncome(e) {
+        pomelo.request("area.playerHandler.myIncome", {skip:10, limit:10}, function (res) {
+            if(res.result.code != 200){
+                console.log('獲取收益失敗');
+                return;
+            }
+            alert('獲取收益成功');
         });
     }
 
@@ -179,16 +190,19 @@ $(document).ready(function() {
                 }, function() {
                     var route = "connector.entryHandler.login";
                     pomelo.request(route, {token: res.token}, function(res) {
-                        if(res.result.code != 200) {
-                            showError(DUPLICATE_ERROR);
+                        if(res.result.code != 200){
+                            alert('进入游戏失败');
                             return;
                         }
 
-						var userData = res.data.user;
-                        var playerData = res.data.player;
-                        rolename = playerData.roleName;
-                        console.log(userData);
-                        console.log(playerData);
+                        console.log(res.data);
+                        playerInfo = res.data;
+
+                        var str = JSON.stringify(playerInfo);
+                        console.log(str);
+                        $('#playerInfo').html(str);
+
+                        rolename = playerInfo.roleName;
 
                         var route = "chat.chatHandler.getRooms";
                         pomelo.request(route, null, function(res) {
@@ -204,8 +218,19 @@ $(document).ready(function() {
                             }
 
                             addRoomList(roomIdList);
-                        });
 
+                            joinRoom(function (err) {
+                                if (err) {
+                                    console.log(err);
+                                    return;
+                                }
+
+                                setName();
+                                setRoom();
+                                showChat();
+                            });
+
+                        });
                     });
                 });
             });

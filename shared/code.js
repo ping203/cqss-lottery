@@ -28,7 +28,8 @@ module.exports = {
         FA_PHONE_AREADY_EXIST:  {code:4002,desc:'手机号码已经被注册'},
         FA_USER_NOT_EXIST:      {code:4003,desc:'用户不存在'},
         FA_USER_LOGIN_ERROR:    {code:4004,desc:'用户或密码错误'},
-        FA_INVITOR_NOT_EXIST:   {code:4005,desc:'推荐人不存在'}
+        FA_INVITOR_NOT_EXIST:   {code:4005,desc:'推荐人不存在'},
+        FA_USER_AREADY_LOGIN:   {code:4006,desc:'用户已经登录，请勿重复登录'}
     },
     GAME:{
         FA_ADD_ENTITY_ERROR: {code:5001, desc:"加入对象失败"},
@@ -41,6 +42,8 @@ module.exports = {
         FA_BET_PLATFORM_LIMIT: {code:5008, desc:"平台投注金额超限"},
         FA_ACCOUNTAMOUNT_NOT_ENOUGH: {code:5009, desc:"余额不足"},
         FA_BET_STATE: {code:5010, desc:"投注状态异常"},
-        FA_ENTITY_NOT_EXIST: {code:5010, desc:"对象不存在"}
+        FA_ENTITY_NOT_EXIST: {code:5011, desc:"对象不存在"},
+        FA_BET_MONEY_NOTZERO: {code:5012, desc:"投注金额不能为0"},
+        FA_QUERY_INFO_IS_EMPTY: {code:5012, desc:"查詢不到指定信息"}
     }
 };

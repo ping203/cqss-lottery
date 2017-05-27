@@ -139,6 +139,7 @@ ChatService.prototype.getUsers = function (roomId) {
  * @param  {String} roomId room id
  */
 ChatService.prototype.kick = function (userId, roomId) {
+    logger.error('ChatService.prototype.kick ',userId, ':roomId:', roomId);
     var record = this.roomMap.get(roomId).userMap.get(userId);
     var channel = this.app.get('channelService').getChannel(roomId, true);
 
