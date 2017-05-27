@@ -10,34 +10,7 @@ var EntryHandler = function (app) {
     this.serverId = app.get('serverId').split('-')[2];
 };
 
-EntryHandler.prototype.createPlayer = function(userId, cb) {
-    var self = this;
-    this.daoUser.getPlayersByUid(userId, function(err, players) {
-        if (players && players.length > 0) {
-            self.utils.invokeCallback(cb, null, players[0]);
-            return;
-        }
 
-        var uid = userId, sex = 0,roleName = random_name();
-        self.daoUser.createPlayer(uid, roleName, sex, function(err, players){
-            if(err) {
-                logger.error('[register] fail to invoke createPlayer for ' + err.stack);
-                self.utils.invokeCallback(cb, err, null);
-            }else{
-                self.utils.invokeCallback(cb, null, players[0]);
-            }
-        });
-    });
-};
-
-/**
- * New client entry game server. Check token and bind user info into session.
- *
- * @param  {Object}   msg     request message
- * @param  {Object}   session current session object
- * @param  {Function} next    next stemp callback
- * @return {Void}
- */
 EntryHandler.prototype.login = function (msg, session, next) {
     var token = msg.token, self = this;
     if (!token) {
@@ -45,38 +18,29 @@ EntryHandler.prototype.login = function (msg, session, next) {
         return;
     }
 
-    var _player, _user;
+    var _player;
     async.waterfall([
         function (cb) {
             // auth token
             self.app.rpc.auth.authRemote.auth(session, token, cb);
-        }, function (code, user, cb) {
-            // query player info by user id
+        }, function (code, playerId, cb) {
             if (code.code !== Code.OK.code) {
                 next(null, new Answer.NoDataResponse(code));
                 return;
             }
-            if (!user) {
-                next(null,new Answer.NoDataResponse(Code.ENTRY.FA_USER_NOT_EXIST));
+            self.daoUser.getPlayer(playerId, cb);
+        },function (player, cb) {
+            if (!player) {
+                next(null,new Answer.NoDataResponse(Code.USER.FA_USER_NOT_EXIST));
                 return;
             }
-            self.daoUser.getPlayersByUid(user.id, cb);
-            _user = user;
-        }, function (res, cb) {
-            // generate session and register chat status
-            players = res;
-            self.app.get('sessionService').kick(_user.id, cb);
-        }, function (cb) {
-            session.bind(_user.id, cb);
-        }, function (cb) {
-            self.createPlayer(_user.id, cb);
-        },
-        function (player, cb) {
             _player = player;
-            // session.set('areaId', self.app.get('areaIdMap')[player.areaId]);
-            session.set('areaId', 1);
+            self.app.get('sessionService').kick(_player.id, cb);
+        },
+        function (cb) {
+            session.bind(_player.id, cb);
+        },function (cb) {
             session.set('roleName', _player.roleName);
-            session.set('playerId', _player.id);
             session.on('closed', onUserLeave.bind(null, self.app));
             session.pushAll(cb);
         }
@@ -85,16 +49,13 @@ EntryHandler.prototype.login = function (msg, session, next) {
             next(err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
-        next(null, new Answer.DataResponse(Code.OK, {player: _player, user:_user}));
+        next(null, new Answer.DataResponse(Code.OK, {player: _player.strip()}));
     });
 };
 
 var onUserLeave = function (app, session, reason) {
     if (session && session.uid) {
-        app.rpc.area.playerRemote.playerLeave(session, {
-            playerId: session.get('playerId'),
-            areaId: session.get('areaId')
-        }, null);
+        app.rpc.area.playerRemote.playerLeave(session, session.uid, null);
 
         app.rpc.chat.chatRemote.kick(session, session.uid, session.get('roomId'),null);
     }

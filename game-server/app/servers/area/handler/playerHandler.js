@@ -30,11 +30,11 @@ var PlayerHandler = function (app) {
  */
 PlayerHandler.prototype.enterGame = function (msg, session, next) {
 
-    var playerId = session.get('playerId');
-    var areaId = session.get('areaId');
+    var playerId = session.uid;
+
     var self = this;
 
-    this.daoUser.getPlayerAllInfo(session.get('playerId'), function (err, player) {
+    this.daoUser.getPlayerAllInfo(playerId, function (err, player) {
         if (err || !player) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_PLAYER_INFO_ERROR));
             return;
@@ -54,7 +54,7 @@ PlayerHandler.prototype.enterGame = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.setRoleName = function (msg, session, next) {
-    var playerId = session.get('playerId');
+    var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
     player.setRoleName(msg.roleName);
 
@@ -68,7 +68,7 @@ PlayerHandler.prototype.setRoleName = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.setPinCode = function (msg, session, next) {
-    var playerId = session.get('playerId');
+    var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
     player.setPinCode(msg.roleName);
     next(null, new Answer.NoDataResponse(Code.OK));
@@ -91,7 +91,7 @@ PlayerHandler.prototype.getLotterys = function (msg, session, next) {
  * @param next
  */
 PlayerHandler.prototype.bet = function (msg, session, next) {
-    var playerId = session.get('playerId');
+    var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
 
     var period = this.areaService.getLottery().getNextPeriod();
@@ -115,7 +115,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
  * @param next
  */
 PlayerHandler.prototype.unBet = function (msg, session, next) {
-    var playerId = session.get('playerId');
+    var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
 
     player.unBet(player.entityId, function (err, result) {
@@ -138,7 +138,7 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
  */
 PlayerHandler.prototype.move = function (msg, session, next) {
     var endPos = msg.targetPos;
-    var playerId = session.get('playerId');
+    var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
     if (!player) {
         logger.error('Move without a valid player ! playerId : %j', playerId);
@@ -191,7 +191,7 @@ PlayerHandler.prototype.move = function (msg, session, next) {
 PlayerHandler.pickItem = function(msg, session, next) {
     var area = session.area;
 
-    var player = area.getPlayer(session.get('playerId'));
+    var player = area.getPlayer(session.uid);
     var target = area.getEntity(msg.targetId);
     if(!player || !target || (target.type !== consts.EntityType.ITEM && target.type !== consts.EntityType.EQUIPMENT)){
         next(null, {

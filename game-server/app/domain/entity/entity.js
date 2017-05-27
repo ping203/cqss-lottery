@@ -16,8 +16,6 @@ function Entity(opts) {
 	this.entityId = id++;
 	this.kindId = opts.kindId;
 	this.kindName = opts.kindName;
-	this.areaId = opts.areaId || 1;
-	this.area = opts.area;
     this.serverId = -1;
 }
 

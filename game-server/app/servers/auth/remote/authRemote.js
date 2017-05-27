@@ -36,13 +36,13 @@ AuthRemote.prototype.auth = function(token, cb) {
     }
 
   //  var daoUser = bearcat.getBean("daoUser");
-    this.daoUser.getUserById(res.uid, function(err, user) {
+    this.daoUser.getPlayer(res.uid, function(err, player) {
         if(err) {
             cb(err);
             return;
         }
 
-        cb(null, Code.OK, user);
+        cb(null, Code.OK, player.id);
     });
 };
 

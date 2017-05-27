@@ -67,7 +67,7 @@ DaoBets.prototype.getBets = function (skip, limit, cb) {
 };
 
 DaoBets.prototype.getBetStatistics = function (playerId, cb) {
-    var sql = 'select sum(betCount) as betCount, sum(winCount) as winCount from Bets where playerId= ? and state =?';
+    var sql = 'select sum(betCount) as betCount, sum(winCount) as winCount from Bets where uid= ? and state =?';
     var args = [playerId, this.consts.BetState.BET_OPENNED];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {

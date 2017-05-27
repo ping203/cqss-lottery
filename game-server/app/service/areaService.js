@@ -162,14 +162,14 @@ AreaService.prototype.addEntity = function(e) {
   this.eventManager.addEvent(e);
 
   if (e.type === this.consts.EntityType.PLAYER) {
-    this.getChannel().add(e.userId, e.serverId);
+    this.getChannel().add(e.id, e.serverId);
 
     if (!!this.players[e.id]) {
       logger.error('add player twice! player : %j', e);
     }
     this.players[e.id] = e.entityId;
 
-    this.getLottery().publishCurLottery([{uid:e.userId, sid:e.serverId}]);
+    this.getLottery().publishCurLottery([{uid:e.id, sid:e.serverId}]);
   }
 
   this.added.push(e);

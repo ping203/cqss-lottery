@@ -14,11 +14,8 @@ var PlayerRemote = function(app) {
  * @param {Function} cb
  * @api public
  */
-PlayerRemote.prototype.playerLeave = function(args, cb) {
-	var areaId = args.areaId;
-	var playerId = args.playerId;
+PlayerRemote.prototype.playerLeave = function(playerId, cb) {
 	var player = this.areaService.getPlayer(playerId);
-
 	if (!player) {
 		this.utils.invokeCallback(cb);
 		return;

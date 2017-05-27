@@ -6,18 +6,25 @@ var Code = require('../../../../shared/code');
 function Player(opts) {
     this.opts = opts;
     this.id = opts.id;
-    this.userId = opts.userId;
     this.roleName = opts.roleName;
     this.imageId = opts.imageId;
     this.sex = opts.sex;
     this.pinCode = opts.pinCode;
-    this.accountAmount = opts.accountAmount || 3000;
+    this.username = opts.username;
+    this.phone = opts.phone;
+    this.email = opts.email;
+    this.inviter = opts.inviter;
+    this.active = opts.active;
+    this.forbidTalk = opts.forbidTalk;
+    this.role = opts.role;
+    this.rank = opts.rank;
+    this.accountAmount = opts.accountAmount || 3000; //todo:test
     this.level = opts.level;
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastLoinTime = opts.lastLoinTime;
+
     this.betStatistics = opts.betStatistics;
-    this.forbidTalk = opts.forbidTalk;
 }
 
 Player.prototype.init = function () {
@@ -183,25 +190,29 @@ Player.prototype.changeNotify = function(){
 };
 
 Player.prototype.strip = function () {
+
     var r = {
         id: this.id,
         entityId: this.entityId,
         kindId: this.kindId,
         kindName: this.kindName,
-        areaId: this.areaId,
         type: this.type,
-        userId: this.userId,
         roleName: this.roleName,
         imageId:this.imageId,
-        sex: this.sex,
         pinCode: this.pinCode,
+        username:this.username,
+        phone:this.phone,
+        email:this.email,
+        inviter:this.inviter,
+        active:this.active,
+        forbidTalk:this.forbidTalk,
+        role:this.role,
+        rank: this.rank,
         accountAmount: this.accountAmount,
         level: this.level,
         experience: this.experience,
-        rank: this.rank,
         loginCount: this.loginCount,
         lastLoinTime: this.lastLoinTime,
-        forbidTalk:this.forbidTalk,
         betStatistics:this.betStatistics
     };
 

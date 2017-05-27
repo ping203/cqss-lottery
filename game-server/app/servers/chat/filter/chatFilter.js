@@ -18,7 +18,7 @@ var Filter = function() {
 Filter.prototype.before = function(msg, session, next){
     var area = pomelo.app.areaManager.getArea(session.get('instanceId'));
     session.area = area;
-    var player = area.getPlayer(session.get('playerId'));
+    var player = area.getPlayer(session.uid);
 
     if(!player){
         var route = msg.__route__;

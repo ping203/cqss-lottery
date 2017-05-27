@@ -10,7 +10,7 @@ var PlayerFilter = function() {
  * Area filter
  */
 PlayerFilter.prototype.before = function(msg, session, next){
-	var player = pomelo.app.areaService.getPlayer(session.get('playerId'));
+	var player = pomelo.app.areaService.getPlayer(session.uid);
     var route = msg.__route__;
 
 	if(!player){
