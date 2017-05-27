@@ -178,8 +178,8 @@ router.post('/register', function (ctx, next) {
                    // daoUser.getUserByName(msg.inviter, cb);
                     cb(null, {name:'ok'});
                 }
-            },function (invitor, cb) {
-                if(invitor){
+            },function (inviter, cb) {
+                if(inviter){
                     cb(null, null);
                 }else {
                     cb(code.USER.FA_INVITOR_NOT_EXIST);
@@ -190,16 +190,14 @@ router.post('/register', function (ctx, next) {
                 ctx.body = err;
                 resolve();
             }else {
-                daoUser.createUser(msg.username, msg.password, msg.phone, msg.inviter, from, function (err, user) {
-                    if (err || !user) {
+                daoUser.createUser(msg.username, msg.password, msg.phone, msg.inviter, from, function (err, uid) {
+                    if (err) {
                         console.error(err);
                         ctx.body = code.DBFAIL;
                     } else {
                         console.log('A new user was created! --' + msg.name);
                         ctx.body = {
-                            code: code.OK.code,
-                            token: Token.create(user.id, Date.now(), secret),
-                            uid: user.id
+                            code: code.OK.code
                         };
                     }
                     resolve();

@@ -1,6 +1,11 @@
 var mysql = require('./mysql/mysql');
+var User = require('../user');
+var random_name = require('node-random-name')
 
 var daoUser = module.exports;
+
+const default_role = 0;
+const default_rank = '江湖小虾';
 
 /**
  * Create a new user
@@ -10,17 +15,15 @@ var daoUser = module.exports;
  * @param {function} cb Call back function.
  */
 daoUser.createUser = function (username, password, phone, inviter, from, cb){
-    var sql = 'insert into User (username,password,phone,email,`from`,regTime,inviter,active,friends) values(?,?,?,?,?,?,?,?,?)';
-    var regTime = Date.now();
-    var args = [username, password, phone,"", from, regTime,inviter,false,'[]'];
+    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank) values(?,?,?,?,?,?,?,?,?)';
+    var regTime = Date.now(), roleName = random_name();
+    var args = [username, password, phone, from, regTime,inviter,default_role,roleName, default_rank];
 
     mysql.insert(sql, args, function(err,res){
         if(err !== null){
             cb({code: err.number, msg: err.message}, null);
         } else {
-            var user = {id: res.insertId, name: username, password: password,
-                phone: phone, email:"", from:from,regTime:regTime,inviter:inviter, active:false};
-            cb(null, user);
+            cb(null, res.insertId);
         }
     });
 };
@@ -39,10 +42,7 @@ daoUser.getUserByName = function (username, cb){
       cb(err.message, null);
     } else {
       if (!!res && res.length === 1) {
-        var rs = res[0];
-        var user = {id: rs.id, name: rs.name, password: rs.password, phone: rs.phone,
-            email:rs.email, from:rs.from,regTime:rs.regTime,inviter:rs.inviter,active:rs.active}
-        cb(null, user);
+        cb(null, new User(res[0]));
       } else {
         cb(null, null);
       }
@@ -58,10 +58,7 @@ daoUser.getUserByPhone = function(phone, cb){
             cb(err.message, null);
         } else {
             if (!!res && res.length >= 1) {
-                var rs = res[0];
-                var user = {id: rs.id, name: rs.name, password: rs.password, phone: rs.phone,
-                    email:rs.email, from:rs.from,regTime:rs.regTime,inviter:rs.inviter, active:rs.active}
-                cb(null, user);
+                cb(null, new User(res[0]));
             } else {
                 cb(null, null);
             }

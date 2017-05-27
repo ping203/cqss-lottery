@@ -1,44 +1,36 @@
+CREATE SCHEMA  IF NOT EXISTS `lottery`;
+USE `lottery`;
+ALTER SCHEMA `lottery`  DEFAULT COLLATE utf8_unicode_ci;
+
 # ------------------------------------------------------------
 # Dump of table User(用户表)
 # ------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `User` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `username` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '登录名',
   `password` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '登录密码',
   `phone` varchar(11) COLLATE utf8_unicode_ci NOT NULL COMMENT '电话',
-  `email` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '邮箱',
-  `from` varchar(25) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '登录来源',
+  `email` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '邮箱',
+  `from` varchar(25) COLLATE utf8_unicode_ci NOT NULL COMMENT '登录来源',
   `regTime` bigint(20) unsigned NOT NULL COMMENT '注册时间',
   `inviter` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '邀请人',
-  `active` tinyint(1) unsigned NOT NULL COMMENT '是否激活',
-  `friends` JSON COMMENT '朋友列表',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `INDEX_ACCOUNT_NAME` (`username`, `phone`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-# ------------------------------------------------------------
-# Dump of table Player(玩家表)
-# ------------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS `Player` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `playerId` bigint(20) unsigned NOT NULL COMMENT '用户id',
-  `roleName` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '角色名称',
-  `imageId` smallint(6) unsigned NOT NULL COMMENT '头像id',
-  `rank` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT 'rank',
-  `sex` smallint(6) unsigned NOT NULL COMMENT '性别 1男 2女',
-  `pinCode` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '取款密码',
-  `accountAmount` smallint(6) unsigned NOT NULL COMMENT '账户金额',
-  `level` smallint(6) unsigned NOT NULL COMMENT '等级',
-  `experience` smallint(11) unsigned NOT NULL COMMENT '经验值',
-  `loginCount` smallint(6) unsigned NOT NULL COMMENT '登录次数',
-  `lastLoinTime` bigint(20) unsigned NOT NULL COMMENT '最后登录时间',
-  `areaId` bigint(20) unsigned NOT NULL COMMENT '场景id',
-  `forbidTalk` tinyint(1) unsigned NOT NULL COMMENT '玩家禁言',
+  `active` tinyint(3) unsigned DEFAULT '0' COMMENT '是否激活',
+  `forbidTalk` tinyint(3) unsigned DEFAULT '0' COMMENT '玩家禁言',
+  `friends` json DEFAULT NULL COMMENT '朋友列表',
   `role` smallint(6) unsigned NOT NULL COMMENT '0 玩家，1 代理商，2 管理员',
+  `roleName` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '角色名称',
+  `imageId` smallint(6) unsigned DEFAULT '1' COMMENT '头像id(1~6)',
+  `rank` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '荣誉称号',
+  `pinCode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '取款密码',
+  `accountAmount` smallint(6) unsigned DEFAULT 0 COMMENT '账户金额',
+  `level` smallint(6) unsigned DEFAULT 1 COMMENT '等级(1~10)',
+  `experience` smallint(11) unsigned DEFAULT 0 COMMENT '经验值',
+  `loginCount` smallint(6) unsigned DEFAULT 0 COMMENT '登录次数',
+  `lastLoinTime` bigint(20) unsigned DEFAULT NULL COMMENT '最后登录时间',
   PRIMARY KEY (`id`),
-  FOREIGN KEY(`playerId`) REFERENCES User(`id`)
+  UNIQUE KEY `username_UNIQUE` (`username`),
+  UNIQUE KEY `phone_UNIQUE` (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
@@ -47,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `Player` (
 
 CREATE TABLE IF NOT EXISTS `Bets`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `playerId` bigint(20) unsigned NOT NULL COMMENT '玩家ID',
+  `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
   `period` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '期数',
   `identify` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '标志',
   `betInfo` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '投注信息{type:0,value:0}',
@@ -57,7 +49,8 @@ CREATE TABLE IF NOT EXISTS `Bets`(
   `betMoney` bigint(20) unsigned NOT NULL COMMENT '投注金额',
   `winMoney` bigint(20) unsigned NOT NULL COMMENT '收益金额',
   `betTime` bigint(20) unsigned NOT NULL COMMENT '投注时间',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  FOREIGN KEY(`uid`) REFERENCES User(`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
@@ -80,13 +73,13 @@ CREATE TABLE IF NOT EXISTS `Lottery`(
 
 CREATE TABLE IF NOT EXISTS `Income`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `playerId` bigint(20) unsigned NOT NULL COMMENT '玩家ID',
+  `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
   `betMoney` bigint(20) unsigned NOT NULL COMMENT '投注金额',
   `incomeMoney` bigint(20) NOT NULL COMMENT '盈亏金额',
   `defection` bigint(20) unsigned NOT NULL COMMENT '反水',
-  `rebateRate` float(6.2) NOT NULL COMMENT '分成比例',
+  `rebateRate` FLOAT(6.2) NOT NULL COMMENT '分成比例',
   `rebateMoney` bigint(20) NOT NULL COMMENT '分成金额',
   `incomeTime` bigint(20) unsigned NOT NULL COMMENT '收益日期',
    PRIMARY KEY (`id`),
-   FOREIGN KEY(`playerId`) REFERENCES Player(`id`)
+   FOREIGN KEY(`uid`) REFERENCES User(`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
