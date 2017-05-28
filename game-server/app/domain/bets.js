@@ -47,23 +47,6 @@ Bets.prototype.getItem = function (entityId) {
     return this.betMap.get(entityId);
 };
 
-// 0 确认，1 撤销，2 结算,3未开奖
-Bets.prototype.setItemState = function (entityId, state) {
-    var item = this.betMap.get(entityId);
-    if (item) {
-        item.setState(state);
-        //this.syncItems.push(item);
-        item.save();
-    }
-};
-
-Bets.prototype.getItemState = function (entityId, state) {
-    var item = this.betMap.get(entityId);
-    if (item) {
-        return item.getState();
-    }
-};
-
 Bets.prototype.openLottery = function (openInfo) {
 
     var openResult = {winCount:0,winMoney:0};

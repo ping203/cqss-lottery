@@ -145,8 +145,8 @@ Player.prototype.bet = function (period, identify, betParseInfo, cb) {
         self.betStatistics.betCount += betParseInfo.betItems.length;
         self.accountAmount -= betParseInfo.total;
         self.save();
-        //todo 通知玩家信息变化吧
         self.changeNotify();
+
         betItem.setBetItems(betParseInfo.betItems);
         self.bets.addItem(betItem);
         self.utils.invokeCallback(cb, null, null);
@@ -159,12 +159,12 @@ Player.prototype.bet = function (period, identify, betParseInfo, cb) {
 Player.prototype.unBet = function (entityId, cb) {
     var betItem = this.bets.getItem(entityId);
     if(betItem){
-        if(betItem.getItemState(entityId) != this.consts.BetState.BET_WAIT){
+        if(betItem.getState(entityId) != this.consts.BetState.BET_WAIT){
             this.utils.invokeCallback(cb, Code.GAME.FA_BET_STATE, null);
             return;
         }
 
-        betItem.setItemState(entityId, this.consts.BetState.BET_CANCLE);
+        betItem.setState(entityId, this.consts.BetState.BET_CANCLE);
         this.emit(this.consts.Event.area.playerUnBet, {player: self, betItem: betItem});
 
         this.accountAmount += betItem.getBetMoney();
@@ -173,7 +173,6 @@ Player.prototype.unBet = function (entityId, cb) {
 
         this.utils.invokeCallback(cb, null, null);
 
-        //todo 通知玩家信息变化吧
         this.changeNotify();
     }
     else {
@@ -187,7 +186,7 @@ Player.prototype.openTheLottery = function (openInfo) {
         this.betStatistics.winCount += openResult.winCount;
         this.accountAmount += openResult.winMoney;
         this.save();
-        //todo 通知玩家信息变化吧
+
         this.changeNotify();
     }
 };
