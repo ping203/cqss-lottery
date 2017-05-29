@@ -179,19 +179,19 @@ console.log('--------------------');
 
 var betResult = {};
 var total = 0;
-var typeTotal ={};
+var betTypeInfo ={};
 var betItems =[];
 
 var itemss ={};
 itemss.type = 0;
-console.log('dddddd',typeTotal[itemss.type]);
-if(undefined === typeTotal[itemss.type]){
-    typeTotal[itemss.type]=0;
+console.log('dddddd',betTypeInfo[itemss.type]);
+if(undefined === betTypeInfo[itemss.type]){
+    betTypeInfo[itemss.type]=0;
     console.log('dsfsdfdsfasf');
 }
-typeTotal[itemss.type] += 100;
+betTypeInfo[itemss.type] += 100;
 // typeTotal[itemss.type]= 0;
-console.log(typeTotal[itemss.type]);
+console.log(betTypeInfo[itemss.type]);
 
 // 9） 所有的投注方式赔率可以后台设置和修改，每种下注玩家单注限额可以设置，总下注金额限制可设置。例如 总和大小单双  每个玩家下注金额限制8k元  整个平台下注金额限制2w 即 张三下注 总和大不能超过8k  张三下注大8000 李四下注 大8000  王五只能下注 大4000.这样限制方式是分别针对每一个单项下注方式来设定。例如 龙虎玩法 玩家限额5k 平台总限制2w  豹子玩法 玩家单注限额300 总平台限额1200
 // 5. 反水比例

@@ -117,7 +117,7 @@ Player.prototype.canBet = function (type, value) {
     return this.bets.canBetType(type, value);
 };
 
-Player.prototype.bet = function (period, identify, betParseInfo, cb) {
+Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
 
     if (betParseInfo.total > this.accountAmount) {
         this.utils.invokeCallback(cb, Code.GAME.FA_ACCOUNTAMOUNT_NOT_ENOUGH, null);
@@ -129,7 +129,7 @@ Player.prototype.bet = function (period, identify, betParseInfo, cb) {
         playerId: this.id,
         period: period,
         identify: identify,
-        betData: betParseInfo.betData,
+        betData: betData,
         state: this.consts.BetState.BET_WAIT,
         betCount: betParseInfo.betItems.length,
         winCount:0,
@@ -148,6 +148,7 @@ Player.prototype.bet = function (period, identify, betParseInfo, cb) {
         self.changeNotify();
 
         betItem.setBetItems(betParseInfo.betItems);
+        betItem.setPlatformFreeBets(betParseInfo.betTypeInfo);
         self.bets.addItem(betItem);
         self.utils.invokeCallback(cb, null, null);
         self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});

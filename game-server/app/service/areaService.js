@@ -3,6 +3,8 @@ var EventEmitter = require('events').EventEmitter;
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');
 var schedule = require('node-schedule');
+var Answer = require('../../../shared/answer');
+var Code = require('../../../shared/code');
 
 var AreaService = function() {
   this.id = 0;
@@ -45,6 +47,7 @@ AreaService.prototype.run = function() {
 
 AreaService.prototype.tick = function() {
   //run all the action
+  return;
   this.actionManagerService.update();
   this.entityUpdate();
   this.rankUpdate();
@@ -129,16 +132,17 @@ AreaService.prototype.canBetPlatform = function (type, value) {
     var newNum = (!!num ? num:0) + value;
 
     var err = {};
+    var freeBetValue = 0;
     if(this.betLimitCfg.platformLimit(type, newNum)){
-        var canBetValue = this.betLimitCfg.getPlatfromValue(type) - num;
-        err.code = Code.GAME.FA_BET_PLATFORM_LIMIT.code;
-        err.desc = Code.GAME.FA_BET_PLATFORM_LIMIT.desc + '最多还能下注'+canBetValue;
+        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - num;
+        err = Code.GAME.FA_BET_PLATFORM_LIMIT;
     }
     else {
-      err = null;
+      freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
+      err = Code.OK;
     }
 
-    return err;
+    return new Answer.DataResponse(err, {freeBetValue:freeBetValue});
 };
 
 AreaService.prototype.addPlatfromBet = function (type, value) {

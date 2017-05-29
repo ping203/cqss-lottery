@@ -14,7 +14,7 @@ function Bets(opts) {
     this.id = 1;
     this.betMap = new Map();
     this.syncItems = [];
-    this.typeTotal = new Map();
+    this.betTypeInfo = new Map();
 };
 
 Bets.prototype.init = function () {
@@ -77,7 +77,7 @@ Bets.prototype.all = function () {
 
 
 Bets.prototype.canBetType = function (type, value) {
-    var betted = this.typeTotal.get(type);
+    var betted = this.betTypeInfo.get(type);
     var num = !!betted ? betted : 0;
     var err = {};
     if (this.betLimitCfg.playerLimit(type, num + value)) {
