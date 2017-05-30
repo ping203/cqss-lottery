@@ -10,9 +10,9 @@ var DaoLottery = function () {
 
 };
 
-DaoLottery.prototype.addLottery = function (identify, period, numbers,openTime, cb) {
-    var sql = 'insert into Lottery (period,identify,numbers,openTime) values(?,?,?,?)';
-    var args = [period, identify, numbers, openTime];
+DaoLottery.prototype.addLottery = function (identify, period, numbers, openTime, parseResult, cb) {
+    var sql = 'insert into Lottery (period,identify,numbers,openTime, parseResult) values(?,?,?,?,?)';
+    var args = [period, identify, numbers, openTime, parseResult];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
         if(err !== null){

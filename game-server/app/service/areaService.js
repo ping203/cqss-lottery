@@ -112,9 +112,9 @@ AreaService.prototype.openLottery = function (numbers, period, opentime) {
 
   var paserResult = {numbers:numbers,period:period, opentime:opentime};
   var openInfo = this.calcOpenLottery.calc(numbers);
-    paserResult.parseResult = this.convertParseToJson(openInfo);
+    paserResult.parseJson = this.convertParseToJson(openInfo);
 
-  this.getLottery().publishParseResult(paserResult);
+  this.getLottery().publishParseResult(JSON.stringify(paserResult.parseJson));
 
   for(var id in this.players){
       this.getEntity(this.players[id]).openTheLottery(openInfo);
