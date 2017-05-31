@@ -90,7 +90,7 @@ LotteryManagerService.prototype.tick = function () {
 
         if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestPeriod === result.last.period)) {
             lottery.publishLottery(result);
-            self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
+            self.areaService.openLottery(result.last.numbers.split(','), result.last.period);
 
             self.timeSync(result);
             self.latestPeriod = result.next.period;

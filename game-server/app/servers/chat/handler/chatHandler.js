@@ -71,6 +71,21 @@ ChatHandler.prototype.sendChatMsg = function(msg, session, next) {
     this.chatService.pushByRoomId(session.get('roomId'), msg, next);
 };
 
+ChatHandler.prototype.getPlayerBaseInfo = function(msg, session, next){
+    if(!msg.uid){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    this.app.rpc.area.playerRemote.getPlayerBaseInfo(session, msg.uid, function (err, result) {
+        if(!!err){
+            next(null, new Answer.NoDataResponse(err));
+            return;
+        }
+        next(null, new Answer.DataResponse(Code.OK, result));
+    });
+};
+
 module.exports = function (app) {
     return bearcat.getBean({
         id: "chatHandler",

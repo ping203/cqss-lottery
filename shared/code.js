@@ -49,5 +49,6 @@ module.exports = {
         FA_BET_CHANNEL_CLOSE: {code:5014, desc:"投注通道已经关闭，等待下期投注"},
         FA_RECHARGE_UID_ERROR: {code:5015, desc:"充值用户ID无效"},
         FA_CAST_ERROR: {code:5016, desc:"提现失败，余额不足"},
+        FA_BET_OPERATE_INVALID: {code:5017, desc:"投注操作无效"},
     }
 };

@@ -67,7 +67,7 @@ Lottery.prototype.publishCurLottery = function (uids) {
 Lottery.prototype.publishParseResult = function (parseResult) {
     var self = this;
     this.daoLottery.addLottery(this.identify, this.lastLottery.period, this.lastLottery.numbers,
-        Date.parse(this.lastLottery.opentime), JSON.stringify(parseResult.parseJson),
+        Date.parse(this.lastLottery.opentime), JSON.stringify(parseResult),
     function (err, result) {
         if(!err && !!result){
             if(self.lotteryCaches.push(result) > 10){

@@ -151,6 +151,14 @@
           }
         }
       }
+    },
+    {
+      "getPlayerBaseInfo": {
+        "router":"chat.chatHandler.getPlayerBaseInfo",
+        "msg":{
+          "uid":1
+        }
+      }
     },{
       "bet": {
         "router":"area.playerHandler.bet",

@@ -34,6 +34,9 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
 
         // next(null, new Answer.DataResponse(Code.OK, player.strip()));
         self.utils.invokeCallback(cb, null, new Answer.DataResponse(Code.OK, player.strip()));
+
+        // 恢复投注异常数据
+        player.restoreExceptBet();
     });
 };
 
@@ -56,6 +59,7 @@ PlayerRemote.prototype.recharge = function (uid, money,cb) {
     var player = this.areaService.getPlayer(uid);
     if (!!player) {
         player.recharge(money);
+        this.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE);
         this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
         return;
     }
@@ -68,6 +72,7 @@ PlayerRemote.prototype.recharge = function (uid, money,cb) {
             return;
         }
 
+        self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE);
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
     })
 }
@@ -79,6 +84,7 @@ PlayerRemote.prototype.cash = function (uid, money, cb) {
             this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
         }
         else {
+            this.daoRecord.add(uid, money, self.consts.RecordType.CASH);
             this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
         }
         return;
@@ -109,6 +115,7 @@ PlayerRemote.prototype.cash = function (uid, money, cb) {
             self.utils.invokeCallback(cb, err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
+        self.daoRecord.add(uid, money, self.consts.RecordType.CASH);
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
     });
 }
@@ -127,6 +134,22 @@ PlayerRemote.prototype.setConfig = function (configs,cb) {
     });
 }
 
+PlayerRemote.prototype.getPlayerBaseInfo = function(uid, cb){
+    var player = this.areaService.getPlayer(uid);
+    if (!!player) {
+        this.utils.invokeCallback(cb, null, player.getBaseInfo());
+        return;
+    }
+
+    var self = this;
+    this.daoUser.getPlayerAllInfo(uid, function (err, _player) {
+        if (err || !_player) {
+            self.utils.invokeCallback(cb, Code.GAME.FA_QUERY_PLAYER_INFO_ERROR, null);
+            return;
+        }
+        self.utils.invokeCallback(cb, null, _player.getBaseInfo());
+    });
+}
 module.exports = function(app) {
 	return bearcat.getBean({
 		id: "playerRemote",
@@ -153,6 +176,9 @@ module.exports = function(app) {
         }, {
             name: "daoConfig",
             ref: "daoConfig"
+        }, {
+            name: "daoRecord",
+            ref: "daoRecord"
         }]
 	});
 };

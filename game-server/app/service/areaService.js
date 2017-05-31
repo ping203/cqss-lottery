@@ -78,28 +78,28 @@ AreaService.prototype.incomeScheduleTask = function () {
 };
 
 AreaService.prototype.updateLatestBets = function (item) {
-    if(this.latestBets.push(item) > 10){
+    if(this.latestBets.unshift(item) > 10){
         this.latestBets.shift();
     }
 };
 
-AreaService.prototype.openLottery = function (numbers, period, opentime) {
+AreaService.prototype.openLottery = function (numbers, period) {
 
-    var paserResult = {numbers: numbers, period: period, opentime: opentime};
     var openCodeResult = this.calcOpenLottery.calc(numbers);
-    paserResult.parseJson = [];
+
+    var parseResult = [];
     for (let item of openCodeResult) {
-        paserResult.parseJson.push(item);
+        parseResult.push(item);
     }
 
-    this.getLottery().publishParseResult(paserResult);
+    this.getLottery().publishParseResult(parseResult);
 
     for (var id in this.players) {
-        this.getEntity(this.players[id]).openTheLottery(openCodeResult);
+        this.getEntity(this.players[id]).openCode(period, openCodeResult);
     }
 
     for (var id in this.trusteePlayers) {
-        this.trusteePlayers[id].openTheLottery(openCodeResult);
+        this.trusteePlayers[id].openCode(period, openCodeResult);
     }
 
     this.trusteePlayers = {};
@@ -176,7 +176,13 @@ AreaService.prototype.addEntity = function (e) {
         if (!!this.players[e.id]) {
             logger.error('add player twice! player : %j', e);
         }
+
         this.players[e.id] = e.entityId;
+
+        if(!!this.trusteePlayers[e.id]){
+            this.trusteePlayers[e.id].transferTask(e);
+            this.trusteePlayers[e.id] = null;
+        }
 
         this.getLottery().publishCurLottery([{uid: e.id, sid: e.serverId}]);
         this.getLottery().initPublishParseResult([{uid: e.id, sid: e.serverId}]);
@@ -217,6 +223,9 @@ AreaService.prototype.removeEntity = function (entityId) {
         this.getChannel().leave(e.id, e.serverId);
         this.actionManagerService.abortAllAction(entityId);
 
+        if(!e.isIdle()){
+            this.trusteePlayers[e.id] = e;
+        }
         delete this.players[e.id];
     }
 

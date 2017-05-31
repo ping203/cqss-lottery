@@ -9,7 +9,7 @@ var BetParser = function () {
     this.reg1 = /(^[大小单双龙虎和合]+)\/?(\d+)/i;
     this.reg2 = /(^\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
     this.reg3 = /(^\d+)\/(\d+)/i; //包数字玩法
-    this.reg4 = /(^[豹顺]+)子?\/?(\d+)/i;
+    this.reg4 = /(^[豹顺]+)子?\/?(\d+)$/i;
     this.reg5= /(^[豹顺]+)子?\/(\d+)\/(\d+)\/(\d+)/i;
     this.keyValue =['前','中','后'];
 };
@@ -183,6 +183,63 @@ BetParser.prototype.parse = function(data, cb){
                 break;
             }
         }
+    }else if(data.match(this.reg5)){
+        isValid = true;
+        var result = data.match(this.reg5);
+        var types = result[1].match(this.splitReg);
+        var perMoneys = [];
+        perMoneys.push(parseInt(result[2], 10));
+        perMoneys.push(parseInt(result[3], 10));
+        perMoneys.push(parseInt(result[4], 10));
+
+        console.log('--------------------------------------------------------------------------------------------:', perMoneys)
+
+        var sum =  perMoneys.reduce(function (previous, current, index, array) {
+            return previous + current;
+        })
+
+        if(sum === 0){
+            perMoney = 0;
+        }
+        else {
+            perMoney = 1;
+        }
+
+        for (var i = 0; i< types.length;++i){
+            var betType = this.handleReg(types[i]);
+            if(betType){
+                if(this.betLimitCfg.singleLimit(betType.code, perMoney)){
+                    isValid = false;
+                    err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
+                    err.desc = betType.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(betType.code);
+                    break;
+                }
+                for (var j=0;j<this.keyValue.length;j++){
+                    var tempItem = {};
+                    tempItem.type = betType;
+                    tempItem.result = this.keyValue[j]+types[i];
+                    tempItem.money = perMoneys[j];
+                    console.log('--------------------------------------------------------------------------------------------',tempItem.result,':', tempItem.money)
+
+                    if(tempItem.money === 0) continue;
+                    betItems.push(tempItem);
+
+                    total+= tempItem.money;
+                    if(undefined === betTypeInfo[betType.code]){
+                        betTypeInfo[betType.code]= {money:0,type:{}};
+                        betTypeInfo[betType.code].desc ="";
+                    }
+                    betTypeInfo[betType.code].money += tempItem.money;
+                    betTypeInfo[betType.code].type = betType;
+                    betTypeInfo[betType.code].desc += `${tempItem.result}:${tempItem.money} `
+                }
+            }
+            else {
+                isValid = false;
+                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+                break;
+            }
+        }
     }else if(data.match(this.reg4)){
         isValid = true;
         var result = data.match(this.reg4);
@@ -223,61 +280,9 @@ BetParser.prototype.parse = function(data, cb){
                 break;
             }
         }
-
-    }else if(data.match(this.reg5)){
-        isValid = true;
-        var result = data.match(this.reg5);
-        var types = result[1].match(this.splitReg);
-        var perMoneys = [];
-        perMoneys.push(parseInt(result[2], 10));
-        perMoneys.push(parseInt(result[3], 10));
-        perMoneys.push(parseInt(result[4], 10));
-
-        var sum =  perMoneys.reduce(function (previous, current, index, array) {
-            return previous + current;
-        })
-
-        if(sum === 0){
-            perMoney = 0;
-        }
-        else {
-            perMoney = 1;
-        }
-
-        for (var i = 0; i< types.length;++i){
-            var betType = this.handleReg(types[i]);
-            var moneyIndex = 0;
-            if(betType){
-                if(this.betLimitCfg.singleLimit(betType.code, perMoney)){
-                    isValid = false;
-                    err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
-                    err.desc = betType.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(betType.code);
-                    break;
-                }
-                for (var j=0;j<this.keyValue.length;j++){
-                    var tempItem = {};
-                    tempItem.type = betType;
-                    tempItem.result = this.keyValue[j]+types[i];
-                    tempItem.money = perMoneys[moneyIndex++];
-                    if(tempItem.money === 0) continue;
-                    betItems.push(tempItem);
-
-                    total+= tempItem.money;
-                    if(undefined === betTypeInfo[betType.code]){
-                        betTypeInfo[betType.code]= {money:0,type:{}};
-                        betTypeInfo[betType.code].desc ="";
-                    }
-                    betTypeInfo[betType.code].money += tempItem.money;
-                    betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `
-                }
-            }
-            else {
-                isValid = false;
-                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
-                break;
-            }
-        }
+    }
+    else {
+        err = Code.GAME.FA_BET_OPERATE_INVALID;
     }
 
     if(isValid){

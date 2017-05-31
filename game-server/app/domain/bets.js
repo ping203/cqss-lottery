@@ -23,7 +23,7 @@ Bets.prototype.init = function () {
 };
 
 Bets.prototype.addItem = function (item) {
-    this.betMap.set(item.entityId, item);
+    this.betMap.set(item.id, item);
     this.eventManager.addEvent(item);
 };
 
@@ -31,22 +31,27 @@ Bets.prototype.getItem = function (entityId) {
     return this.betMap.get(entityId);
 };
 
-Bets.prototype.openLottery = function (openInfo, level) {
-    var openResult = {winCount:0,winMoney:0};
+Bets.prototype.openCodeCalc = function (period, openCodeResult, level) {
+    var calcResult = {winCount:0,winMoney:0,betMoney:0};
     for (var item of this.betMap.values()) {
-        if (item.getState() === this.consts.BetState.BET_WAIT) {
-            item.calcHarvest(openInfo, level);
+        if (item.getState() === this.consts.BetState.BET_WAIT && item.period === period) {
+        // if (item.getState() === this.consts.BetState.BET_WAIT) {
+            item.calcHarvest(openCodeResult, level);
             item.setState(this.consts.BetState.BET_OPENNED);
             item.save();
-            openResult.winCount += item.getWinCount();
-            openResult.winMoney += item.getWinMoney();
-            //this.syncItems.push(item);
+            calcResult.winCount += item.getWinCount();
+            calcResult.winMoney += item.getWinMoney();
+            calcResult.betMoney += item.getBetMoney();
         }
     }
     this.betMap.clear();
 
-    return openResult;
+    return calcResult;
 };
+
+Bets.prototype.isEmpty = function () {
+    return this.betMap.size === 0;
+}
 
 //Get all the items
 Bets.prototype.all = function () {

@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `User` (
   `imageId` smallint(6) unsigned DEFAULT '1' COMMENT '头像id(1~6)',
   `rank` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '荣誉称号',
   `pinCode` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '取款密码',
-  `accountAmount` smallint(6) unsigned DEFAULT 0 COMMENT '账户金额',
+  `accountAmount` bigint(20) unsigned DEFAULT 0 COMMENT '账户金额',
   `level` smallint(6) unsigned DEFAULT 1 COMMENT '等级(1~10)',
   `experience` smallint(11) unsigned DEFAULT 0 COMMENT '经验值',
   `loginCount` smallint(6) unsigned DEFAULT 0 COMMENT '登录次数',
@@ -103,10 +103,23 @@ CREATE TABLE IF NOT EXISTS `AgentIncome`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
-# Dump of table config(代理投注盈亏表)
+# Dump of table config(系统配置)
 # ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `config`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `info` json NOT NULL COMMENT '配置信息',
    PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+# ------------------------------------------------------------
+# Dump of table config(系统配置)
+# ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Record`(
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
+  `num` bigint(20) NOT NULL COMMENT '金额',
+  `type` smallint(6) unsigned NOT NULL COMMENT '类型1:充值，2：提现',
+  `create_time` bigint(20) unsigned NOT NULL COMMENT '记录时间',
+   PRIMARY KEY (`id`),
+   FOREIGN KEY(`uid`) REFERENCES User(`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

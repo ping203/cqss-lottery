@@ -35,7 +35,7 @@ CQSS.prototype.getServerTime = function (callback) {
         });
 
         res.on("end", function () {
-            console.log('服务器系统时间:', timeData);
+          //  console.log('服务器系统时间:', timeData);
 
             self.utils.invokeCallback(callback, null, timeData);
 
@@ -93,7 +93,7 @@ CQSS.prototype.getPreInfo = function (callback) {
             $('.openul').children().each(function (i, elem) {
                 items[i] = $(this).text();
             });
-            console.log(items);
+         //   console.log(items);
 
             var now = new Date();
 
@@ -107,7 +107,7 @@ CQSS.prototype.getPreInfo = function (callback) {
                 numbers: items[4],
                 time: now.getFullYear() + '-' + items[5] + ':' + '00'
             };
-            console.log('------开奖历史-------------', [info1, info2]);
+           // console.log('------开奖历史-------------', [info1, info2]);
             //toddo 校验数据是否有效
             self.utils.invokeCallback(callback, null, [info1, info2]);
 
@@ -161,7 +161,7 @@ CQSS.prototype.getLatestInfo = function (callback) {
 
             //toddo 校验数据是否有效
             self.utils.invokeCallback(callback, null, {period: now.getFullYear().toString().substring(0,2) + period, numbers: numbers});
-            console.log('获取开奖 期数:', period, '开奖号:', numbers);
+            //console.log('获取开奖 期数:', period, '开奖号:', numbers);
 
         });
     });
@@ -219,7 +219,7 @@ CQSS.prototype.getNextInfo = function (callback) {
                 time: nextTime.toISOString()
             });
 
-            console.log('下期开奖 期数:', period, '时间:', time);
+           // console.log('下期开奖 期数:', period, '时间:', time);
         });
     });
 

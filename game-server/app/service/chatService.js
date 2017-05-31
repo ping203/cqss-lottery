@@ -87,9 +87,7 @@ ChatService.prototype.add = function (userId, sid, roleName, roomId) {
     if (!channel) {
         return Code.CHAT.FA_CHANNEL_CREATE;
     }
-
     channel.pushMessage(this.consts.Event.chat.enterRoom, {uid:userId,roleName:roleName});
-    logger.error('ChatService.prototype.add');
     channel.add(userId, sid);
     addRecord(this, userId, roleName, sid, roomId);
 };
@@ -139,15 +137,22 @@ ChatService.prototype.getUsers = function (roomId) {
  * @param  {String} roomId room id
  */
 ChatService.prototype.kick = function (userId, roomId) {
-    var record = this.roomMap.get(roomId).userMap.get(userId);
-    var channel = this.app.get('channelService').getChannel(roomId, true);
+    logger.error('--------------------------ChatService.prototype.kick:',userId,'roomId:',roomId);
+    if(!!this.roomMap.get(roomId).userMap){
+        var record = this.roomMap.get(roomId).userMap.get(userId);
+        var channel = this.app.get('channelService').getChannel(roomId, true);
 
-    if (channel && record) {
-        channel.leave(userId, record.sid);
+        if (channel && record) {
+            channel.leave(userId, record.sid);
+        }
+        removeRecord(this, userId, roomId);
+
+        channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
     }
-    removeRecord(this, userId, roomId);
+    else {
+        logger.error('房间信息不存在');
+    }
 
-    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
 };
 
 /**

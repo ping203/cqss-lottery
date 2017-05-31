@@ -23,7 +23,6 @@ function Player(opts) {
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastLoinTime = opts.lastLoinTime;
-    this.betStatistics = opts.betStatistics;
 }
 
 Player.prototype.init = function () {
@@ -35,9 +34,43 @@ Player.prototype.init = function () {
     Entity.call(this, this.opts);
     this._init();
 
+    this.betStatistics = null;
     this.bets = bearcat.getBean("bets", {})
-    this.betMoneyMap = new Map();
+    this.betMoneyMap = new Map(); //每一期个人投注类型总和限制
 };
+
+Player.prototype.setBetStatistics = function (betStatistics) {
+    this.betStatistics = betStatistics;
+};
+
+Player.prototype.restoreExceptBet = function () {
+    var self = this;
+    this.daoBets.restoreBets(this.id, function (err, betItems) {
+        if(!!err || betItems.length === 0){
+            return;
+        }
+        for(let i = 0; i< betItems.length;i++){
+            betItems[i].setState(self.consts.BetState.BET_CANCLE);
+            self.bets.addItem(betItems[i]);
+            self.accountAmount += betItems[i].getBetMoney();
+            betItems[i].save();
+            self.save();
+            self.changeNotify();
+        }
+    })
+};
+
+Player.prototype.isIdle = function () {
+    if (this.bets.isEmpty()) {
+        return true;
+    }
+    return false;
+};
+
+Player.prototype.transferTask = function (target) {
+    target.bets = this.bets;
+    target.betMoneyMap =  this.betMoneyMap;
+}
 
 Player.prototype.setRank = function () {
     this.rank = this.sysConfig.getRank(this.level);
@@ -90,19 +123,19 @@ Player.prototype.setPinCode = function (pinCode) {
     this.changeNotify();
 };
 
-Player.prototype.setImageId = function(imageId){
+Player.prototype.setImageId = function (imageId) {
     this.imageId = imageId;
     this.save();
     this.changeNotify();
 }
 
-Player.prototype.setPhone = function(phone){
+Player.prototype.setPhone = function (phone) {
     this.phone = phone;
     this.save();
     this.changeNotify();
 }
 
-Player.prototype.setEmail = function(email){
+Player.prototype.setEmail = function (email) {
     this.email = email;
     this.save();
     this.changeNotify();
@@ -116,7 +149,7 @@ Player.prototype.recharge = function (money) {
 };
 
 Player.prototype.cash = function (money) {
-    if(this.accountAmount < money) return false;
+    if (this.accountAmount < money) return false;
     this.accountAmount -= money;
     this.save();
     this.changeNotify();
@@ -125,22 +158,38 @@ Player.prototype.cash = function (money) {
 
 };
 
-Player.prototype.getMyBets = function(skip, limit, cb){
+Player.prototype.getMyBets = function (skip, limit, cb) {
     this.daoBets.getBets(this.id, skip, limit, cb);
 }
 
-Player.prototype.getMyIncomes = function(skip, limit, cb){
+Player.prototype.getMyIncomes = function (skip, limit, cb) {
     this.daoIncome.getPlayerIncomes(this.id, skip, limit, cb);
 }
 
-Player.prototype.getFriendIncomes = function(skip, limit, cb){
+Player.prototype.getFriendIncomes = function (skip, limit, cb) {
     this.daoIncome.getMyFriendIncomes(this.id, skip, limit, cb);
 }
+
+Player.prototype.getBaseInfo = function () {
+
+    var winRate = 0;
+    if (this.betStatistics.betCount > 0) {
+        winRate = Number(((this.betStatistics.winCount / this.betStatistics.betCount) * 100).toFixed(2))
+    }
+    return {
+        roleName: this.roleName,
+        imageId: this.imageId,
+        level: this.level,
+        accountAmount: this.accountAmount,
+        winCount: this.betStatistics.winCount,
+        winRate: winRate
+    }
+};
 
 //todo:检查用户投注类型总额是否超限
 Player.prototype.canBet = function (type, value) {
     var num = this.betMoneyMap.get(type);
-    num = !!num?num:0;
+    num = !!num ? num : 0;
     var err = {};
     if (this.betLimitCfg.playerLimit(type, num + value)) {
         err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
@@ -164,11 +213,11 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         betInfo: betData,
         state: this.consts.BetState.BET_WAIT,
         betCount: betParseInfo.betItems.length,
-        winCount:0,
+        winCount: 0,
         betMoney: betParseInfo.total,
-        winMoney:0,
+        winMoney: 0,
         betTime: Date.now(),
-        betTypeInfo:betParseInfo.betTypeInfo
+        betTypeInfo: betParseInfo.betTypeInfo
     }, function (err, betItem) {
         if (err) {
             self.utils.invokeCallback(cb, err, null);
@@ -179,11 +228,11 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         self.save();
         self.changeNotify();
 
-        for(var type in betParseInfo.betTypeInfo){
+        for (var type in betParseInfo.betTypeInfo) {
             var freeBet = self.platformBet.addBet(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
             betParseInfo.betTypeInfo[type].freeBetValue = freeBet;
             var num = self.betMoneyMap.get(betParseInfo.betTypeInfo[type].type.code);
-            num = !!num?num:0;
+            num = !!num ? num : 0;
             num += betParseInfo.betTypeInfo[type].money;
             self.betMoneyMap.set(betParseInfo.betTypeInfo[type].type.code, num);
         }
@@ -203,8 +252,8 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
 
 Player.prototype.unBet = function (entityId, cb) {
     var betItem = this.bets.getItem(entityId);
-    if(betItem){
-        if(betItem.getState(entityId) != this.consts.BetState.BET_WAIT){
+    if (betItem) {
+        if (betItem.getState(entityId) != this.consts.BetState.BET_WAIT) {
             this.utils.invokeCallback(cb, Code.GAME.FA_BET_STATE, null);
             return;
         }
@@ -214,12 +263,12 @@ Player.prototype.unBet = function (entityId, cb) {
         this.betStatistics.betCount -= betItem.getBetCount();
 
         var betTypeInfo = betItem.getBetTypeInfo();
-        for(var type in betTypeInfo){
+        for (var type in betTypeInfo) {
             var freeValue = this.platformBet.reduceBet(betTypeInfo[type].type.code, betTypeInfo[type].money);
             betItem.setFreeBetValue(betTypeInfo[type].type.code, freeValue);
 
             var num = this.betMoneyMap.get(betTypeInfo[type].type.code);
-            num = !!num?num:0;
+            num = !!num ? num : 0;
             num -= betTypeInfo[type].money;
             this.betMoneyMap.set(betTypeInfo[type].type.code, num);
         }
@@ -236,15 +285,17 @@ Player.prototype.unBet = function (entityId, cb) {
     }
 };
 
-Player.prototype.openTheLottery = function (openInfo) {
-    var openResult = this.bets.openLottery(openInfo, this.level);
-    if(openResult.winCount != 0){
-        this.betStatistics.winCount += openResult.winCount;
-        this.accountAmount += openResult.winMoney;
+Player.prototype.openCode = function (period, openCodeResult) {
+    var calcResult = this.bets.openCodeCalc(period, openCodeResult, this.level);
+    if (calcResult.winCount != 0) {
+        this.betStatistics.winCount += calcResult.winCount;
+        this.accountAmount += calcResult.winMoney;
         this.save();
         this.changeNotify();
     }
 
+    var winMoney = calcResult.betMoney - calcResult.winMoney;
+    this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney, uids: [{uid: this.id, sid: this.serverId}]});
     this.betMoneyMap.clear();
 };
 
@@ -253,8 +304,8 @@ Player.prototype.save = function () {
     this.emit('save');
 };
 
-Player.prototype.changeNotify = function(){
-    this.emit(this.consts.Event.area.playerChange, {player: this,uids:[{uid:this.id, sid:this.serverId}]});
+Player.prototype.changeNotify = function () {
+    this.emit(this.consts.Event.area.playerChange, {player: this, uids: [{uid: this.id, sid: this.serverId}]});
 };
 
 Player.prototype.strip = function () {
@@ -266,22 +317,22 @@ Player.prototype.strip = function () {
         kindName: this.kindName,
         type: this.type,
         roleName: this.roleName,
-        imageId:this.imageId,
+        imageId: this.imageId,
         pinCode: this.pinCode,
-        username:this.username,
-        phone:this.phone,
-        email:this.email,
-        inviter:this.inviter,
-        active:this.active,
-        forbidTalk:this.forbidTalk,
-        role:this.role,
+        username: this.username,
+        phone: this.phone,
+        email: this.email,
+        inviter: this.inviter,
+        active: this.active,
+        forbidTalk: this.forbidTalk,
+        role: this.role,
         rank: this.rank,
         accountAmount: this.accountAmount,
         level: this.level,
         experience: this.experience,
         loginCount: this.loginCount,
         lastLoinTime: this.lastLoinTime,
-        betStatistics:this.betStatistics
+        betStatistics: this.betStatistics
     };
 
     return r;

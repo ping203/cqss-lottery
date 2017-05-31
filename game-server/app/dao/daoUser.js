@@ -68,7 +68,7 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
             var player = results[0];
             var betStatistics = results[1];
 
-            player.betStatistics = betStatistics;
+            player.setBetStatistics(betStatistics);
 
             if (!!err) {
                 self.utils.invokeCallback(cb, err);
@@ -116,6 +116,7 @@ DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
+            logger.error('更新账户金额失败,',err);
             self.utils.invokeCallback(cb, err.message, false);
         } else {
             if (!!res && res.affectedRows > 0) {

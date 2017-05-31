@@ -20,6 +20,7 @@ $(document).ready(function () {
     $('#recharge').on('click', recharge);
     $('#cash').on('click', cash);
     $('#setConfig').on('click', setConfig);
+    $('#getPlayerBaseInfo').on('click', getPlayerBaseInfo);
 
     var _adminClient =  new window.adminClient();
 
@@ -232,6 +233,18 @@ $(document).ready(function () {
         });
     }
 
+
+    function getPlayerBaseInfo() {
+        var uid = Number($('#betValue').val());
+        pomelo.request("chat.chatHandler.getPlayerBaseInfo", {uid: uid}, function (res) {
+            if (res.result.code != 200) {
+                console.log('獲取朋友收益失敗');
+                return;
+            }
+            console.log(res);
+            alert('獲取朋友收益成功');
+        });
+    }
     /**
      * login
      */

@@ -2,6 +2,11 @@ var Consts = function () {
 
     this.BetCloseTime = 10 //s
 
+    this.RecordType = {
+        RECHARGE:1,
+        CASH:2
+    };
+
     this.RES_CODE = {
         SUC_OK: 1, // success
         ERR_FAIL: -1, // Failded without specific reason
@@ -59,7 +64,8 @@ var Consts = function () {
             countdown:'onCountdown',
             lottery:'onLottery',
             notice:'onNotice',
-            parseLottery:'onParseLottery'
+            parseLottery:'onParseLottery',
+            playerWinner:'onPlayerWinner'
         }
     };
 

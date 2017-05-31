@@ -37,8 +37,8 @@ RouteUtil.area = function(session, msg, app, cb) {
         return;
     }
 
-    logger.debug('------------------------------------', session.uid,'----------------', session)
+    logger.debug('---------------11111---------------------', session.uid,'----------------', session)
     var res = RouteUtil.routeDispatch(session.uid, areaServers);
-
+    logger.debug('----------------22222--------------------', session.uid,'----------------', session)
     cb(null, res.id);
 };

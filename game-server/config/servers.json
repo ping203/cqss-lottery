@@ -12,7 +12,7 @@
     "connector": [
       {
         "id": "connector-server-1",
-        "host": "127.0.0.1",
+        "host": "192.168.0.110",
         "port": 3150,
         "clientPort": 3010,
         "frontend": true,
@@ -25,7 +25,7 @@
         "host": "127.0.0.1",
         "port": 3250,
         "areaId": 1,
-        "args": "--inspect=10012"
+        "args": "--debug=10012"
       }
     ],
     "auth": [

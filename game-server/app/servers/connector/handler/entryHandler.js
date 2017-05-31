@@ -149,9 +149,14 @@ EntryHandler.prototype.logout = function (msg, session, next) {
 
 var onUserLeave = function (app, session, reason) {
     if (session && session.uid) {
-        app.rpc.area.playerRemote.playerLeave(session, session.uid, null);
 
-        app.rpc.chat.chatRemote.kick(session, session.uid, session.get('roomId'),null);
+        if(!!app.rpc.area.playerRemote){
+            app.rpc.area.playerRemote.playerLeave(session, session.uid, null);
+        }
+
+        if(!!app.rpc.chat.chatRemote){
+            app.rpc.chat.chatRemote.kick(session, session.uid, session.get('roomId'),null);
+        }
     }
 };
 
