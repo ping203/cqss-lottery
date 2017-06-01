@@ -40,7 +40,6 @@ AreaService.prototype.init = function () {
     var self = this;
     this.daoConfig.initPlatformParam(defaultConfigs, function (err, result) {
         if(!err && !!result){
-            logger.error(result);
             self.sysConfig.setConfigs(result);
             self.run();
             logger.info('平台参数配置成功');

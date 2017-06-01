@@ -36,6 +36,15 @@ router.get('/bar', function (ctx, next) {
  *
  */
 
+router.get('/weixin', function (ctx, next) {
+    return new Promise((resove, reject) =>{
+        daoSysParam.getPlatformParam(function (err, result) {
+            ctx.body = {weixin:result.gm};
+            resove();
+        });
+    })
+});
+
 router.post('/login', function (ctx, next) {
     let msg = ctx.request.body;
     let loginType = 0;

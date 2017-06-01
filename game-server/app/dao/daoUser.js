@@ -207,71 +207,26 @@ DaoUser.prototype.getUserByPhone = function (phone, cb) {
     });
 }
 
-
-/**
- * get user infomation by userId
- * @param {String} uid UserId
- * @param {function} cb Callback function
- */
-DaoUser.prototype.getUserById = function (uid, cb) {
-    var sql = 'select * from User where id = ?';
-    var args = [uid];
+DaoUser.prototype.getAgents = function (cb) {
+    var sql = 'select id, ext from User where role != ?';
+    var args = [this.consts.RoleType.PLAYER];
     var self = this;
-
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
             self.utils.invokeCallback(cb, err.message, null);
-            return;
-        }
-
-        if (!!res && res.length > 0) {
-            self.utils.invokeCallback(cb, null, new User(res[0]));
         } else {
-            self.utils.invokeCallback(cb, ' user not exist ', null);
-        }
-    });
-};
+            if (!!res && res.length >= 1) {
 
-/**
- * Get user data by username.
- * @param {String} username
- * @param {String} passwd
- * @param {function} cb
- */
-DaoUser.prototype.getUserInfo = function (username, passwd, cb) {
-    var sql = 'select * from	User where username = ?';
-    var args = [username];
-
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            this.utils.invokeCallback(cb, err, null);
-        } else {
-            var userId = 0;
-            if (!!res && res.length === 1) {
-                var rs = res[0];
-                userId = rs.id;
-                rs.uid = rs.id;
-                this.utils.invokeCallback(cb, null, rs);
+                var agents = [];
+                for (let i = 0; i< res.length; i++){
+                    agents.push({
+                        id:res[i].id,
+                        ext:JSON.parse(res[i].ext)
+                    })
+                }
+                self.utils.invokeCallback(cb, null,agents);
             } else {
-                this.utils.invokeCallback(cb, null, {uid: 0, username: username});
-            }
-        }
-    });
-};
-
-
-DaoUser.prototype.getAgents = function (cb) {
-    var sql = 'select id, level from User where role != ?';
-    var args = [this.consts.RoleType.PLAYER];
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            this.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length > 1) {
-
-                this.utils.invokeCallback(cb, null, res);
-            } else {
-                this.utils.invokeCallback(cb, ' user not exist ', null);
+                self.utils.invokeCallback(cb, ' user not exist ', null);
             }
         }
     });

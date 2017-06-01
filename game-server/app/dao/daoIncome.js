@@ -35,14 +35,14 @@ DaoIncome.prototype.addPlayerIncome = function (income, cb) {
 };
 
 DaoIncome.prototype.getPlayerIncomeByTime = function (playerId, incomeTime, cb) {
-    var sql = 'select * from PlayerIncome uid = ?,incomeTime = ?';
+    var sql = 'select * from PlayerIncome where uid = ? and incomeTime = ?';
     var args = [playerId, incomeTime];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
             self.utils.invokeCallback(cb, err.message, null);
         } else {
-            if (!!res && res.length === 1) {
+            if (!!res && res.length >= 1) {
                 self.utils.invokeCallback(cb, null, res[0]);
             } else {
                 self.utils.invokeCallback(cb, ' user not exist ', null);
@@ -59,7 +59,7 @@ DaoIncome.prototype.getPlayerIncomes = function (playerId, skip, limit, cb) {
         if (err !== null) {
             self.utils.invokeCallback(cb, err.message, null);
         } else {
-            if (!!res && res.length > 1) {
+            if (!!res && res.length >= 1) {
                 self.utils.invokeCallback(cb, null, res);
             } else {
                 self.utils.invokeCallback(cb, 'income not exist ', null);
@@ -81,7 +81,7 @@ DaoIncome.prototype.getMyFriendIncomes = function (playerId, skip, limit, callab
             if (err !== null) {
                 self.utils.invokeCallback(callaback, err.message, null);
             } else {
-                if (!!res && res.length > 1) {
+                if (!!res && res.length >= 1) {
                     self.utils.invokeCallback(callaback, null, res);
                 } else {
                     self.utils.invokeCallback(callaback, 'income not exist ', null);

@@ -32,40 +32,6 @@ DaoAgentIncome.prototype.agentAddIncome = function (income, cb) {
     });
 };
 
-DaoAgentIncome.prototype.getPlayerIncomeByTime = function (playerId, incomeTime, cb) {
-    var sql = 'select * from Income uid = ?,incomeTime = ?';
-    var args = [playerId, incomeTime];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length === 1) {
-                self.utils.invokeCallback(cb, null, res[0]);
-            } else {
-                self.utils.invokeCallback(cb, ' user not exist ', null);
-            }
-        }
-    });
-};
-
-DaoAgentIncome.prototype.getPlayerIncomes = function (playerId, skip, limit, cb) {
-    var sql = 'select * from Income where uid = ? ORDER BY incomeTime DESC limit ?,?';
-    var args = [playerId, skip, limit];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length > 1) {
-                self.utils.invokeCallback(cb, null, res);
-            } else {
-                self.utils.invokeCallback(cb, 'income not exist ', null);
-            }
-        }
-    });
-};
-
 module.exports = {
     id: "daoAgentIncome",
     func: DaoAgentIncome,
