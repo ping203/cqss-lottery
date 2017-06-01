@@ -10,8 +10,6 @@ IncomeCfg.prototype.init = function () {
     this.betRate = new Map();
     //玩家反水
     this.defectionRate = new Map();
-    //代理分成
-    this.rebateRate = new Map();
 };
 
 /**
@@ -47,9 +45,6 @@ IncomeCfg.prototype.update = function (configs) {
     for (var index = 0; index < configs.defectionRates.length; ++index){
         this.defectionRate.set(index+1,configs.defectionRates[index]);
     }
-
-    this.rebateRate.set(1, 30);
-    this.rebateRate.set(2, 15);
 };
 
 // 获取投注翻倍率
@@ -70,16 +65,10 @@ IncomeCfg.prototype.getBetRate = function (type, level) {
 // 获取玩家反水倍率
 IncomeCfg.prototype.getDefectionRate = function (level) {
     var val = this.defectionRate.get(level);
-    if(!val) val = 0.01;
+    if(!val) val = 10.0;
     return val;
 };
 
-// 获取代理商分成
-IncomeCfg.prototype.getRebateRate = function (level) {
-    var val = this.rebateRate.get(level);
-    if(!val) val = 0.2;
-    return val;
-};
 
 module.exports = {
     id:"incomeCfg",

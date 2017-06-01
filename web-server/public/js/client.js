@@ -7,6 +7,8 @@ $(document).ready(function () {
     $('#joinGame').on('click', joinGame);
     $('#registe').on('click', register);
     $('#setRoleName').on('click', setRoleName);
+    $('#setPhone').on('click', setPhone);
+    $('#setPinCode').on('click', setPinCode);
     $('#bet').on('click', bet);
     $('#unBet').on('click', unBet);
     $('#myIncome').on('click', myIncome);
@@ -25,7 +27,7 @@ $(document).ready(function () {
     var _adminClient =  new window.adminClient();
 
     function adminLogin() {
-        _adminClient.login('sys', '71a24b8ec1514d66861cba67a065db3c', function (err, result) {
+        _adminClient.login('sys', 'f531c5257299441d8a32ffc5a0f0dde0', function (err, result) {
             if (!!err) {
                 console.log('管理员登录失败,', err);
                 return;
@@ -35,7 +37,7 @@ $(document).ready(function () {
     }
 
     function recharge() {
-        _adminClient.recharge(3, 10000, function (err, result) {
+        _adminClient.recharge(2, 10000, function (err, result) {
             if (!!err) {
                 console.log('充值失败:', err);
                 return;
@@ -45,7 +47,7 @@ $(document).ready(function () {
     }
 
     function cash() {
-        _adminClient.cash(3, 5000, function (err, result) {
+        _adminClient.cash(2, 5000, function (err, result) {
             if (!!err) {
                 console.log('提现失败:', err);
                 return;
@@ -55,14 +57,33 @@ $(document).ready(function () {
     }
 
     function setConfig() {
-        _adminClient.setConfig({
+        _adminClient.setConfig(JSON.stringify({
             "bw": [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5],
             "msg": "三季娱乐，技术封测",
             "norm": {"bz": {"m": 6000, "p": 600000}, "sz": {"m": 2000, "p": 200000}, "num": {"m": 3000, "p": 100000}, "sum": {"m": 2000, "p": 200000}, "size": {"m": 3000, "p": 100000}},
             "odds": {"bz": {"max": 90, "min": 60}, "sz": {"max": 20, "min": 10}, "num": {"max": 10, "min": 9}, "sum": {"max": 10, "min": 9}, "size": {"max": 2, "min": 1}},
             "rank": ["英勇青铜", "不屈白银", "荣耀黄金", "华贵铂金", "璀璨钻石", "最强王者", "武林高手", "绝世奇才", "威震三界", "盖世英雄"],
             "limit": 5,
-            "initial": 20000}, function (err, result) {
+            "initial": 20000,
+            "update":[
+                    30,
+                    58,
+                    77,
+                    114,
+                    175,
+                    266,
+                    393,
+                    562,
+                    779,
+                    0
+                ],
+            "exp":{
+                    "lose":1,
+                    "win":2,
+                    "money":0.01
+                },
+            "gm":"weixinhao@gm.com"}
+            ), function (err, result) {
             if (!!err) {
                 console.log('提现失败');
                 return;
@@ -148,10 +169,32 @@ $(document).ready(function () {
         var newRoleName = $('#roleName').val();
         pomelo.request("area.playerHandler.setRoleName", {roleName: newRoleName}, function (res) {
             if (res.result.code != 200) {
-                alert('修改名称失败');
+                alert('修改名称失败' + res.result.desc);
                 return;
             }
             alert('修改名称成功');
+        });
+    }
+
+    function setPhone() {
+        var phone = $('#roleName').val();
+        pomelo.request("area.playerHandler.setPhone", {phone: phone}, function (res) {
+            if (res.result.code != 200) {
+                alert('修改电话失败' +  res.result.desc);
+                return;
+            }
+            alert('修改电话成功');
+        });
+    }
+
+    function setPinCode() {
+        var pinCode = $('#roleName').val();
+        pomelo.request("area.playerHandler.setPinCode", {pinCode: pinCode}, function (res) {
+            if (res.result.code != 200) {
+                alert('修改提取码失败' + res.result.desc);
+                return;
+            }
+            alert('修改提取码成功');
         });
     }
 

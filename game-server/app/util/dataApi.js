@@ -5,9 +5,7 @@ var role = require('../../config/data/role');
 var lottery = require('../../config/data/lottery');
 var room = require('../../config/data/room.json');
 var task = require('../../config/data/talk.json');
-var rank = require('../../config/data/rank.json');
 var lotteryApi = require('../../config/data/lotteryApi.json');
-var experience = require('../../config/data/experience.json');
 
 /**
  * Data model `new Data()`
@@ -105,9 +103,7 @@ var DataApiUtil = function() {
   this.playerData = null;
   this.roomData = null;
   this.taskData = null;
-  this.rankData = null;
   this.lotteryApiData = null;
-  this.experienceData = null;
 }
 
 DataApiUtil.prototype.area = function() {
@@ -164,15 +160,6 @@ DataApiUtil.prototype.task = function () {
     return this.taskData;
 }
 
-DataApiUtil.prototype.rank = function () {
-    if(this.rankData){
-      return this.rankData;
-    }
-
-    this.rankData = new DataApi(rank);
-    return this.rankData;
-}
-
 DataApiUtil.prototype.lotteryApi = function () {
     if(this.lotteryApiData){
       return this.lotteryApiData;
@@ -180,15 +167,6 @@ DataApiUtil.prototype.lotteryApi = function () {
 
     this.lotteryApiData = new DataApi(lotteryApi);
     return this.lotteryApiData;
-}
-
-DataApiUtil.prototype.experience = function () {
-    if(this.experienceData){
-      return this.experienceData;
-    }
-
-    this.experienceData = new DataApi(experience);
-    return this.experienceData;
 }
 
 module.exports = {

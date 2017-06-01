@@ -88,8 +88,8 @@ LotteryManagerService.prototype.tick = function () {
             return;
         }
 
-        if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestPeriod === result.last.period)) {
-            lottery.publishLottery(result);
+        if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestPeriod != result.last.period)) {
+           lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period);
 
             self.timeSync(result);

@@ -6,9 +6,7 @@ var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'AreaService'
 var EventEmitter = require('events').EventEmitter;
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');
-var schedule = require('node-schedule');
 var async = require('async');
-
 
 var RankService = function () {
     this.winRankPlayers = [];

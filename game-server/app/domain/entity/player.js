@@ -23,6 +23,18 @@ function Player(opts) {
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastLoinTime = opts.lastLoinTime;
+
+    if(!!this.ext){
+        this.ext = JSON.parse(opts.ext);
+    }
+    else {
+        this.ext = {
+            phone:0,
+            email:0,
+            pinCode:0
+        }
+    }
+
 }
 
 Player.prototype.init = function () {
@@ -77,16 +89,20 @@ Player.prototype.setRank = function () {
 };
 
 Player.prototype.setNextLevelExp = function () {
-
-    var _exp = this.dataApiUtil.experience().findById(this.level + 1);
+    var _exp = this.sysConfig.getUpdate(this.level);
     if (!!_exp) {
-        this.nextLevelExp = _exp.exp;
+        this.nextLevelExp = _exp;
     } else {
         this.nextLevelExp = 999999999;
     }
 }
 
 Player.prototype.addExperience = function (exp) {
+    if(isNaN(exp)){
+        logger.error('经验值无效');
+        return;
+    }
+
     this.experience += exp;
     if (this.experience >= this.nextLevelExp) {
         this.upgrade();
@@ -107,7 +123,6 @@ Player.prototype.upgrade = function () {
 Player.prototype._upgrade = function () {
     this.level += 1;
     this.experience -= this.nextLevelExp;
-    this.skillPoint += 1;
     this.setNextLevelExp();
 };
 
@@ -117,29 +132,44 @@ Player.prototype.setRoleName = function (name) {
     this.changeNotify();
 };
 
-Player.prototype.setPinCode = function (pinCode) {
-    this.pinCode = pinCode;
-    this.save();
-    this.changeNotify();
-};
-
 Player.prototype.setImageId = function (imageId) {
     this.imageId = imageId;
     this.save();
     this.changeNotify();
-}
+};
 
 Player.prototype.setPhone = function (phone) {
+    if(this.ext.phone === 1){
+        return Code.GAME.FA_MODIFY_LIMIT;
+    }
     this.phone = phone;
+    this.ext.phone = 1;
     this.save();
     this.changeNotify();
-}
+    return Code.OK;
+};
+
+Player.prototype.setPinCode = function (pinCode) {
+    if(this.ext.pinCode === 1){
+        return Code.GAME.FA_MODIFY_LIMIT;
+    }
+    this.pinCode = pinCode;
+    this.ext.pinCode = 1;
+    this.save();
+    this.changeNotify();
+    return Code.OK;
+};
 
 Player.prototype.setEmail = function (email) {
+    if(this.ext.email === 1){
+        return Code.GAME.FA_MODIFY_LIMIT;
+    }
     this.email = email;
+    this.ext.email = 1;
     this.save();
     this.changeNotify();
-}
+    return Code.OK;
+};
 
 Player.prototype.recharge = function (money) {
     this.accountAmount += money;
@@ -285,17 +315,28 @@ Player.prototype.unBet = function (entityId, cb) {
     }
 };
 
+Player.prototype.calcExp = function (calcParam) {
+    var exp_base = this.sysConfig.getExp();
+    var exp = ((calcParam.betCount - calcParam.winCount)*exp_base.lose + calcParam.winCount* exp_base.win + calcParam.betMoney* exp_base.money);
+    return exp;
+};
+
+
 Player.prototype.openCode = function (period, openCodeResult) {
     var calcResult = this.bets.openCodeCalc(period, openCodeResult, this.level);
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
+        this.addExperience(this.calcExp(calcResult));
         this.save();
         this.changeNotify();
     }
 
-    var winMoney = calcResult.betMoney - calcResult.winMoney;
-    this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney, uids: [{uid: this.id, sid: this.serverId}]});
+    if(calcResult.betCount  > 0){
+        var winMoney = calcResult.betMoney - calcResult.winMoney;
+        this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney, uids: [{uid: this.id, sid: this.serverId}]});
+    }
+
     this.betMoneyMap.clear();
 };
 
@@ -332,7 +373,8 @@ Player.prototype.strip = function () {
         experience: this.experience,
         loginCount: this.loginCount,
         lastLoinTime: this.lastLoinTime,
-        betStatistics: this.betStatistics
+        betStatistics: this.betStatistics,
+        ext:JSON.stringify(this.ext)
     };
 
     return r;

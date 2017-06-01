@@ -99,13 +99,6 @@ PlayerHandler.prototype.setRoleName = function (msg, session, next) {
     next(null, new Answer.NoDataResponse(Code.OK));
 };
 
-PlayerHandler.prototype.setPinCode = function (msg, session, next) {
-    var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
-    player.setPinCode(msg.pinCode);
-    next(null, new Answer.NoDataResponse(Code.OK));
-};
-
 PlayerHandler.prototype.setImageId = function (msg, session, next) {
     var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
@@ -116,15 +109,27 @@ PlayerHandler.prototype.setImageId = function (msg, session, next) {
 PlayerHandler.prototype.setPhone = function (msg, session, next) {
     var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
-    player.setPhone(msg.phone);
-    next(null, new Answer.NoDataResponse(Code.OK));
+    var ret = player.setPhone(msg.phone);
+    next(null, new Answer.NoDataResponse(ret));
+};
+
+PlayerHandler.prototype.setPinCode = function (msg, session, next) {
+    var playerId = session.uid;
+    var player = this.areaService.getPlayer(playerId);
+    var ret = player.setPinCode(msg.pinCode);
+    next(null, new Answer.NoDataResponse(ret));
 };
 
 PlayerHandler.prototype.setEmail = function (msg, session, next) {
     var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
-    player.setEmail(msg.email);
-    next(null, new Answer.NoDataResponse(Code.OK));
+    var ret = player.setEmail(msg.email);
+    next(null, new Answer.NoDataResponse(ret));
+};
+
+PlayerHandler.prototype.getGMWeiXin = function (msg, session, next) {
+    var lottery = this.areaService.getLottery();
+    next(null, new Answer.DataResponse(Code.OK, lottery.getWeiXin()));
 };
 
 PlayerHandler.prototype.getLotterys = function (msg, session, next) {

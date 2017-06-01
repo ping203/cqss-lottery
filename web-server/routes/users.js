@@ -210,7 +210,7 @@ router.post('/register', function (ctx, next) {
                         ctx.body = {
                             code: code.OK.code
                         };
-                        daoUser.addUserToFriendList(msg.username, msg.inviter);
+                        daoUser.addUserToFriendList(uid, msg.inviter);
                     }
                     resolve();
                 });

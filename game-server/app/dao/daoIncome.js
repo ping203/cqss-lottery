@@ -8,9 +8,8 @@ var bearcat = require('bearcat');
 var async = require('async');
 
 var DaoIncome = function () {
-
 };
-//insert into PlayerIncome (uid,betMoney,incomeMoney,defection,defectionRate,winRate,incomeTime) values(1,10,0,1,0.01,0.12,1498455454)
+
 // 加入玩家今日反水信息
 DaoIncome.prototype.addPlayerIncome = function (income, cb) {
     var sql = 'insert into PlayerIncome (uid,betMoney,incomeMoney,defection,defectionRate,winRate,incomeTime) values(?,?,?,?,?,?,?)';
@@ -29,7 +28,7 @@ DaoIncome.prototype.addPlayerIncome = function (income, cb) {
                 defection: income.defection,
                 defectionRate: income.defectionRate,
                 winRate: income.winRate,
-                incomeTime: income.incomeTime,
+                incomeTime: income.incomeTime
             });
         }
     });

@@ -32,9 +32,10 @@ Bets.prototype.getItem = function (entityId) {
 };
 
 Bets.prototype.openCodeCalc = function (period, openCodeResult, level) {
-    var calcResult = {winCount:0,winMoney:0,betMoney:0};
+    var calcResult = {winCount:0,winMoney:0,betMoney:0,betCount:0};
     for (var item of this.betMap.values()) {
-        if (item.getState() === this.consts.BetState.BET_WAIT && item.period === period) {
+        // if (item.getState() === this.consts.BetState.BET_WAIT && item.period === period) {
+        if (item.getState() === this.consts.BetState.BET_WAIT) {
         // if (item.getState() === this.consts.BetState.BET_WAIT) {
             item.calcHarvest(openCodeResult, level);
             item.setState(this.consts.BetState.BET_OPENNED);
@@ -42,6 +43,7 @@ Bets.prototype.openCodeCalc = function (period, openCodeResult, level) {
             calcResult.winCount += item.getWinCount();
             calcResult.winMoney += item.getWinMoney();
             calcResult.betMoney += item.getBetMoney();
+            calcResult.betCount += item.getBetCount();
         }
     }
     this.betMap.clear();

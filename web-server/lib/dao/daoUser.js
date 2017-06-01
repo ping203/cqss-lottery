@@ -6,6 +6,11 @@ var daoUser = module.exports;
 
 const default_role = 0;
 const default_rank = '江湖小虾';
+const default_ext = {
+    phone:0,
+    email:0,
+    pinCode:0
+}
 
 /**
  * Create a new user
@@ -15,9 +20,9 @@ const default_rank = '江湖小虾';
  * @param {function} cb Call back function.
  */
 daoUser.createUser = function (username, password, phone, inviter, from, rank, accountAmount, cb){
-    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount,friends) values(?,?,?,?,?,?,?,?,?,?,?)';
+    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount,friends,ext) values(?,?,?,?,?,?,?,?,?,?,?,?)';
     var regTime = Date.now(), roleName = random_name();
-    var args = [username, password, phone, from, regTime,inviter, default_role, roleName, rank, accountAmount, "[]"];
+    var args = [username, password, phone, from, regTime,inviter, default_role, roleName, rank, accountAmount, "[]", JSON.stringify(default_ext)];
 
     mysql.insert(sql, args, function(err,res){
         if(err !== null){

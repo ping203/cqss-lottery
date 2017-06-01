@@ -2,14 +2,15 @@ var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'AreaService'
 var EventEmitter = require('events').EventEmitter;
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');
-var schedule = require('node-schedule');
 var Answer = require('../../../shared/answer');
 var Code = require('../../../shared/code');
-var defaultConfigs = require('../../config/sysParamConfig.json');
+var defaultConfigs = require('../../../shared/config/sysParamConfig.json');
+var schedule = require('node-schedule');
+
 
 var AreaService = function () {
     this.id = 0;
-    this.tickCount = 0; // player score rank
+    this.noticeTickCount = 0; // player score rank
     this.countdownCount = 0;
     this.added = []; // the added entities in one tick
     this.reduced = []; // the reduced entities in one tick
@@ -22,7 +23,6 @@ var AreaService = function () {
     this.consts = null;
     this.globalEntityId = 0;
     this.platformTypeBet = new Map();
-
     this.latestBets = [];
 };
 
@@ -40,11 +40,11 @@ AreaService.prototype.init = function () {
     var self = this;
     this.daoConfig.initPlatformParam(defaultConfigs, function (err, result) {
         if(!err && !!result){
+            logger.error(result);
             self.sysConfig.setConfigs(result);
             self.run();
-            schedule.scheduleJob('10 10 00 * * *', self.incomeScheduleTask.bind(self));
-
-            logger.error('平台参数配置成功');
+            logger.info('平台参数配置成功');
+            schedule.scheduleJob('10 * * * * *', self.incomeScheduleTask.bind(self));
             return;
         }
 
@@ -57,9 +57,11 @@ AreaService.prototype.init = function () {
         }
         self.latestBets = results;
     });
+};
 
-    //this.run();
-    //schedule.scheduleJob('10 10 00 * * *', this.incomeScheduleTask.bind(this));
+// 玩家
+AreaService.prototype.incomeScheduleTask = function () {
+    this.calcIncome.calc();
 };
 
 AreaService.prototype.run = function () {
@@ -71,10 +73,7 @@ AreaService.prototype.tick = function () {
     this.actionManagerService.update();
     this.entityUpdate();
     this.countdown();
-};
-
-AreaService.prototype.incomeScheduleTask = function () {
-    this.calcIncome.calc();
+    this.notice();
 };
 
 AreaService.prototype.updateLatestBets = function (item) {
@@ -84,9 +83,7 @@ AreaService.prototype.updateLatestBets = function (item) {
 };
 
 AreaService.prototype.openLottery = function (numbers, period) {
-
     var openCodeResult = this.calcOpenLottery.calc(numbers);
-
     var parseResult = [];
     for (let item of openCodeResult) {
         parseResult.push(item);
@@ -195,17 +192,27 @@ AreaService.prototype.addEntity = function (e) {
 
 
 /**
- * The lottery countdown
+ * 下期开奖倒计时
  */
 AreaService.prototype.countdown = function () {
-
     if (this.countdownCount >= 5) {
         this.getLottery().countdown();
         this.countdownCount = 0;
     }
     this.countdownCount++;
 
-}
+};
+
+/**
+ * 发布公告
+ */
+AreaService.prototype.notice = function () {
+    if (this.noticeTickCount >= 20) {
+        this.getLottery().publishNotice();
+        this.noticeTickCount = 0;
+    }
+    this.noticeTickCount++;
+};
 
 
 /**
@@ -357,9 +364,6 @@ module.exports = {
         name: "betLimitCfg",
         ref: "betLimitCfg"
     }, {
-        name: "calcIncome",
-        ref: "calcIncome"
-    }, {
         name: "daoConfig",
         ref: "daoConfig"
     }, {
@@ -371,5 +375,8 @@ module.exports = {
     }, {
         name: "daoBets",
         ref: "daoBets"
+    },{
+        name: "calcIncome",
+        ref: "calcIncome"
     }]
 }

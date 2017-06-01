@@ -28,8 +28,9 @@ CREATE TABLE IF NOT EXISTS `User` (
   `experience` smallint(11) unsigned DEFAULT 0 COMMENT '经验值',
   `loginCount` smallint(6) unsigned DEFAULT 0 COMMENT '登录次数',
   `lastLoinTime` bigint(20) unsigned DEFAULT NULL COMMENT '最后登录时间',
+  `ext` json DEFAULT NULL COMMENT '扩展数据',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username_UNIQUE` (`username`),
+  UNIQUE KEY `usernasys_configUserme_UNIQUE` (`username`),
   UNIQUE KEY `phone_UNIQUE` (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

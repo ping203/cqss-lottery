@@ -2,7 +2,7 @@
  * Created by linyng on 17-5-24.
  */
 
-var defaultConfigs = require('../../config/sysParamConfig.json');
+var defaultConfigs = require('../../../shared/config/sysParamConfig.json');
 
 var SysConfig = function () {
     this._configs = defaultConfigs;
@@ -15,7 +15,7 @@ SysConfig.prototype.getConfigs = function () {
 SysConfig.prototype.setConfigs = function (configs) {
     this._configs = configs;
     this.betLimitCfg.update(this._configs.norm);
-    this.incomeCfg.update({betRates:this._configs.odds, defectionRates:this._configs.bw}); //todo 代理商
+    this.incomeCfg.update({betRates:this._configs.odds, defectionRates:this._configs.bw});
 }
 
 //获取玩家初始化金币
@@ -30,15 +30,40 @@ SysConfig.prototype.getSysNotice = function () {
 
 //获取玩家等级头衔
 SysConfig.prototype.getRank = function (level) {
-    if(level > 0 && level < 10){
+    if(level > 0 && level <= this._configs.rank.length){
         return this._configs.rank[level-1];
     }
+    return '终极老司机';
+};
 
-    return '等级异常';
+//获取用户经验点数
+SysConfig.prototype.getExp = function () {
+    return this._configs.exp;
+};
+
+//获取用户升级经验上限数
+SysConfig.prototype.getUpdate = function (level) {
+
+    if(level > 0 && level <= this._configs.update.length){
+        return this._configs.update[level-1];
+    }
+    return 0;
+};
+
+//获取GM信息
+SysConfig.prototype.getGM = function () {
+    return this._configs.gm;
+};
+
+SysConfig.prototype.getAgentFC = function (level) {
+    if(level > 0 && level <=2){
+        return this._configs.fc[level - 1];
+    }
+    return 0;
 };
 
 // 获取个人投注历史查看天数
-SysConfig.prototype.getPrivateBetDays = function (level) {
+SysConfig.prototype.getPrivateBetDays = function () {
     return this._configs.limit;
 };
 

@@ -15,11 +15,8 @@ CalcIncome.prototype.playerDefection = function (playerId, callback) {
     var self = this;
     async.waterfall([
         function (cb) {
-            self.daoBets.getPlayerBetBaseInfo(playerId.id, self.beginTime, self.endTime, function (err, income) {
-                cb(null, income);
-            });
+            self.daoBets.getPlayerBetBaseInfo(playerId.id, self.beginTime, self.endTime, cb);
         }, function (income, cb) {
-
             var playerDayIncomeInfo = {
                 playerId: playerId.id,
                 betMoney: 0,
@@ -35,7 +32,7 @@ CalcIncome.prototype.playerDefection = function (playerId, callback) {
                     playerDayIncomeInfo.winRate = Number(((income.dayWinCount/income.dayBetCount)*100).toFixed(2));
                 }
 
-                var defection = 0; //反水 todo:>0
+                var defection = 0; //反水
                 var defectionRate = self.incomeCfg.getDefectionRate(playerId.level);
                 //盈亏金额
                 var incomeMoney = income.dayWinMoney - income.dayBetMoney;
@@ -53,43 +50,45 @@ CalcIncome.prototype.playerDefection = function (playerId, callback) {
                     logger.error('run addIncome failed!' + err.stack);
                     return;
                 }
-                callback(null, res);
+                self.utils.invokeCallback(callback, null, res);
             })
         }
-    ]);
+    ], function (err) {
+        if (err) {
+            logger.error('玩家'+playerId.id+'反水存在异常!' + err);
+        }
+    });
 
 };
 
-CalcIncome.prototype.getPlayerIncome = function (playerId, callback) {
-
-    this.daoIncome.getTodayIncome(playerId, this.incomeTime, function (err, res) {
+// 获取代理下的玩家今日收益
+CalcIncome.prototype.getPlayerTodayIncome = function (playerId, callback) {
+    var self = this;
+    this.daoIncome.getPlayerIncomeByTime(playerId, this.incomeTime, function (err, res) {
         if (err) {
-            logger.error('run addIncome failed!' + err.stack);
+            self.utils.invokeCallback(callback, null, {betMoney: 0, incomeMoney: 0,defection:0});
             return;
         }
-        callback(null, res);
+        self.utils.invokeCallback(callback, null, res);
     })
 };
 
 CalcIncome.prototype.agentRebate = function (agent, callback) {
     // id, userId, level
-
     var self = this;
     async.waterfall([
         function (cb) {
-            self.daoUser.getUserById(agent.playerId, cb);
+            self.daoUser.getUserById(agent.id, cb);
         }, function (user, cb) {
             if (!user) {
                 return;
             }
-
             var playerIds = JSON.parse(user.friends);
             if (!playerIds) {
                 return;
             }
-
-            async.map(playerIds, self.getPlayerIncome.bind(self), function (err, incomes) {
-                async.reduce(incomes, {betMoney: 0, incomeMoney: 0,}, function (reduce, item, callback) {
+            async.map(playerIds, self.getPlayerTodayIncome.bind(self), function (err, incomes) {
+                async.reduce(incomes, {betMoney: 0, incomeMoney: 0, defection:0}, function (reduce, item, callback) {
                     reduce.betMoney += item.betMoney;
                     reduce.incomeMoney += item.incomeMoney;
                     reduce.defection += item.defection;
@@ -98,18 +97,18 @@ CalcIncome.prototype.agentRebate = function (agent, callback) {
                 }, function (err, income) {
 
                     var rebateMoney = 0; //分成
+                    var rate = agent.ext.divide;
                     //盈亏金额
                     var incomeMoney = (-income.incomeMoney) - income.defection;
-                    if (incomeMoney < 0 && income.betMoney >= 50) {
-                        defection = Math.abs(incomeMoney) * this.incomeCfg.getRebateRate(agent.level);
+                    if (incomeMoney < 0) {
+                        rebateMoney = Math.abs(incomeMoney) * rate/100;
                     }
 
                     self.daoIncome.agentAddIncome({
                         playerId: agent.playerId,
                         betMoney: income.betMoney,
                         incomeMoney: income.incomeMoney,
-                        defection: income.defection,
-                        rebateRate: this.incomeCfg.getRebateRate(agent.level),
+                        rebateRate: rate,
                         rebateMoney: rebateMoney,
                         incomeTime: begin_time.getTime()
                     }, function (err, res) {
@@ -118,11 +117,8 @@ CalcIncome.prototype.agentRebate = function (agent, callback) {
                             return;
                         }
                         callback(null, res);
-                    })
+                    });
 
-
-                    winston.info("代理商分成总额:" + income.incomeMoney);
-                    callback(null, {playerId: incomes[0].playerId, income: income});
                 });
             });
 
@@ -139,7 +135,9 @@ CalcIncome.prototype.playerIncomeInsertAccount = function (income, callback) {
 
 //代理商分成入账
 CalcIncome.prototype.agentsRebateInsertAccount = function (income, callback) {
-
+    if (income.rebateMoney > 0) {
+        this.daoUser.updateAccountAmount(income.playerId, income.rebateMoney, callback);
+    }
 };
 
 CalcIncome.prototype.playersCalc = function () {
@@ -149,58 +147,40 @@ CalcIncome.prototype.playersCalc = function () {
             self.daoUser.getPlayersIncomeId(cb);
         },
         function (incomeIds, cb) {
-            async.map(incomeIds, self.playerDefection.bind(self), function (err, playerIncomes) {
-                if (err) {
-                    logger.error('run playerDefection failed!' + err);
-                }
-                cb(null, playerIncomes)
-            });
+            async.map(incomeIds, self.playerDefection.bind(self), cb);
         }, function (playerIncomes, cb) {
-            async.map(playerIncomes, self.playerIncomeInsertAccount.bind(self), function (err, result) {
-                if (err) {
-                    logger.error('run getPlayers failed!' + err.stack);
-                }
-                cb(null);
-            });
+            async.map(playerIncomes, self.playerIncomeInsertAccount.bind(self), cb);
         }
 
     ], function (err) {
         if (err) {
-            logger.error('CalcIncome failed!' + err);
+            logger.error('玩家今日反水存在异常!' + err);
             return;
         }
-
-       // self.agentsCalc();
-
+        logger.info('玩家今日反水计算完成');
+        self.agentsCalc();
     });
 };
 
 //代理商分成
 CalcIncome.prototype.agentsCalc = function () {
-
     var self = this;
     async.waterfall([
         function (cb) {
             self.daoUser.getAgents(cb);
         },
         function (agents, cb) {
-            async.map(agents, self.agentRebate.bind(self), function (err, agentsIncome) {
-                if (err) {
-                    logger.error('run agentRebate failed!' + err);
-                }
-                cb(null, agentsIncome)
-            })
+            async.map(agents, self.agentRebate.bind(self), cb);
         },
-        function (agentsIncome, cb) {
-            async.map(agentsIncome, self.agentsRebateInsertAccount.bind(this), function (err, results) {
-
-            });
+        function (agentsIncomes, cb) {
+            async.map(agentsIncomes, self.agentsRebateInsertAccount.bind(this), cb);
         }
     ], function (err) {
         if (err) {
-            logger.error('CalcIncome failed!' + err);
+            logger.error('代理商今日分成存在异常' + err);
             return;
         }
+        logger.info('代理商今日分成计算完成');
     });
 
 };
@@ -229,6 +209,7 @@ module.exports = {
         {name: "daoUser", ref: "daoUser"},
         {name: "daoBets", ref: "daoBets"},
         {name: "incomeCfg", ref: "incomeCfg"},
-        {name: "daoIncome", ref: "daoIncome"}
+        {name: "daoIncome", ref: "daoIncome"},
+        {name: "utils", ref: "utils"}
     ]
 }

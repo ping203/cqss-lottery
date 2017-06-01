@@ -233,6 +233,11 @@
         }
       }
     },{
+      "getGMWeiXin": {
+        "router":"area.playerHandler.getGMWeiXin",
+        "msg":null
+      }
+    },{
       "winRateRankList": {
         "router":"rank.rankHandler.winRateRankList",
         "msg":null

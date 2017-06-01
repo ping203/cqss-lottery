@@ -261,9 +261,8 @@ DaoUser.prototype.getUserInfo = function (username, passwd, cb) {
 
 
 DaoUser.prototype.getAgents = function (cb) {
-
-    var sql = 'select id, level from User where role = ?';
-    var args = [1];
+    var sql = 'select id, level from User where role != ?';
+    var args = [this.consts.RoleType.PLAYER];
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
             this.utils.invokeCallback(cb, err.message, null);
@@ -355,7 +354,8 @@ module.exports = {
     props: [
         {name: "utils", ref: "utils"},
         {name: "dataApiUtil", ref: "dataApiUtil"},
-        {name: "daoBets", ref: "daoBets"}
+        {name: "daoBets", ref: "daoBets"},
+        {name: "consts", ref: "consts"},
     ]
 }
 

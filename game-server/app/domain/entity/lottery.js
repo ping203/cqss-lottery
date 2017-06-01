@@ -125,6 +125,10 @@ Lottery.prototype.countdown = function () {
 };
 
 
+Lottery.prototype.getWeiXin = function () {
+    return this.sysConfig.getGM();
+}
+
 Lottery.prototype.save = function() {
     this.emit('save');
 };

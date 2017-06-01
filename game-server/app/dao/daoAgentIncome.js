@@ -10,36 +10,10 @@ var DaoAgentIncome = function () {
 
 };
 
-// 加入玩家今日反水信息
-DaoAgentIncome.prototype.addPlayerIncome = function (income, cb) {
-    var sql = 'insert into Income (uid,betMoney,incomeMoney,defection,rebateRate,rebateMoney,incomeTime) values(?,?,?,?,?,?,?)';
-    var args = [income.playerId, income.betMoney, income.incomeMoney, income.defection, income.rebateRate, income.rebateMoney, income.incomeTime];
-    var self = this;
-    pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
-        } else {
-            self.utils.invokeCallback(cb, null, {
-                id: res.insertId,
-                playerId: income.playerId,
-                betMoney: income.betMoney,
-                incomeMoney: income.incomeMoney,
-                defection: income.defection,
-                rebateRate: income.rebateRate,
-                rebateMoney: income.rebateMoney,
-                incomeTime: income.incomeTime,
-            });
-        }
-    });
-};
-
 //代理商今日分成信息
 DaoAgentIncome.prototype.agentAddIncome = function (income, cb) {
-
-    //todo 判断是否存在，存在就更新，不存在就插入
-
-    var sql = 'insert into Income (uid,betMoney,incomeMoney,defection,rebateRate,rebateMoney,incomeTime) values(?,?,?,?,?,?,?)';
-    var args = [income.playerId, income.betMoney, income.incomeMoney, income.defection, income.rebateRate, income.rebateMoney, income.incomeTime];
+    var sql = 'insert into AgentIncome (uid, betMoney, incomeMoney, rebateRate, rebateMoney, incomeTime) values(?,?,?,?,?,?)';
+    var args = [income.playerId, income.betMoney, income.incomeMoney, income.rebateRate, income.rebateMoney, income.incomeTime];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
@@ -50,10 +24,9 @@ DaoAgentIncome.prototype.agentAddIncome = function (income, cb) {
                 playerId: income.playerId,
                 betMoney: income.betMoney,
                 incomeMoney: income.incomeMoney,
-                defection: income.defection,
                 rebateRate: income.rebateRate,
                 rebateMoney: income.rebateMoney,
-                incomeTime: income.incomeTime,
+                incomeTime: income.incomeTime
             });
         }
     });

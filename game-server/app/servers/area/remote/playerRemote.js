@@ -120,17 +120,25 @@ PlayerRemote.prototype.cash = function (uid, money, cb) {
     });
 }
 
-PlayerRemote.prototype.setConfig = function (configs,cb) {
+PlayerRemote.prototype.setConfig = function (configs, cb) {
+    var confs;
+    try {
+        confs = JSON.parse(configs);
+    } catch (e) {
+        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
 	//check config invalid
     var self = this;
-    this.daoConfig.updateConfig(configs, function (err, success) {
+    this.daoConfig.updateConfig(confs, function (err, success) {
         if(!!err || !success){
             logger.error('updateConfig err:', err);
             self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
-        self.sysConfig.setConfigs(configs);
+        self.sysConfig.setConfigs(confs);
     });
 }
 
