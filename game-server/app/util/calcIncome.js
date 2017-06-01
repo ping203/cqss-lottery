@@ -210,7 +210,7 @@ CalcIncome.prototype.agentsCalc = function () {
             async.map(agents, self.agentRebate.bind(self), cb);
         },
         function (agentsIncomes, cb) {
-            async.map(agentsIncomes, self.agentsRebateInsertAccount.bind(this), cb);
+            async.map(agentsIncomes, self.agentsRebateInsertAccount.bind(self), cb);
         }
     ], function (err) {
         if (err) {
