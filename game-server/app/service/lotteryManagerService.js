@@ -21,6 +21,7 @@ function LotteryManagerService() {
     this.addrIndex = 0;
     this.latestLotteryInfo = null;
     this.latestPeriod = null;
+    this.latestOpenTime = 0;
 }
 
 var lotteryResultSample = {
@@ -49,7 +50,7 @@ LotteryManagerService.prototype.init = function (service) {
     this.areaService = service;
     this.tickCount = 0;
 
-    setInterval(this.tick.bind(this), 1200);
+    setInterval(this.tick.bind(this), 2000);
 };
 
 LotteryManagerService.prototype.nextAddr = function () {
@@ -68,9 +69,9 @@ LotteryManagerService.prototype.timeSync = function (result) {
     }
 
     var sysTickTime = new Date(result.tickTime);
-    var nextOpenTime = new Date(result.next.opentime);
+    //var nextOpenTime = new Date(result.next.opentime);
 
-    var tick = (nextOpenTime - sysTickTime) / 1000;
+    var tick = (this.latestOpenTime - sysTickTime) / 1000;
     lottery.setTickCount(result.next.period, tick);
     this.tickCount = 0;
 };
@@ -88,20 +89,20 @@ LotteryManagerService.prototype.tick = function () {
             return;
         }
 
-        if (!self.latestPeriod || (!!self.latestPeriod && self.latestPeriod === result.last.period)) {
-           lottery.publishLottery(result);
+        if (!self.latestPeriod || (!!self.latestPeriod && self.latestPeriod != result.last.period)) {
+            lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period);
-
+            self.latestPeriod = result.last.period;
+            var openTime = new Date(result.next.opentime);
+            self.latestOpenTime = openTime.getTime();
             self.timeSync(result);
-            self.latestPeriod = result.next.period;
         }
 
-        if(self.tickCount > 50){
+        if(self.tickCount > 10){
             self.timeSync(result);
         }
 
         self.tickCount++;
-        self.latestLotteryInfo = result;
     });
 
     return;
@@ -290,7 +291,7 @@ LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
                 self.utils.invokeCallback(callback, err, null);
                 return;
             }
-            var serverTime = results[0];
+
             var preInfos = results[1];
             var latestInfo = results[2];
             var nextInfo = results[3];
@@ -299,12 +300,17 @@ LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
             lotteryInfo.identify = 'cqss';
             lotteryInfo.tickTime = results[0];
 
+
             lotteryInfo.next = {period: nextInfo.period, opentime: nextInfo.time};
             // lotteryInfo.last = {
             //     period: latestInfo.period,
             //     opentime: latestInfo.time,
             //     numbers: latestInfo.numbers
             // };
+
+            if(Number(preInfos[0].period) < Number(self.latestPeriod)){
+                return;
+            }
 
             lotteryInfo.last = {
                 period: preInfos[0].period,

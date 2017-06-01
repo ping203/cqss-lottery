@@ -18,7 +18,7 @@ var BetItem = function (opts) {
     this.winCount = opts.winCount;
     this.betMoney = opts.betMoney;
     this.winMoney = opts.winMoney;
-    this.betTime = Date.now();
+    this.betTime = opts.betTime;
     this.betTypeInfo = opts.betTypeInfo
 
     this.roleName = null;

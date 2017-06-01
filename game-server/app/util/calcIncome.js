@@ -227,11 +227,12 @@ CalcIncome.prototype.calc = function () {
     var now = new Date();
     var begin = new Date(now);
     begin.setHours(0, 0, 0, 0);
-
+    begin.setDay(begin.getDay()-1);
     this.beginTime = begin.getTime();
 
     var end = new Date(now);
     end.setHours(23, 59, 59, 999);
+    end.setDay(end.getDay()-1);
     this.endTime = end.getTime();
 
     this.incomeTime = begin.getTime();

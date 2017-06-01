@@ -35,8 +35,8 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
         // next(null, new Answer.DataResponse(Code.OK, player.strip()));
         self.utils.invokeCallback(cb, null, new Answer.DataResponse(Code.OK, player.strip()));
 
-        // 恢复投注异常数据
-        player.restoreExceptBet();
+        // 服务器异常，造成投注异常数据（未开奖数据）
+//        player.restoreExceptBet();
     });
 };
 

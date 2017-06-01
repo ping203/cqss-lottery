@@ -177,7 +177,7 @@ AreaService.prototype.addEntity = function (e) {
 
         if(!!this.trusteePlayers[e.id]){
             this.trusteePlayers[e.id].transferTask(e);
-            this.trusteePlayers[e.id] = null;
+            delete this.trusteePlayers[e.id];
         }
 
         this.getLottery().publishCurLottery([{uid: e.id, sid: e.serverId}]);

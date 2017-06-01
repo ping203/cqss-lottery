@@ -39,7 +39,7 @@ Lottery.prototype.init = function() {
 
 // proof tick timer
 Lottery.prototype.setTickCount = function(period, tick) {
-    this.tickPeriod = period;
+ //   this.tickPeriod = period;
     this.tickCount = tick;
     this.lastTickTime = Date.now();
 };
@@ -53,6 +53,7 @@ Lottery.prototype.publishLottery = function (result) {
     this.nextLottery = result.next;
     this.preLottery = result.pre;
     this.identify = result.identify;
+    this.tickPeriod = result.next.period;
     this.emit(this.consts.Event.area.lottery, {lottery: this, lotteryResult:this.lastLottery, preLottery:this.preLottery, uids:null});
 };
 

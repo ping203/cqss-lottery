@@ -86,14 +86,14 @@ CQSS.prototype.getPreInfo = function (callback) {
 
         res.on("end", function () {
             const $ = cheerio.load(preData);
-            console.log($('.openul').children().length);
-            console.log(typeof $('.openul').children());
+            // console.log($('.openul').children().length);
+            // console.log(typeof $('.openul').children());
 
             var items = [];
             $('.openul').children().each(function (i, elem) {
                 items[i] = $(this).text();
             });
-         //   console.log(items);
+           // console.log(items);
 
             var now = new Date();
 
@@ -209,8 +209,16 @@ CQSS.prototype.getNextInfo = function (callback) {
             var period = filt.substring(0, filt.lastIndexOf('$'));
             var time = filt.substring(filt.indexOf('$') + 1);
             var nextTime = new Date(time);
+
+            var nextHour = nextTime.getHours();
             nextTime.setMinutes(nextTime.getMinutes() + 1);
-            nextTime.setSeconds(nextTime.getSeconds() + 40);
+
+            if(nextHour >= 22 && nextTime <=2){
+                nextTime.setSeconds(nextTime.getSeconds() + 30);
+            }
+            else {
+                nextTime.setSeconds(nextTime.getSeconds() + 40);
+            }
 
             //todo 校验数据
             var now = new Date();
