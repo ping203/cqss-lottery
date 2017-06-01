@@ -43,7 +43,7 @@ AreaService.prototype.init = function () {
             self.sysConfig.setConfigs(result);
             self.run();
             logger.info('平台参数配置成功');
-            schedule.scheduleJob('10 * * * * *', self.incomeScheduleTask.bind(self));
+            schedule.scheduleJob('10 03 00 * * *', self.incomeScheduleTask.bind(self));
             return;
         }
 

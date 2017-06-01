@@ -20,7 +20,7 @@ var async = require('async');
 function LotteryManagerService() {
     this.addrIndex = 0;
     this.latestLotteryInfo = null;
-    this.latestPeriod;
+    this.latestPeriod = null;
 }
 
 var lotteryResultSample = {
@@ -88,7 +88,7 @@ LotteryManagerService.prototype.tick = function () {
             return;
         }
 
-        if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestPeriod === result.last.period)) {
+        if (!self.latestPeriod || (!!self.latestPeriod && self.latestPeriod === result.last.period)) {
            lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period);
 
