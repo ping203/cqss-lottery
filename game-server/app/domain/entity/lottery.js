@@ -21,7 +21,6 @@ function Lottery(opts) {
     this.preLottery = null; //上期开奖
     this.identify = null; //彩票标志
     this.lotteryCaches = [];
-    this.lastTick = 0;
 }
 
 Lottery.prototype.init = function() {
@@ -42,6 +41,7 @@ Lottery.prototype.init = function() {
 Lottery.prototype.setTickCount = function(period, tick) {
     this.tickPeriod = period;
     this.tickCount = tick;
+    this.lastTickTime = Date.now();
 };
 
 Lottery.prototype.publishNotice = function () {
@@ -113,18 +113,15 @@ Lottery.prototype.countdown = function () {
 	if(this.lastTickTime != 0){
         subTick = (Date.now() - this.lastTickTime)/1000;
 	}
+
+	var temp = this.tickCount;
     this.tickCount -= subTick;
 
-    if(Math.floor(this.tickCount) > this.lastTick && this.lastTick != 0){
-        this.tickCount = this.lastTick;
-    }
 	if(this.tickCount < 0) this.tickCount = 0;
 
     this.emit(this.consts.Event.area.countdown, {lottery: this});
 
     this.lastTickTime = Date.now();
-
-    this.lastTick = Math.floor(this.tickCount);
 };
 
 

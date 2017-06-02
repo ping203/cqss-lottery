@@ -19,6 +19,7 @@ var BetItem = function (opts) {
     this.betMoney = opts.betMoney;
     this.winMoney = opts.winMoney;
     this.betTime = Date.now();
+    this.roleName = null;
     this.betItems = null;
     this.betTypeInfo = null;
 };
@@ -29,6 +30,10 @@ BetItem.prototype.init = function () {
     Entity.call(this, this.opts);
     this._init();
 };
+
+BetItem.prototype.setRoleName = function(roleName){
+    this.roleName = roleName;
+}
 
 BetItem.prototype.getState = function () {
     return this.state;
@@ -111,6 +116,7 @@ BetItem.prototype.strip = function () {
         entityId:this.entityId,
         type:this.type,
         playerId: this.playerId,
+        roleName:this.roleName,
         period: this.period,
         identify: this.identify,
         betInfo: this.betInfo,

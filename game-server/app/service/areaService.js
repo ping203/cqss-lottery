@@ -186,7 +186,7 @@ AreaService.prototype.addEntity = function (e) {
  */
 AreaService.prototype.countdown = function () {
 
-    if (this.countdownCount >= 8) {
+    if (this.countdownCount >= 2) {
         this.getLottery().countdown();
         this.countdownCount = 0;
     }
@@ -194,12 +194,6 @@ AreaService.prototype.countdown = function () {
 
 }
 
-/**
- *
- */
-AreaService.prototype.lotteryResult = function () {
-
-}
 
 /**
  * Remove Entity form area

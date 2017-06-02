@@ -47,7 +47,7 @@ LotteryManagerService.prototype.init = function (service) {
     this.lotteryIds = this.dataApiUtil.lotteryApi().ids;
     this.areaService = service;
 
-    setInterval(this.tick.bind(this), 1500);
+    setInterval(this.tick.bind(this), 1300);
 };
 
 LotteryManagerService.prototype.nextAddr = function () {
@@ -75,19 +75,14 @@ LotteryManagerService.prototype.tick = function () {
         if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period === result.last.period)) {
             lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
+
+            var sysTickTime = new Date(result.tickTime);
+            var nextOpenTime = new Date(result.next.opentime);
+
+            var tick = (nextOpenTime - sysTickTime) / 1000;
+            lottery.setTickCount(result.next.period, tick);
         }
-
-        var sysTickTime = new Date(result.tickTime);
-        var nextOpenTime = new Date(result.next.opentime);
-
-        var tick = (nextOpenTime - sysTickTime) / 1000;
-        lottery.setTickCount(result.next.period, tick);
-
         self.latestLotteryInfo = result;
-        //   logger.info(this.latestLotteryInfo);
-
-        // 使用结果
-        //self.areaService.addAction();
     });
 };
 

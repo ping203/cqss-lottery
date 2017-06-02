@@ -190,7 +190,7 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
 
         betItem.setBetItems(betParseInfo.betItems);
         betItem.setBetTypeInfo(betParseInfo.betTypeInfo);
-        betItem.roleName = this.roleName;
+        betItem.setRoleName(self.roleName);
         self.bets.addItem(betItem);
 
         for(var type in betParseInfo.betTypeInfo){
