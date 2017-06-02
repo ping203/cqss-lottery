@@ -40,7 +40,7 @@ AreaService.prototype.init = function () {
         if(!err && !!result){
             self.sysConfig.setConfigs(result);
             self.run();
-            schedule.scheduleJob('10 * * * * *', self.incomeScheduleTask.bind(self));
+            schedule.scheduleJob('10 30 * * * *', self.incomeScheduleTask.bind(self));
 
             logger.error('平台参数配置成功');
             return;
@@ -50,7 +50,7 @@ AreaService.prototype.init = function () {
     });
 
     //this.run();
-    //schedule.scheduleJob('10 * * * * *', this.incomeScheduleTask.bind(this));
+    //schedule.scheduleJob('10 30 * * * *', this.incomeScheduleTask.bind(this));
 };
 
 AreaService.prototype.run = function () {

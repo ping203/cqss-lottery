@@ -32,7 +32,7 @@ CalcIncome.prototype.playerDefection = function (playerId, callback) {
 
             if (!!income) {
                 if (income.dayBetCount > 0) {
-                    playerDayIncomeInfo.winRate = income.dayWinCount/income.dayBetCount/100;
+                    playerDayIncomeInfo.winRate = income.dayWinCount/income.dayBetCount;
                 }
 
                 var defection = 0; //反水 todo:>0
@@ -40,7 +40,7 @@ CalcIncome.prototype.playerDefection = function (playerId, callback) {
                 //盈亏金额
                 var incomeMoney = income.dayWinMoney - income.dayBetMoney;
                 if (incomeMoney < 0 && income.dayBetMoney >= 50) {
-                    defection = Math.abs(incomeMoney) * defectionRate;
+                    defection = Math.abs(incomeMoney) * defectionRate/100;
                     playerDayIncomeInfo.defectionRate = defectionRate;
                 }
 

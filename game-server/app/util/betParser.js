@@ -113,10 +113,9 @@ BetParser.prototype.parse = function(data, cb){
             for (var i = 0; i< types.length;i++){
                 var betType = this.handleReg(types[i]);
                 if(betType){
-
                     if(this.betLimitCfg.singleLimit(betType.code, perMoney)){
                         err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
-                        err.desc = betType.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(betType.code);
+                        err.desc = betType.desc + '单注最大限额' + this.betLimitCfg.getSingleValue(betType.code);
                         cb(err, null);
                         return;
                     }
