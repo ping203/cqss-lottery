@@ -47,7 +47,7 @@ LotteryManagerService.prototype.init = function (service) {
     this.lotteryIds = this.dataApiUtil.lotteryApi().ids;
     this.areaService = service;
 
-    setInterval(this.tick.bind(this), 1300);
+    setInterval(this.tick.bind(this), 5300);
 };
 
 LotteryManagerService.prototype.nextAddr = function () {

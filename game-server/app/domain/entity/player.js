@@ -154,7 +154,7 @@ Player.prototype.canBet = function (type, value) {
     var err = {};
     if (this.betLimitCfg.playerLimit(type, num + value)) {
         err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
-        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + this.betLimitCfg.getPlayerValue(type);
+        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + this.betLimitCfg.getPlayerValue(type) - num;
     } else {
         err = null;
     }
@@ -188,19 +188,19 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         self.save();
         self.changeNotify();
 
-        betItem.setBetItems(betParseInfo.betItems);
-        betItem.setBetTypeInfo(betParseInfo.betTypeInfo);
-        betItem.setRoleName(self.roleName);
-        self.bets.addItem(betItem);
-
         for(var type in betParseInfo.betTypeInfo){
-            self.platformBet.addBet(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
-
+            var freeBet = self.platformBet.addBet(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
+            betParseInfo.betTypeInfo[type].freeBetValue = freeBet;
             var num = self.betMoneyMap.get(betParseInfo.betTypeInfo[type].type.code);
             num = !!num?num:0;
             num += betParseInfo.betTypeInfo[type].money;
             self.betMoneyMap.set(betParseInfo.betTypeInfo[type].type.code, num);
         }
+
+        betItem.setBetItems(betParseInfo.betItems);
+        betItem.setBetTypeInfo(betParseInfo.betTypeInfo);
+        betItem.setRoleName(self.roleName);
+        self.bets.addItem(betItem);
 
         self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});
         self.utils.invokeCallback(cb, null, betItem);

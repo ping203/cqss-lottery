@@ -14,11 +14,28 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
     var period = this.areaService.getLottery().getNextPeriod();
     var identify = this.areaService.getLottery().getIdentify();
     var player = this.areaService.getPlayer(session.uid);
-    var parseTypeInfo = msg.betParseInfo;
+    var parseBetInfo = msg.betParseInfo;
+
+    for (var type in parseBetInfo.betTypeInfo) {
+        // 平台限额检查
+        var answer = this.platformBet.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money);
+        if (answer.result.code != Code.OK.code) {
+            next(null, answer);
+            return;
+        }
+        parseBetInfo.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
+
+        //玩家限额检查
+        var err = player.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money)
+        if (err) {
+            next(null, new Answer.NoDataResponse(err));
+            return;
+        }
+    }
 
     var self = this;
-    player.bet(period, identify, msg.betData, parseTypeInfo, function (err, betItem) {
-        if(err){
+    player.bet(period, identify, msg.betData, parseBetInfo, function (err, betItem) {
+        if (err) {
             next(null, new Answer.NoDataResponse(err));
             return;
         }
@@ -31,20 +48,20 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
     var player = this.areaService.getPlayer(session.uid);
 
     var self = this;
-    player.unBet(parseInt(msg.entityId,10), function (err, betItem) {
-        if(err){
+    player.unBet(parseInt(msg.entityId, 10), function (err, betItem) {
+        if (err) {
             next(null, new Answer.NoDataResponse(err));
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
-        this.areaService.updateLatestBets(betItem);
+        self.areaService.updateLatestBets(betItem);
     });
 };
 
 PlayerHandler.prototype.myBets = function (msg, session, next) {
     var player = this.areaService.getPlayer(session.uid);
     player.getMyBets(msg.skip, msg.limit, function (err, result) {
-        if(err){
+        if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
             return;
         }
@@ -55,7 +72,7 @@ PlayerHandler.prototype.myBets = function (msg, session, next) {
 PlayerHandler.prototype.myIncome = function (msg, session, next) {
     var player = this.areaService.getPlayer(session.uid);
     player.getMyIncomes(msg.skip, msg.limit, function (err, result) {
-        if(err){
+        if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
             return;
         }
@@ -66,7 +83,7 @@ PlayerHandler.prototype.myIncome = function (msg, session, next) {
 PlayerHandler.prototype.friendIncome = function (msg, session, next) {
     var player = this.areaService.getPlayer(session.uid);
     player.getFriendIncomes(msg.skip, msg.limit, function (err, result) {
-        if(err){
+        if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
             return;
         }
@@ -111,11 +128,11 @@ PlayerHandler.prototype.setEmail = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.getLotterys = function (msg, session, next) {
-    var lottery =  this.areaService.getLottery();
+    var lottery = this.areaService.getLottery();
     lottery.getLotterys(msg.skip, msg.limit, function (err, result) {
-        if(!!err){
+        if (!!err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_LOTTERY_INFO_ERROR));
-        }else {
+        } else {
             next(null, new Answer.DataResponse(Code.OK, result));
         }
     });
@@ -129,18 +146,12 @@ module.exports = function (app) {
             name: "app",
             value: app
         }],
-        props: [{
-            name: "areaService",
-            ref: "areaService"
-        }, {
-            name: "dataApiUtil",
-            ref: "dataApiUtil"
-        }, {
-            name: "consts",
-            ref: "consts"
-        }, {
-            name: "daoUser",
-            ref: "daoUser"
-        }]
+        props: [
+            {name: "areaService", ref: "areaService"},
+            {name: "dataApiUtil", ref: "dataApiUtil"},
+            {name: "consts", ref: "consts"},
+            {name: "daoUser", ref: "daoUser"},
+            {name: 'platformBet', ref: 'platformBet'}
+        ]
     });
 };

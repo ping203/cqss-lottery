@@ -42,26 +42,6 @@ PlayerFilter.prototype.before = function(msg, session, next){
                 next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
                 return;
 			}
-
-            for(var type in result.betTypeInfo){
-                // 平台限额检查
-                var answer = self.platformBet.canBet(result.betTypeInfo[type].type.code, result.betTypeInfo[type].money);
-                if(answer.result.code != Code.OK.code){
-                    next(new Error(err.desc, err.code), answer);
-                    return;
-                }
-                result.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
-
-                //玩家限额检查
-                err = player.canBet(result.betTypeInfo[type].type.code, result.betTypeInfo[type].money)
-                if(err){
-                    next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
-                    return;
-                }
-            }
-
-            // 玩家限额检查
-
             msg.betParseInfo = result;
 			next();
         });
@@ -75,7 +55,6 @@ module.exports = {
     id:"playerFilter",
 	func:PlayerFilter,
 	props:[
-		{name:'betParser', ref:'betParser'},
-		{name:'platformBet', ref:'platformBet'}
+		{name:'betParser', ref:'betParser'}
 	]
 };
