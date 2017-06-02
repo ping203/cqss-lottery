@@ -22,11 +22,6 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
             next(null, new Answer.NoDataResponse(err));
             return;
         }
-
-        for(var type in parseTypeInfo.betTypeInfo){
-            self.areaService.addPlatfromBet(type, parseTypeInfo.betTypeInfo[type].money);
-        }
-
         next(null, new Answer.NoDataResponse(Code.OK));
     });
 };
@@ -35,18 +30,11 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
     var player = this.areaService.getPlayer(session.uid);
 
     var self = this;
-    player.unBet(player.entityId, function (err, betItem) {
+    player.unBet(parseInt(msg.entityId,10), function (err, betItem) {
         if(err){
             next(null, new Answer.NoDataResponse(err));
             return;
         }
-
-        var betTypeInfo = betItem.getBetTypeInfo();
-        for(var type in betTypeInfo){
-            var freeValue = self.areaService.reducePlatfromBet(type, betTypeInfo[type].money);
-            betItem.setFreeBetValue(freeValue);
-        }
-
         next(null, new Answer.NoDataResponse(Code.OK));
     });
 };

@@ -31,23 +31,23 @@ var lotteryResultSample = {
     "time": "2017-05-18 10:01:31"
 };
 
-// {
-//     "rows":2,
-//     "code":"cqssc",
-//     "remain":"155hrs",
-//     "next":[{"expect": "20170601066", "opentime": "2017-06-01 17:00:40"}],
-//     "open":[{"expect": "20170601065", "opencode": "7,3,0,0,8", "opentime": "2017-06-01 16:50:43"},
-//             {"expect": "20170601064", "opencode": "3,5,8,9,2", "opentime": "2017-06-01 16:40:45"}
-//            ],
-//     "time":"2017-06-01 17:00:15"
-// }
+var lotteryResultSample2 =  {
+    "rows":2,
+    "code":"cqssc",
+    "remain":"155hrs",
+    "next":[{"expect": "20170601066", "opentime": "2017-06-01 17:00:40"}],
+    "open":[{"expect": "20170601065", "opencode": "7,3,0,0,8", "opentime": "2017-06-01 16:50:43"},
+            {"expect": "20170601064", "opencode": "3,5,8,9,2", "opentime": "2017-06-01 16:40:45"}
+           ],
+    "time":"2017-06-01 17:00:15"
+}
 
 LotteryManagerService.prototype.init = function (service) {
     this.lotteryData = this.dataApiUtil.lotteryApi().data;
     this.lotteryIds = this.dataApiUtil.lotteryApi().ids;
     this.areaService = service;
 
-    setInterval(this.tick.bind(this), 2000);
+    setInterval(this.tick.bind(this), 1500);
 };
 
 LotteryManagerService.prototype.nextAddr = function () {
@@ -72,7 +72,7 @@ LotteryManagerService.prototype.tick = function () {
             return;
         }
 
-        if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period != result.last.period)) {
+        if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period === result.last.period)) {
             lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
         }
@@ -162,6 +162,24 @@ LotteryManagerService.prototype.parse = function (type, result) {
     return resultInfo;
 }
 
+function rand(x) {
+  return Math.floor(Math.random()*x);
+}
+var initPeriod = 20170601165;
+LotteryManagerService.prototype.generateLottery = function (oriData) {
+    var data = oriData;
+
+
+    data.next[0].expect = (initPeriod++).toString();
+    data.open[0].expect = initPeriod.toString();
+    data.open[0].opencode = `${rand(9)},${rand(9)},${rand(9)},${rand(9)},${rand(9)}`;
+
+    data.open[1].expect = initPeriod.toString();
+    data.open[1].opencode = `${rand(9)},${rand(9)},${rand(9)},${rand(9)},${rand(9)}`;
+
+    return data;
+};
+
 LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
 
     if (!options) {
@@ -191,6 +209,8 @@ LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
                 self.getLotteryInfo(self.nextAddr(), callback);
                 return;
             }
+
+           // var jsData = self.generateLottery(lotteryResultSample2);
 
             var parseResult = self.parse(options.type, jsData)
             if (parseResult) {

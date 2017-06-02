@@ -41,6 +41,8 @@ AreaService.prototype.init = function () {
             self.sysConfig.setConfigs(result);
             self.run();
             schedule.scheduleJob('10 * * * * *', self.incomeScheduleTask.bind(self));
+
+            logger.error('平台参数配置成功');
             return;
         }
 
@@ -86,6 +88,8 @@ AreaService.prototype.openLottery = function (numbers, period, opentime) {
     }
 
     this.trusteePlayers = {};
+
+    this.platformBet.resetBet();
 };
 
 AreaService.prototype.canBetNow = function () {
@@ -94,45 +98,6 @@ AreaService.prototype.canBetNow = function () {
     }
 
     return true;
-};
-AreaService.prototype.canBetPlatform = function (type, value) {
-    var num = this.platformTypeBet.get(type);
-    var newNum = (!!num ? num : 0) + value;
-
-    var err = {};
-    var freeBetValue = 0;
-    if (this.betLimitCfg.platformLimit(type, newNum)) {
-        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - num;
-        err = Code.GAME.FA_BET_PLATFORM_LIMIT;
-    }
-    else {
-        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
-        err = Code.OK;
-    }
-
-    return new Answer.DataResponse(err, {freeBetValue: freeBetValue});
-};
-
-AreaService.prototype.addPlatfromBet = function (type, value) {
-    var num = this.platformTypeBet.get(type.code);
-    var newNum = (!!num ? num : 0) + value;
-    this.platformTypeBet.set(type.code, newNum);
-    var freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
-    return freeBetValue;
-};
-
-AreaService.prototype.reducePlatfromBet = function (type, value) {
-    var num = this.platformTypeBet.get(type.code);
-    var newNum = (!!num ? num : 0) - value;
-    if (newNum < 0) {
-        logger.error('reducePlatfromBet < 0');
-        return;
-    }
-    this.platformTypeBet.set(type.code, newNum);
-
-
-    var freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
-    return freeBetValue;
 };
 
 AreaService.prototype.addAction = function (action) {
@@ -381,5 +346,8 @@ module.exports = {
     }, {
         name: "sysConfig",
         ref: "sysConfig"
+    }, {
+        name: "platformBet",
+        ref: "platformBet"
     }]
 }

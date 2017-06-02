@@ -13,8 +13,6 @@ function Bets(opts) {
     // this.id = opts.id;
     this.id = 1;
     this.betMap = new Map();
-    this.syncItems = [];
-    this.betTypeInfo = new Map();
 };
 
 Bets.prototype.init = function () {
@@ -22,20 +20,6 @@ Bets.prototype.init = function () {
     var Entity = bearcat.getFunction('entity');
     Entity.call(this, this.opts);
     this._init();
-};
-
-Bets.prototype.getData = function () {
-    var data = {};
-
-    data.id = this.id;
-
-    for (let [id, value] of this.betMap) {
-
-    }
-
-    data.itemCount = this.betMap.size;
-
-    return data;
 };
 
 Bets.prototype.addItem = function (item) {
@@ -48,7 +32,6 @@ Bets.prototype.getItem = function (entityId) {
 };
 
 Bets.prototype.openLottery = function (openInfo, level) {
-
     var openResult = {winCount:0,winMoney:0};
     for (var item of this.betMap.values()) {
         if (item.getState() === this.consts.BetState.BET_WAIT) {
@@ -60,39 +43,14 @@ Bets.prototype.openLottery = function (openInfo, level) {
             //this.syncItems.push(item);
         }
     }
-    // this.save();
     this.betMap.clear();
 
     return openResult;
 };
 
-Bets.prototype.getSyncItems = function () {
-    return this.syncItems;
-};
-
 //Get all the items
 Bets.prototype.all = function () {
     return this.betMap;
-};
-
-
-Bets.prototype.canBetType = function (type, value) {
-    var betted = this.betTypeInfo.get(type);
-    var num = !!betted ? betted : 0;
-    var err = {};
-    if (this.betLimitCfg.playerLimit(type, num + value)) {
-        err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
-        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + this.betLimitCfg.getPlayerValue(type);
-    } else {
-        err = null;
-    }
-
-    return err;
-}
-
-// Emit the event 'save'.
-Bets.prototype.save = function () {
-    this.emit('save');
 };
 
 Bets.prototype.toJSON = function () {
@@ -116,7 +74,6 @@ module.exports = {
     }],
     props: [
         {name: "consts", ref: "consts"},
-        {name: "betLimitCfg", ref: "betLimitCfg"},
         {name: "eventManager", ref: "eventManager"},
     ]
 };

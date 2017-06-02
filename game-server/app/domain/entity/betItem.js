@@ -47,8 +47,8 @@ BetItem.prototype.setBetTypeInfo = function (betTypeInfo) {
     this.betTypeInfo = betTypeInfo;
 }
 
-BetItem.prototype.getBetTypeInfo = function (betTypeInfo) {
-    this.betTypeInfo = betTypeInfo;
+BetItem.prototype.getBetTypeInfo = function () {
+    return this.betTypeInfo;
 }
 
 BetItem.prototype.setFreeBetValue = function (type, freeBetValue) {

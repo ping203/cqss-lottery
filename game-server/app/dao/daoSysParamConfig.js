@@ -15,7 +15,7 @@ DaoSysParamConfig.prototype.initPlatformParam = function (configs, callback) {
     var self = this;
     var sysConfig = null;
     async.waterfall([function (cb) {
-        var sql = 'insert into config (info) values(?,?)';
+        var sql = 'insert into config values(?,?)';
         var args = [1, JSON.stringify(configs)];
         pomelo.app.get('dbclient').insert(sql, args, function(err,res){
             if(err !== null){

@@ -26,7 +26,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
 	if(route.match(/.bet$/)){
 
 	    if(!pomelo.app.areaService.canBetNow()){
-            next(new Error(Code.FA_BET_CHANNEL_CLOSE.desc, Code.FA_BET_CHANNEL_CLOSE.code), new Answer.NoDataResponse(Code.FA_BET_CHANNEL_CLOSE));
+            next(new Error(Code.GAME.FA_BET_CHANNEL_CLOSE.desc, Code.GAME.FA_BET_CHANNEL_CLOSE.code), new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
             return;
         }
 
@@ -36,6 +36,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
             return;
         }
 
+        var self = this;
 		this.betParser.parse(msg.betData, function (err, result) {
 			if(err){
                 next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
@@ -44,7 +45,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
 
             for(var type in result.betTypeInfo){
                 // 平台限额检查
-                var answer = pomelo.app.areaService.canBetPlatform(type, result.betTypeInfo[type].money);
+                var answer = self.platformBet.canBet(result.betTypeInfo[type].type.code, result.betTypeInfo[type].money);
                 if(answer.result.code != Code.OK.code){
                     next(new Error(err.desc, err.code), answer);
                     return;
@@ -52,7 +53,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
                 result.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
 
                 //玩家限额检查
-                err = player.canBet(type, result.betTypeInfo[type].money)
+                err = player.canBet(result.betTypeInfo[type].type.code, result.betTypeInfo[type].money)
                 if(err){
                     next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
                     return;
@@ -74,6 +75,7 @@ module.exports = {
     id:"playerFilter",
 	func:PlayerFilter,
 	props:[
-		{name:'betParser', ref:'betParser'}
+		{name:'betParser', ref:'betParser'},
+		{name:'platformBet', ref:'platformBet'}
 	]
 };

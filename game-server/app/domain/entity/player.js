@@ -23,7 +23,6 @@ function Player(opts) {
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastLoinTime = opts.lastLoinTime;
-
     this.betStatistics = opts.betStatistics;
 }
 
@@ -37,6 +36,7 @@ Player.prototype.init = function () {
     this._init();
 
     this.bets = bearcat.getBean("bets", {})
+    this.betMoneyMap = new Map();
 };
 
 Player.prototype.setRank = function () {
@@ -118,7 +118,16 @@ Player.prototype.getFriendIncomes = function(skip, limit, cb){
 
 //todo:检查用户投注类型总额是否超限
 Player.prototype.canBet = function (type, value) {
-    return this.bets.canBetType(type, value);
+    var num = this.betMoneyMap.get(type);
+    num = !!num?num:0;
+    var err = {};
+    if (this.betLimitCfg.playerLimit(type, num + value)) {
+        err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
+        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + this.betLimitCfg.getPlayerValue(type);
+    } else {
+        err = null;
+    }
+    return err;
 };
 
 Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
@@ -126,7 +135,6 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         this.utils.invokeCallback(cb, Code.GAME.FA_ACCOUNTAMOUNT_NOT_ENOUGH, null);
         return;
     }
-
     var self = this;
     this.daoBets.addBet({
         playerId: this.id,
@@ -144,7 +152,6 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
             self.utils.invokeCallback(cb, err, null);
             return;
         }
-
         self.betStatistics.betCount += betParseInfo.betItems.length;
         self.accountAmount -= betParseInfo.total;
         self.save();
@@ -153,9 +160,18 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         betItem.setBetItems(betParseInfo.betItems);
         betItem.setBetTypeInfo(betParseInfo.betTypeInfo);
         self.bets.addItem(betItem);
-        self.utils.invokeCallback(cb, null, null);
-        self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});
 
+        for(var type in betParseInfo.betTypeInfo){
+            self.platformBet.addBet(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
+
+            var num = self.betMoneyMap.get(betParseInfo.betTypeInfo[type].type.code);
+            num = !!num?num:0;
+            num += betParseInfo.betTypeInfo[type].money;
+            self.betMoneyMap.set(betParseInfo.betTypeInfo[type].type.code, num);
+        }
+
+        self.emit(self.consts.Event.area.playerBet, {player: self, betItem: betItem});
+        self.utils.invokeCallback(cb, null, null);
     });
 
 };
@@ -169,15 +185,24 @@ Player.prototype.unBet = function (entityId, cb) {
         }
 
         betItem.setState(entityId, this.consts.BetState.BET_CANCLE);
-        this.emit(this.consts.Event.area.playerUnBet, {player: self, betItem: betItem});
-
         this.accountAmount += betItem.getBetMoney();
         this.betStatistics.betCount -= betItem.getBetCount();
 
-        this.utils.invokeCallback(cb, null, betItem);
+        var betTypeInfo = betItem.getBetTypeInfo();
+        for(var type in betTypeInfo){
+            var freeValue = this.platformBet.reduceBet(betTypeInfo[type].type.code, betTypeInfo[type].money);
+            betItem.setFreeBetValue(betTypeInfo[type].type.code, freeValue);
 
+            var num = this.betMoneyMap.get(betTypeInfo[type].type.code);
+            num = !!num?num:0;
+            num -= betTypeInfo[type].money;
+            this.betMoneyMap.set(betTypeInfo[type].type.code, num);
+        }
+
+        this.utils.invokeCallback(cb, null, betItem);
         this.save();
         this.changeNotify();
+        this.emit(this.consts.Event.area.playerUnBet, {player: this, betItem: betItem});
     }
     else {
         this.utils.invokeCallback(cb, Code.GAME.FA_ENTITY_NOT_EXIST, null);
@@ -190,9 +215,10 @@ Player.prototype.openTheLottery = function (openInfo) {
         this.betStatistics.winCount += openResult.winCount;
         this.accountAmount += openResult.winMoney;
         this.save();
-
         this.changeNotify();
     }
+
+    this.betMoneyMap.clear();
 };
 
 // Emit the event 'save'.
@@ -269,6 +295,8 @@ module.exports = {
         {name: "dataApiUtil", ref: "dataApiUtil"},
         {name: "daoBets", ref: "daoBets"},
         {name: "utils", ref: "utils"},
-        {name: "daoIncome", ref: "daoIncome"}
+        {name: "daoIncome", ref: "daoIncome"},
+        {name: "platformBet", ref: "platformBet"},
+        {name: "betLimitCfg", ref: "betLimitCfg"}
     ]
 }
