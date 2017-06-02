@@ -76,9 +76,9 @@ BetItem.prototype.getWinCount = function () {
 };
 
 //计算一柱中奖收益
-BetItem.prototype.getIncomValue = function (openInfo, item, level) {
+BetItem.prototype.getIncomValue = function (openInfo, item) {
     var inc = 0;
-    var multi = this.incomeCfg.getBetRate(item.type.code, level);
+    var multi = this.incomeCfg.getBetRate(item.type.code);
 
     if(openInfo.has(item.result)){
         inc = item.money * multi;
@@ -89,9 +89,9 @@ BetItem.prototype.getIncomValue = function (openInfo, item, level) {
     return inc;
 };
 
-BetItem.prototype.calcHarvest = function (openInfo, level) {
+BetItem.prototype.calcHarvest = function (openInfo) {
     for (var item of this.betItems) {
-        this.winMoney += this.getIncomValue(openInfo, item, level);
+        this.winMoney += this.getIncomValue(openInfo, item);
     }
 };
 

@@ -118,13 +118,7 @@ EntryHandler.prototype.login = function (msg, session, next) {
             session.on('closed', onUserLeave.bind(null, self.app));
             session.pushAll(cb);
         },function (cb) {
-            if(!!self.app.rpc.area.playerRemote){
-                self.app.rpc.area.playerRemote.playerJoin(session, _player.id, session.frontendId, cb);
-            }
-            else {
-                cb('业务服务器异常',null);
-            }
-
+            self.app.rpc.area.playerRemote.playerJoin(session, _player.id, session.frontendId, cb);
         },function (playerJoinResult, cb) {
             if(playerJoinResult.result.code != Code.OK.code){
                 cb(playerJoinResult.result);

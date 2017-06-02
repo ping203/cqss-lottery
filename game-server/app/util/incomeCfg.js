@@ -48,18 +48,12 @@ IncomeCfg.prototype.update = function (configs) {
 };
 
 // 获取投注翻倍率
-IncomeCfg.prototype.getBetRate = function (type, level) {
+IncomeCfg.prototype.getBetRate = function (type) {
     var values = this.betRate.get(type);
-    var sub = values.max - values.min;
-    var step = sub/10;
-
-    var rate = 0;
-    rate = values.min + step*(level-1);
-
-    if(rate > values.max){
-        rate = values.max;
+    if(!!values){
+        return values;
     }
-    return rate;
+    return 0;
 };
 
 // 获取玩家反水倍率

@@ -109,6 +109,15 @@ BetParser.prototype.parse = function(data, cb){
         isValid = true;
         var result = data.match(this.reg2);
         var ballPos = result[1].match(this.splitReg);
+
+        //投注位置1～5
+        for(let i = 0; i< ballPos.length;++i){
+            if(ballPos[i]> 5 ||ballPos[i]<=0){
+                cb(Code.GAME.FA_BET_OPERATE_INVALID, null);
+                return;
+            }
+        }
+
         var types = result[2].match(this.splitReg);
         perMoney = parseInt(result[3],10);
         for (var j=0;j< ballPos.length;++j){

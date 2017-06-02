@@ -137,22 +137,15 @@ ChatService.prototype.getUsers = function (roomId) {
  * @param  {String} roomId room id
  */
 ChatService.prototype.kick = function (userId, roomId) {
-    logger.error('--------------------------ChatService.prototype.kick:',userId,'roomId:',roomId);
-    if(!!this.roomMap.get(roomId).userMap){
-        var record = this.roomMap.get(roomId).userMap.get(userId);
-        var channel = this.app.get('channelService').getChannel(roomId, true);
+    var record = this.roomMap.get(roomId).userMap.get(userId);
+    var channel = this.app.get('channelService').getChannel(roomId, true);
 
-        if (channel && record) {
-            channel.leave(userId, record.sid);
-        }
-        removeRecord(this, userId, roomId);
-
-        channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
+    if (channel && record) {
+        channel.leave(userId, record.sid);
     }
-    else {
-        logger.error('房间信息不存在');
-    }
+    removeRecord(this, userId, roomId);
 
+    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
 };
 
 /**

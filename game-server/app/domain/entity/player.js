@@ -323,7 +323,7 @@ Player.prototype.calcExp = function (calcParam) {
 
 
 Player.prototype.openCode = function (period, openCodeResult) {
-    var calcResult = this.bets.openCodeCalc(period, openCodeResult, this.level);
+    var calcResult = this.bets.openCodeCalc(period, openCodeResult);
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
