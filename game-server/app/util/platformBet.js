@@ -28,21 +28,21 @@ PlatformBet.prototype.canBet = function (type, value) {
 };
 
 PlatformBet.prototype.addBet = function (type, value) {
-    var num = this.platformTypeBet.get(type.code);
+    var num = this.platformTypeBet.get(type);
     var newNum = (!!num ? num : 0) + value;
-    this.platformTypeBet.set(type.code, newNum);
+    this.platformTypeBet.set(type, newNum);
     var freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
     return freeBetValue;
 };
 
 PlatformBet.prototype.reduceBet = function (type, value) {
-    var num = this.platformTypeBet.get(type.code);
+    var num = this.platformTypeBet.get(type);
     var newNum = (!!num ? num : 0) - value;
     if (newNum < 0) {
         logger.error('reducePlatfromBet < 0');
         return;
     }
-    this.platformTypeBet.set(type.code, newNum);
+    this.platformTypeBet.set(type, newNum);
     var freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
     return freeBetValue;
 };

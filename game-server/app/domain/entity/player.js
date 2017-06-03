@@ -154,7 +154,7 @@ Player.prototype.canBet = function (type, value) {
     var err = {};
     if (this.betLimitCfg.playerLimit(type, num + value)) {
         err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
-        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + this.betLimitCfg.getPlayerValue(type) - num;
+        err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + (this.betLimitCfg.getPlayerValue(type) - num).toString();
     } else {
         err = null;
     }
