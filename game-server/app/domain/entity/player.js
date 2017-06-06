@@ -40,18 +40,7 @@ Player.prototype.init = function () {
 };
 
 Player.prototype.setRank = function () {
-    var rankData = this.dataApiUtil.rank().data;
-    var preId = null;
-    for (var id in rankData) {
-        if (this.level === rankData[id].level) {
-            this.rank = rankData[id].name;
-            break;
-        } else if (this.level < rankData[id].level) {
-            this.rank = rankData[preId].name;
-            break;
-        }
-        preId = id;
-    }
+    this.rank = this.sysConfig.getRank(this.level);
 };
 
 Player.prototype.setNextLevelExp = function () {
@@ -78,6 +67,7 @@ Player.prototype.upgrade = function () {
         this._upgrade();
     }
     this.changeNotify();
+    this.setRank();
 };
 
 //Upgrade, update player's state
@@ -334,6 +324,7 @@ module.exports = {
         {name: "utils", ref: "utils"},
         {name: "daoIncome", ref: "daoIncome"},
         {name: "platformBet", ref: "platformBet"},
-        {name: "betLimitCfg", ref: "betLimitCfg"}
+        {name: "betLimitCfg", ref: "betLimitCfg"},
+        {name: "sysConfig", ref: "sysConfig"}
     ]
 }

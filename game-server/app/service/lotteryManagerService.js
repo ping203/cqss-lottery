@@ -287,7 +287,7 @@ LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
         ],
         function (err, results) {
             if(!!err){
-                this.utils.invokeCallback(callback, err, null);
+                self.utils.invokeCallback(callback, err, null);
                 return;
             }
             var serverTime = results[0];
