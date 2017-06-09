@@ -251,8 +251,7 @@ var type51 = '大单龙合60';
 
 // test();
 
-function test2() {
-
+function sort_test() {
     var arr = [];
     arr.push({money:100, age:30, num:20});
     arr.push({money:100, age:30, num:50});
@@ -280,28 +279,28 @@ function test2() {
     console.log(arr);
 
     return;
+}
+
+function test2() {
 
     var reg1 = /(^[大小单双龙虎和合]+)\/?(\d+)/i;
     var reg2 = /(^\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
     var reg3 = /(^\d+)\/(\d+)/i; //包数字玩法
-    var reg4 = /(^[豹顺]+)子?\/?(\d+)/i;
+    var reg4 = /(^[豹顺]+)子?\/?(\d+)$/i;
     var reg5= /(^[豹顺]+)子?\/(\d+)\/(\d+)\/(\d+)/i;
 
-    var bet1 = '大100';
-    var ret1 = bet1.match(reg1);
-    console.log(ret1);
-    var bet2 = '大/100';
-    var ret2 = bet2.match(reg1);
-    console.log(ret2);
+    var reg6 = /(^['前','中','后'])([豹顺])\/?(\d+)$/i;
+
+    var keyValue =['前','中','后'];
 
 
-    var bet3 = '豹顺/100';
-    var ret3 = bet3.match(reg4);
+    var bet3 = '顺/100';
+    var ret3 = bet3.match(reg6);
     console.log(ret3);
 
-    var bet4 = '豹子/100/100/30';
-    var ret4 = bet4.match(reg5);
-    console.log(ret4);
+    // var bet4 = '中豹/100';
+    // var ret4 = bet4.match(reg5);
+    // console.log(ret4);
 
 }
 

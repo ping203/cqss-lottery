@@ -11,6 +11,8 @@ var BetParser = function () {
     this.reg3 = /(^\d+)\/(\d+)/i; //包数字玩法
     this.reg4 = /(^[豹顺]+)子?\/?(\d+)$/i;
     this.reg5= /(^[豹顺]+)子?\/(\d+)\/(\d+)\/(\d+)/i;
+    this.reg6 = /(^['前','中','后'])([豹顺])\/?(\d+)$/i;
+
     this.keyValue =['前','中','后'];
 };
 
@@ -279,6 +281,42 @@ BetParser.prototype.parse = function(data, cb){
                 err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
                 break;
             }
+        }
+    }else if(data.match(this.reg6)){
+        isValid = true;
+        var result = data.match(this.reg6);
+        var key = result[1];
+        var type = result[2];
+        perMoney = parseInt(result[3], 10);
+
+        var betType = this.handleReg(type);
+        if(betType){
+
+            if(this.betLimitCfg.singleLimit(betType.code, perMoney)){
+                isValid = false;
+                err.code = Code.GAME.FA_BET_SINGLE_LIMIT;
+                err.desc = betType.desc + '单注最大限额'+this.betLimitCfg.getSingleValue(betType.code);
+            }
+            else {
+                var tempItem = {};
+                tempItem.type = betType;
+                tempItem.result = key + type;
+                tempItem.money = perMoney;
+                betItems.push(tempItem);
+
+                total+= perMoney;
+                if(undefined === betTypeInfo[betType.code]){
+                    betTypeInfo[betType.code]= {money:0,type:{}};
+                    betTypeInfo[betType.code].desc ="";
+                }
+                betTypeInfo[betType.code].money += tempItem.money;
+                betTypeInfo[betType.code].type = betType;
+                betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `
+            }
+        }
+        else {
+            isValid = false;
+            err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
         }
     }
     else {
