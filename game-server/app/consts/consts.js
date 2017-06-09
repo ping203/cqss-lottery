@@ -92,7 +92,8 @@ var Consts = function () {
     this.BetState = {
         BET_WAIT:0,
         BET_CANCLE:1,
-        BET_OPENNED:2
+        BET_WIN:2,
+        BET_LOSE:3
     }
 
     this.BetType = {

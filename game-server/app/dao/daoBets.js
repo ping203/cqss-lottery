@@ -189,8 +189,8 @@ DaoBets.prototype.getPlayerBetsByTime = function (playerId, beginTime, endTime, 
 };
 
 DaoBets.prototype.getBetStatistics = function (playerId, cb) {
-    var sql = 'select sum(betCount) as betCount, sum(winCount) as winCount from Bets where uid= ? and state =?';
-    var args = [playerId, this.consts.BetState.BET_OPENNED];
+    var sql = 'select sum(betCount) as betCount, sum(winCount) as winCount from Bets where uid= ? and state in(?,?)';
+    var args = [playerId, this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
@@ -220,8 +220,8 @@ DaoBets.prototype.getPlayerTodayBets = function (playerId, cb) {
     end.setHours(23, 59, 59, 999);
     var endTime = end.getTime();
 
-    var sql = 'select sum(betMoney) as betMoney from Bets where uid= ? and betTime >= ? and betTime <= ? and state = ?';
-    var args = [playerId, beginTime, endTime, this.consts.BetState.BET_OPENNED];
+    var sql = 'select sum(betMoney) as betMoney from Bets where uid= ? and betTime >= ? and betTime <= ? and state in(?,?)';
+    var args = [playerId, beginTime, endTime, this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
 
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
@@ -239,8 +239,8 @@ DaoBets.prototype.getPlayerTodayBets = function (playerId, cb) {
 
 // 获取玩家一天的投注反水基准数据
 DaoBets.prototype.getPlayerBetBaseInfo = function (playerId, beginTime, endTime, cb) {
-    var sql = 'select sum(betMoney) as dayBetMoney, sum(winMoney) as dayWinMoney,sum(betCount) as dayBetCount, sum(winCount) as dayWinCount from Bets where betTime >= ? and betTime <= ? and uid=? and state =?';
-    var args = [beginTime, endTime, playerId,this.consts.BetState.BET_OPENNED];
+    var sql = 'select sum(betMoney) as dayBetMoney, sum(winMoney) as dayWinMoney,sum(betCount) as dayBetCount, sum(winCount) as dayWinCount from Bets where betTime >= ? and betTime <= ? and uid=? and state in(?,?)';
+    var args = [beginTime, endTime, playerId,this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {

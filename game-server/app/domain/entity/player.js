@@ -334,7 +334,7 @@ Player.prototype.openCode = function (period, openCodeResult) {
 
     if(calcResult.betCount  > 0){
         var winMoney = calcResult.winMoney - calcResult.betMoney;
-        this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney, uids: [{uid: this.id, sid: this.serverId}]});
+        this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney, itemOK:calcResult.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
     }
 
     this.betMoneyMap.clear();

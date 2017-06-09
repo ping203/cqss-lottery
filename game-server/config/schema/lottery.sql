@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `User` (
   `username` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '登录名',
   `password` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '登录密码',
   `phone` varchar(11) COLLATE utf8_unicode_ci NOT NULL COMMENT '电话',
-  `email` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '邮箱',
+  `email`  (50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '邮箱',
   `from` varchar(25) COLLATE utf8_unicode_ci NOT NULL COMMENT '登录来源',
   `regTime` bigint(20) unsigned NOT NULL COMMENT '注册时间',
   `inviter` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '邀请人',

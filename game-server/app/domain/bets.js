@@ -32,12 +32,20 @@ Bets.prototype.getItem = function (entityId) {
 };
 
 Bets.prototype.openCodeCalc = function (period, openCodeResult) {
-    var calcResult = {winCount:0,winMoney:0,betMoney:0,betCount:0};
+    var calcResult = {winCount:0,winMoney:0,betMoney:0,betCount:0, itemOK:[]};
     for (var item of this.betMap.values()) {
         if (item.getState() === this.consts.BetState.BET_WAIT && item.period === period) {
         // if (item.getState() === this.consts.BetState.BET_WAIT) {
             item.calcHarvest(openCodeResult);
-            item.setState(this.consts.BetState.BET_OPENNED);
+            if(item.getWinMoney() > 0){
+                item.setState(this.consts.BetState.BET_WIN);
+                calcResult.itemOK.push({id:item.id,state:this.consts.BetState.BET_WIN});
+            }
+            else {
+                item.setState(this.consts.BetState.BET_LOSE);
+                calcResult.itemOK.push({id:item.id,state:this.consts.BetState.BET_LOSE});
+            }
+
             item.save();
             calcResult.winCount += item.getWinCount();
             calcResult.winMoney += item.getWinMoney();

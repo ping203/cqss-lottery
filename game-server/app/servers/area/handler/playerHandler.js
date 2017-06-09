@@ -132,6 +132,16 @@ PlayerHandler.prototype.getGMWeiXin = function (msg, session, next) {
     next(null, new Answer.DataResponse(Code.OK, lottery.getWeiXin()));
 };
 
+PlayerHandler.prototype.getRecords = function (msg, session, next) {
+    this.daoRecord.get(session.uid, msg.skip, msg.limit, function (err, results) {
+        if(!!err){
+            next(null, new Answer.NoDataResponse(Code.DBFAIL));
+            return;
+        }
+        next(null, new Answer.DataResponse(Code.OK, results));
+    });
+};
+
 PlayerHandler.prototype.getLotterys = function (msg, session, next) {
     var lottery = this.areaService.getLottery();
     lottery.getLotterys(msg.skip, msg.limit, function (err, result) {
@@ -156,7 +166,8 @@ module.exports = function (app) {
             {name: "dataApiUtil", ref: "dataApiUtil"},
             {name: "consts", ref: "consts"},
             {name: "daoUser", ref: "daoUser"},
-            {name: 'platformBet', ref: 'platformBet'}
+            {name: 'platformBet', ref: 'platformBet'},
+            {name: 'daoRecord', ref: 'daoRecord'}
         ]
     });
 };

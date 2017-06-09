@@ -24,6 +24,20 @@ DaoRecord.prototype.add = function (playerId, num, type, cb) {
     });
 };
 
+DaoRecord.prototype.get = function (playerId, skip, limit, cb) {
+    var sql = 'select * from Record where uid= ? ORDER BY create_time DESC limit ?,?';
+    var self = this;
+    pomelo.app.get('dbclient').insert(sql, [playerId, skip, limit], function (err, res) {
+        if (err !== null) {
+            logger.error('读取流水记录失败,',err);
+            self.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
+        } else {
+            self.utils.invokeCallback(cb, null, res);
+        }
+    });
+
+};
+
 module.exports = {
     id:"daoRecord",
     func:DaoRecord,

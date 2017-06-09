@@ -126,7 +126,7 @@ CalcIncome.prototype.agentRebate = function (agent, callback) {
 
                     var rebateMoney = 0; //分成
                     var rate = 0;
-                    if(!!agent.ext){
+                    if(!!agent.ext && !!agent.ext.divide){
                         rate = agent.ext.divide
                     }
 
@@ -227,12 +227,12 @@ CalcIncome.prototype.calc = function () {
     var now = new Date();
     var begin = new Date(now);
     begin.setHours(0, 0, 0, 0);
-    begin.setDay(begin.getDay()-1);
+ //   begin.setDate(begin.getDate()-1);
     this.beginTime = begin.getTime();
 
     var end = new Date(now);
     end.setHours(23, 59, 59, 999);
-    end.setDay(end.getDay()-1);
+ //   end.setDate(end.getDate()-1);
     this.endTime = end.getTime();
 
     this.incomeTime = begin.getTime();

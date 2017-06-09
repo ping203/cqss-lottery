@@ -7,6 +7,7 @@ $(document).ready(function () {
     $('#joinGame').on('click', joinGame);
     $('#registe').on('click', register);
     $('#setRoleName').on('click', setRoleName);
+    $('#getRecords').on('click', getRecords);
     $('#setPhone').on('click', setPhone);
     $('#setPinCode').on('click', setPinCode);
     $('#bet').on('click', bet);
@@ -184,6 +185,17 @@ $(document).ready(function () {
                 return;
             }
             alert('修改电话成功');
+        });
+    }
+
+    function getRecords() {
+        var phone = $('#roleName').val();
+        pomelo.request("area.playerHandler.getRecords", {skip: 0,limit:10}, function (res) {
+            if (res.result.code != 200) {
+                alert('获取记录失败' +  res.result.desc);
+                return;
+            }
+            alert('获取记录成功');
         });
     }
 
