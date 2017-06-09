@@ -24,7 +24,7 @@ function Player(opts) {
     this.loginCount = opts.loginCount;
     this.lastLoinTime = opts.lastLoinTime;
 
-    if(!!this.ext){
+    if(!!opts.ext){
         this.ext = JSON.parse(opts.ext);
     }
     else {

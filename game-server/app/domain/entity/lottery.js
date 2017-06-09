@@ -14,6 +14,7 @@ function Lottery(opts) {
     this.imgId = opts.imgId;
     this.consts = null;
     this.tickCount = 0;
+    this.lastTickCount = 0;
     this.tickPeriod = 0;
     this.lastTickTime = 0;
     this.lastLottery = null; //最近开奖
@@ -120,9 +121,15 @@ Lottery.prototype.countdown = function () {
 
 	if(this.tickCount < 0) this.tickCount = 0;
 
+	if(Math.floor(this.tickCount) > this.lastTickCount && this.lastTickCount != 0){
+        this.tickCount = this.lastTickCount;
+    }
+
     this.emit(this.consts.Event.area.countdown, {lottery: this});
 
     this.lastTickTime = Date.now();
+
+    this.lastTickCount = this.tickCount;
 };
 
 

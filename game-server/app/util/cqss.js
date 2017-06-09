@@ -208,23 +208,16 @@ CQSS.prototype.getNextInfo = function (callback) {
             var filt = nextData.substring(0, index);
             var period = filt.substring(0, filt.lastIndexOf('$'));
             var time = filt.substring(filt.indexOf('$') + 1);
-            var nextTime = new Date(time);
-
-            var nextHour = nextTime.getHours();
-            nextTime.setMinutes(nextTime.getMinutes() + 1);
-
-            if(nextHour >= 22 && nextTime <=2){
-                nextTime.setSeconds(nextTime.getSeconds() + 30);
-            }
-            else {
-                nextTime.setSeconds(nextTime.getSeconds() + 40);
-            }
+            // var nextTime = new Date(time);
+            //
+            // nextTime.setMinutes(nextTime.getMinutes() + self.autoLearServerOpenTime.minute);
+            // nextTime.setSeconds(nextTime.getSeconds() + self.autoLearServerOpenTime.second);
 
             //todo 校验数据
             var now = new Date();
             self.utils.invokeCallback(callback, null, {
                 period: now.getFullYear().toString().substring(0,2) + period,
-                time: nextTime.toISOString()
+                time: time
             });
 
            // console.log('下期开奖 期数:', period, '时间:', time);

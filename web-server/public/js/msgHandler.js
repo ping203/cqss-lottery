@@ -50,7 +50,7 @@ function gameMsgInit() {
 
     pomelo.on('onCountdown', function (data) {
         //  console.log('onCountdown data:', data);
-        $('#countdown').html('period: ' + data.period + ' countdown: ' + Math.floor(data.tickCount) + 's');
+        $('#countdown').html('period: ' + data.period + ' countdown: ' + Math.floor(data.tickCount/60)+':' + data.tickCount%60 +'s');
     });
 
     pomelo.on('onLottery', function (data) {

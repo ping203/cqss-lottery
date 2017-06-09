@@ -63,7 +63,13 @@ RankService.prototype.tick = function() {
                     return;
                 }
                 rankPlayers.sort(function (rankPlayerA, rankPlayerB) {
-                    return rankPlayerB.winRate - rankPlayerA.winRate;
+                    if(rankPlayerB.winRate !=  rankPlayerA.winRate){
+                        return rankPlayerB.winRate -  rankPlayerA.winRate;
+                    }else if(rankPlayerB.betCount != rankPlayerA.betCount){
+                        return rankPlayerB.betCount - rankPlayerA.betCount;
+                    }else {
+                        return rankPlayerB.winCount - rankPlayerA.winCount ;
+                    }
                 });
                 self.winRankPlayers = rankPlayers.slice(0,100).map(function (rankPlayer) {
                     return rankPlayer;

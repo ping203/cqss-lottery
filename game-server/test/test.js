@@ -39,8 +39,6 @@
     
 function test() {
 
-
-
     var curr_time = new Date();
     var begin_time = new Date(curr_time);
     begin_time.setHours(0,0,0,0)
@@ -254,6 +252,35 @@ var type51 = '大单龙合60';
 // test();
 
 function test2() {
+
+    var arr = [];
+    arr.push({money:100, age:30, num:20});
+    arr.push({money:100, age:30, num:50});
+    arr.push({money:100, age:30, num:30});
+    arr.push({money:100, age:30, num:60});
+    arr.push({money:100, age:20, num:10});
+    arr.push({money:100, age:10, num:10});
+    arr.push({money:100, age:5, num:10});
+    arr.push({money:100, age:30, num:10});
+    arr.push({money:200, age:30, num:10});
+
+    console.log(arr);
+
+    arr.sort(function (A, B) {
+        if(B.money != A.money){
+            return B.money - A.money;
+        }else if(B.age != A.age){
+            return B.age - A.age;
+        }else {
+            return B.num - A.num;
+        }
+    });
+
+    console.log('----------------------------------------');
+    console.log(arr);
+
+    return;
+
     var reg1 = /(^[大小单双龙虎和合]+)\/?(\d+)/i;
     var reg2 = /(^\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
     var reg3 = /(^\d+)\/(\d+)/i; //包数字玩法

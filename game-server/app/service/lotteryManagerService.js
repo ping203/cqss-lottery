@@ -22,6 +22,8 @@ function LotteryManagerService() {
     this.latestLotteryInfo = null;
     this.latestPeriod = null;
     this.latestOpenTime = 0;
+    this.latestOpenOriTime = 0;
+    this.autoLearServerOpenTime = {minute:1,second:20};
 }
 
 var lotteryResultSample = {
@@ -93,8 +95,9 @@ LotteryManagerService.prototype.tick = function () {
             lottery.publishLottery(result);
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period);
             self.latestPeriod = result.last.period;
-            var openTime = new Date(result.next.opentime);
-            self.latestOpenTime = openTime.getTime();
+            self.latestOpenTime = result.next.opentime.getTime();
+            console.log('-------------------------')
+            self.latestOpenOriTime = result.next.oriTime.getTime();
             self.timeSync(result);
         }
 
@@ -269,6 +272,12 @@ LotteryManagerService.prototype.getLotteryInfo = function (options, callback) {
     req.end();
 };
 
+LotteryManagerService.prototype.collateTime = function (tick_time) {
+    var nextTime = new Date(tick_time);
+    nextTime.setMinutes(nextTime.getMinutes() + this.autoLearServerOpenTime.minute);
+    nextTime.setSeconds(nextTime.getSeconds() + this.autoLearServerOpenTime.second);
+    return nextTime;
+};
 
 LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
     var self = this;
@@ -280,9 +289,6 @@ LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
                 self.cqss.getPreInfo(cb);
             },
             function (cb) {
-                self.cqss.getLatestInfo(cb);
-            },
-            function (cb) {
                 self.cqss.getNextInfo(cb);
             }
         ],
@@ -292,31 +298,39 @@ LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
                 return;
             }
 
-            var preInfos = results[1];
-            var latestInfo = results[2];
-            var nextInfo = results[3];
-
             var lotteryInfo = {};
             lotteryInfo.identify = 'cqss';
-            lotteryInfo.tickTime = results[0];
 
+            var serverTime = results[0];
+            lotteryInfo.tickTime = serverTime;
 
-            lotteryInfo.next = {period: nextInfo.period, opentime: nextInfo.time};
-            // lotteryInfo.last = {
-            //     period: latestInfo.period,
-            //     opentime: latestInfo.time,
-            //     numbers: latestInfo.numbers
-            // };
-
+            var preInfos = results[1];
             if(Number(preInfos[0].period) < Number(self.latestPeriod)){
                 return;
             }
+
+            var nextInfo = results[2];
+            var next_ori_time = new Date(nextInfo.time);
+            var col_time = self.collateTime(nextInfo.time);
+
+            lotteryInfo.next = {period: nextInfo.period, opentime: col_time, oriTime: next_ori_time};
 
             lotteryInfo.last = {
                 period: preInfos[0].period,
                 opentime: preInfos[0].time,
                 numbers: preInfos[0].numbers
             };
+
+            if(self.latestPeriod != preInfos[0].period && self.latestOpenOriTime != 0){
+                var open_time = new Date(serverTime);
+                var sub_sec = (open_time.getTime() - self.latestOpenOriTime)/1000;
+                if(sub_sec > 0){
+                    self.autoLearServerOpenTime.minute = Math.floor(sub_sec/60);
+                    self.autoLearServerOpenTime.second = (sub_sec%60 -3);
+                    console.log('---------------------------------------- auto learn open time:',self.autoLearServerOpenTime.minute+':'+self.autoLearServerOpenTime.second);
+                }
+
+            }
 
             lotteryInfo.pre = {
                 period: preInfos[1].period,
@@ -327,6 +341,7 @@ LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
             self.utils.invokeCallback(callback, null, lotteryInfo);
         });
 };
+
 module.exports = {
     id: "lotteryManagerService",
     func: LotteryManagerService,
