@@ -1,5 +1,5 @@
 var pomelo = require('pomelo');
-
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'npcEvent');
 var NpcEvent = function () {
 
 };

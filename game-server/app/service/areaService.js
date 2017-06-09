@@ -77,7 +77,7 @@ AreaService.prototype.tick = function () {
 
 AreaService.prototype.updateLatestBets = function (item) {
     if(this.latestBets.unshift(item) > 10){
-        this.latestBets.shift();
+        this.latestBets.pop();
     }
 };
 
