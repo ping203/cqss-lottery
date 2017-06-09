@@ -31,7 +31,7 @@ Lottery.prototype.init = function() {
 	this._init();
 
 	var self = this;
-    this.daoLottery.getLotterys(0,10,function (err, results) {
+    this.daoLottery.getLotterys(0,20,function (err, results) {
         if(!err && results.length >= 1){
             self.lotteryCaches = results;
         }

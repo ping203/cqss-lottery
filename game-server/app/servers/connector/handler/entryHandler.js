@@ -130,9 +130,12 @@ EntryHandler.prototype.login = function (msg, session, next) {
         }
     ], function (err) {
         if (err) {
+            logger.error('@@@@@@@@@@@@@@@@@@@@@@@用户登录失败@@@@@@@@@@@@@@@@@ uid:',session.uid,'name:', session.get('roleName'));
             next(err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
+
+        logger.error('@@@@@@@@@@@@@@@@@@@@@@@用户登录成功@@@@@@@@@@@@@@@@@ uid:',session.uid,'name:', session.get('roleName'));
         next(null, _playerJoinResult);
     });
 };
@@ -142,16 +145,12 @@ EntryHandler.prototype.logout = function (msg, session, next) {
 };
 
 var onUserLeave = function (app, session, reason) {
-    if (session && session.uid) {
-
-        if(!!app.rpc.area.playerRemote){
-            app.rpc.area.playerRemote.playerLeave(session, session.uid, null);
-        }
-
-        if(!!app.rpc.chat.chatRemote){
-            app.rpc.chat.chatRemote.kick(session, session.uid, session.get('roomId'),null);
-        }
+    if(!session || !session.uid) {
+        return;
     }
+    app.rpc.area.playerRemote.playerLeave(session, session.uid, null);
+    app.rpc.chat.chatRemote.kick(session, session.uid, session.get('roomId'),null);
+    logger.error('@@@@@@@@@@@@@@@@@@@@@@用户退出@@@@@@@@@@@@@@@@@@uid:',session.uid,'name:', session.get('roleName'));
 };
 
 var onAdminLeave = function (app, session, reason) {

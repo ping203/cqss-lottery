@@ -27,7 +27,7 @@ $(document).ready(function () {
     var _adminClient =  new window.adminClient();
 
     function adminLogin() {
-        _adminClient.login('sys', 'f531c5257299441d8a32ffc5a0f0dde0', function (err, result) {
+        _adminClient.login('sys', '0643b27b607544f8801bcff9ffa390ba', function (err, result) {
             if (!!err) {
                 console.log('管理员登录失败,', err);
                 return;
