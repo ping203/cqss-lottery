@@ -3,6 +3,7 @@ var bearcat = require('bearcat');
 var pomelo = require('pomelo');
 var sync = require('pomelo-sync-plugin');
 var RouteUtil = require('./app/util/routeUtil');
+var logger = require('pomelo-logger').getLogger('bearcat-lottery');
 
 /**
  * Init app for client.
@@ -78,5 +79,9 @@ bearcat.start(function () {
 });
 
 process.on('uncaughtException', function (err) {
-    console.error(' Caught exception: ' + err.stack);
+    logger.error(' Caught exception: ', err.stack);
+});
+
+app.set('errorHandler', function(err, msg, resp, session, cb) {
+    logger.error(' Caught error: ' , err, msg);
 });

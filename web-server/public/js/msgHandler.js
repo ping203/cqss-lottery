@@ -82,10 +82,12 @@ function gameMsgInit() {
 
     });
 
-    pomelo.on('onPlayerBets', function (data) {
+    function bets(data) {
         console.log('onPlayerBets data:', data);
+    }
 
-    });
+    pomelo.on('onPlayerBets', bets);
+
 
     pomelo.on('onPlayerUnBet', function (data) {
         console.log('onPlayerUnBet data:', data.betItem.betTypeInfo,'entityid:', data.betItem.entityId);
