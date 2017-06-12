@@ -2,6 +2,7 @@ var logger = require('pomelo-logger').getLogger('bearcat-lottery');
 var bearcat = require('bearcat');
 var util = require('util');
 var Code = require('../../../../shared/code');
+var Answer = require('../../../../shared/answer');
 
 function Player(opts) {
     this.opts = opts;
@@ -225,10 +226,10 @@ Player.prototype.canBet = function (type, value) {
     if (this.betLimitCfg.playerLimit(type, num + value)) {
         err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
         err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + (this.betLimitCfg.getPlayerValue(type) - num).toString();
-        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - num;
+        freeBetValue = this.betLimitCfg.getPlayerValue(type) - num;
     } else {
         err = Code.OK;
-        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - (num + value);
+        freeBetValue = this.betLimitCfg.getPlayerValue(type) - (num + value);
     }
 
     return new Answer.DataResponse(err, {freeBetValue: freeBetValue});
@@ -305,6 +306,7 @@ Player.prototype.unBet = function (entityId, cb) {
             num = !!num ? num : 0;
             num -= betTypeInfo[type].money;
             this.betMoneyMap.set(betTypeInfo[type].type.code, num);
+            betItem.setPriFreeBetValue(betTypeInfo[type].type.code, num);
         }
 
         betItem.save();

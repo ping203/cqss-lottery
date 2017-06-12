@@ -56,6 +56,10 @@ BetItem.prototype.setFreeBetValue = function (type, freeBetValue) {
     this.betTypeInfo[type].freeBetValue = freeBetValue;
 };
 
+BetItem.prototype.setPriFreeBetValue = function (type, freeBetValue) {
+    this.betTypeInfo[type].priFreeBetValue = freeBetValue;
+};
+
 // 获取本金
 BetItem.prototype.getBetMoney = function () {
     return this.betMoney;
@@ -97,10 +101,12 @@ BetItem.prototype.calcHarvest = function (openInfo) {
 
 BetItem.prototype.getBetExternalInfo = function () {
     var betTypeFormat = "";
+    var priFreeInfo = "";
     var betDescInfoFormat = "投注 ";
     var multiCount = 0;
     for (var type in this.betTypeInfo){
         betTypeFormat += `${this.betTypeInfo[type].type.desc}/${this.betTypeInfo[type].freeBetValue}/`;
+        priFreeInfo += `${this.betTypeInfo[type].type.desc}/${this.betTypeInfo[type].priFreeBetValue}/`;
         betDescInfoFormat += `${this.betTypeInfo[type].desc}`;
         multiCount ++;
     }
@@ -109,9 +115,11 @@ BetItem.prototype.getBetExternalInfo = function () {
         betDescInfoFormat+="各1柱";
     }
     betTypeFormat = betTypeFormat.substring(0, betTypeFormat.lastIndexOf('/'));
+    priFreeInfo = priFreeInfo.substring(0, priFreeInfo.lastIndexOf('/'));
 
     return {
         betFreeInfoFormat:betTypeFormat,
+        priFreeInfoFormat:priFreeInfo,
         betDescInfoFormat:betDescInfoFormat
     };
 }
@@ -135,6 +143,7 @@ BetItem.prototype.strip = function () {
         betTime: this.betTime,
         betTypeInfo:this.betTypeInfo,
         betFreeInfo:ext.betFreeInfoFormat,
+        betPriFreeInfo:ext.priFreeInfoFormat,
         betDescInfo:ext.betDescInfoFormat
     };
     return r;

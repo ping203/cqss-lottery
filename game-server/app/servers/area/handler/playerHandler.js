@@ -28,7 +28,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
         //玩家限额检查
         var pri = player.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money)
         if (pri.result.code != Code.OK.code) {
-            next(null, new Answer.NoDataResponse(err));
+            next(null, pri);
             return;
         }
         parseBetInfo.betTypeInfo[type].priFreeBetValue = pri.data.freeBetValue;
