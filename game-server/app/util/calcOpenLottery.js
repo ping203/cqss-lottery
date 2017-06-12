@@ -103,29 +103,37 @@ CalcOpenLottery.prototype.pantherCalc = function (numbers) {
     if(numbers[0] === numbers[1] === numbers[2]){
        // this.pantherResult.add('前豹');
         this.openCodeResult.add('前豹');
-    }else if(numbers[1] === numbers[2] === numbers[3]){
+    }
+
+    if(numbers[1] === numbers[2] === numbers[3]){
        // this.pantherResult.add('中豹');
         this.openCodeResult.add('中豹');
-    }else if(numbers[2] === numbers[3] === numbers[4]){
+    }
+
+    if(numbers[2] === numbers[3] === numbers[4]){
        // this.pantherResult.add('后豹');
         this.openCodeResult.add('后豹');
     }
 };
 
 CalcOpenLottery.prototype.checkShunZi = function (numbers) {
-   var sortNumbers =  numbers.sort(function (a, b) {
+    var sortNumbers =  numbers.sort(function (a, b) {
         return a-b;
     });
 
-   var index = 0;
-   var isShunZi = true;
+    if(sortNumbers[sortNumbers.length -1] === 9 && sortNumbers[sortNumbers.length -2] === 1 && sortNumbers[sortNumbers.length -3] === 0){
+        return true;
+    }
+
+    var index = 0;
+    var isShunZi = true;
     do {
         if(sortNumbers[index]+ 1 != sortNumbers[index+1]){
             isShunZi =false;
             break;
         }
         index++;
-    }while (index < 3);
+    }while (index < 2);
 
     return isShunZi;
 }
@@ -134,10 +142,14 @@ CalcOpenLottery.prototype.shunZiCalc = function (numbers) {
     if(this.checkShunZi([numbers[0],numbers[1],numbers[2]])){
         //this.shunZiResult.add('前顺');
         this.openCodeResult.add('前顺');
-    }else if(this.checkShunZi([numbers[1],numbers[2],numbers[3]])){
+    }
+
+    if(this.checkShunZi([numbers[1],numbers[2],numbers[3]])){
         //this.shunZiResult.add('中顺');
         this.openCodeResult.add('中顺');
-    }else if(this.checkShunZi([numbers[2],numbers[3],numbers[4]])){
+    }
+
+    if(this.checkShunZi([numbers[2],numbers[3],numbers[4]])){
         //this.shunZiResult.add('后顺');
         this.openCodeResult.add('后顺');
     }

@@ -34,7 +34,60 @@
 
 // var reg1 = /^大(\d+)小(\d+)/ig;
 
+var checkShunZi = function (numbers) {
+    var sortNumbers =  numbers.sort(function (a, b) {
+        return a-b;
+    });
 
+    console.log('1111:', sortNumbers);
+    if(sortNumbers[sortNumbers.length -1] === 9 && sortNumbers[sortNumbers.length -2] === 1 && sortNumbers[sortNumbers.length -3] === 0){
+        return true;
+    }
+    console.log('2222');
+
+    var index = 0;
+    var isShunZi = true;
+    do {
+        if(sortNumbers[index]+ 1 != sortNumbers[index+1]){
+            isShunZi =false;
+            break;
+        }
+        index++;
+    }while (index < 2);
+    console.log('3333:',isShunZi);
+
+    return isShunZi;
+}
+
+var shunZiCalc = function (numbers) {
+    console.log('shunZiCalc');
+    if(checkShunZi([numbers[0],numbers[1],numbers[2]])){
+        //this.shunZiResult.add('前顺');
+      //  this.openCodeResult.add('前顺');
+        console.log('前顺');
+    }
+
+    if(checkShunZi([numbers[1],numbers[2],numbers[3]])){
+        //this.shunZiResult.add('中顺');
+        //this.openCodeResult.add('中顺');
+        console.log('中顺');
+
+    }
+
+    if(checkShunZi([numbers[2],numbers[3],numbers[4]])){
+        //this.shunZiResult.add('后顺');
+       // this.openCodeResult.add('后顺');
+        console.log('后顺');
+
+    }
+};
+
+function testShunZi() {
+    console.log('dddddddddddddddddddddddddd');
+    shunZiCalc([9,1,0,2,1]);
+}
+
+testShunZi();
 
     
 function test() {
@@ -304,7 +357,6 @@ function test2() {
 
 }
 
-test2();
 
 //
 // 玩家信息显示：

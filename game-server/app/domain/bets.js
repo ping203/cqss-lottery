@@ -37,13 +37,14 @@ Bets.prototype.openCodeCalc = function (period, openCodeResult) {
         if (item.getState() === this.consts.BetState.BET_WAIT && item.period === period) {
         // if (item.getState() === this.consts.BetState.BET_WAIT) {
             item.calcHarvest(openCodeResult);
-            if(item.getWinMoney() - item.getBetMoney()> 0){
+            var subMoney = item.getWinMoney() - item.getBetMoney();
+            if(subMoney > 0){
                 item.setState(this.consts.BetState.BET_WIN);
-                calcResult.itemOK.push({id:item.id,state:this.consts.BetState.BET_WIN});
+                calcResult.itemOK.push({id:item.id,state:this.consts.BetState.BET_WIN,money:subMoney});
             }
             else {
                 item.setState(this.consts.BetState.BET_LOSE);
-                calcResult.itemOK.push({id:item.id,state:this.consts.BetState.BET_LOSE});
+                calcResult.itemOK.push({id:item.id,state:this.consts.BetState.BET_LOSE, money:subMoney});
             }
 
             item.save();
