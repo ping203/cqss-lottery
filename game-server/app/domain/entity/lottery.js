@@ -72,8 +72,8 @@ Lottery.prototype.publishParseResult = function (parseResult) {
         Date.parse(this.lastLottery.opentime), JSON.stringify(parseResult),
     function (err, result) {
         if(!err && !!result){
-            if(self.lotteryCaches.push(result) > 10){
-                self.lotteryCaches.shift();
+            if(self.lotteryCaches.unshift(result) > 10){
+                self.lotteryCaches.pop();
             }
             self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult:[result], uids:null});
         }
