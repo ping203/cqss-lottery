@@ -41,7 +41,7 @@ DaoBets.prototype.addBet = function (bet, cb) {
 };
 //select * from Bets b left join User u on b.uid = u.id where uid=3 limit 0,10
 DaoBets.prototype.getBets = function (playerId, skip, limit, cb) {
-    var sql = 'select b.id,b.uid,b.period,b.identify,b.betInfo,b.state,b.betCount,b.winCount,b.betMoney,b.betTime,b.betTypeInfo,u.roleName from Bets b left join User u on b.uid = u.id where uid=? limit ?,?';
+    var sql = 'select * from Bets where uid=? order by betTime DESC limit ?,?';
     var args = [playerId, skip, limit];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
@@ -65,7 +65,6 @@ DaoBets.prototype.getBets = function (playerId, skip, limit, cb) {
                         betTime: res[i].betTime,
                         betTypeInfo:JSON.parse(res[i].betTypeInfo)
                     });
-                    betItem.setRoleName(res[i].roleName);
                     items.push(betItem.strip());
                 }
 

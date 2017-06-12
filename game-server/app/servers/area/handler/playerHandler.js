@@ -26,11 +26,12 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
         parseBetInfo.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
 
         //玩家限额检查
-        var err = player.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money)
-        if (err) {
+        var pri = player.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money)
+        if (pri.result.code != Code.OK.code) {
             next(null, new Answer.NoDataResponse(err));
             return;
         }
+        parseBetInfo.betTypeInfo[type].priFreeBetValue = pri.data.freeBetValue;
     }
 
     var self = this;

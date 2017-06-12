@@ -221,13 +221,17 @@ Player.prototype.canBet = function (type, value) {
     var num = this.betMoneyMap.get(type);
     num = !!num ? num : 0;
     var err = {};
+    var freeBetValue = 0;
     if (this.betLimitCfg.playerLimit(type, num + value)) {
         err.code = Code.GAME.FA_BET_PLAYER_LIMIT.code;
         err.desc = Code.GAME.FA_BET_PLAYER_LIMIT.desc + '最多还能下注' + (this.betLimitCfg.getPlayerValue(type) - num).toString();
+        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - num;
     } else {
-        err = null;
+        err = Code.OK;
+        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - (num + value);
     }
-    return err;
+
+    return new Answer.DataResponse(err, {freeBetValue: freeBetValue});
 };
 
 Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {

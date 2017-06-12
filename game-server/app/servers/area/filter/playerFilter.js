@@ -30,7 +30,6 @@ PlayerFilter.prototype.before = function(msg, session, next){
             return;
         }
 
-        //todo:检查平台类型投注总额是否超限
         if(!msg.betData){
             next(new Error(Code.PARAMERROR.desc, Code.PARAMERROR.code), new Answer.NoDataResponse(Code.PARAMERROR));
             return;
