@@ -130,12 +130,12 @@ EntryHandler.prototype.login = function (msg, session, next) {
         }
     ], function (err) {
         if (err) {
-            logger.error('@@@@@@@@@@@@@@@@@@@@@@@用户登录失败@@@@@@@@@@@@@@@@@ uid:',session.uid,'name:', session.get('roleName'));
+            logger.error('用户登录失败 err:',err);
             next(err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
 
-        logger.error('@@@@@@@@@@@@@@@@@@@@@@@用户登录成功@@@@@@@@@@@@@@@@@ uid:',session.uid,'name:', session.get('roleName'));
+        logger.error('用户登录成功 uid:',session.uid,'name:', session.get('roleName'));
         next(null, _playerJoinResult);
     });
 };

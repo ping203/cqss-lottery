@@ -8,7 +8,6 @@ const bodyparser = require('koa-bodyparser')();
 const logger = require('koa-logger');
 const cors = require('koa-cors');
 const path = require('path');
-
 const mysql = require('./lib/dao/mysql/mysql');
 const daoUser = require('./lib/dao/daoUser');
 

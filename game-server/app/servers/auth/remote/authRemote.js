@@ -26,7 +26,7 @@ var AuthRemote = function(app) {
 AuthRemote.prototype.auth = function(token, cb) {
     var res = tokenService.parse(token, this.secret);
     if(!res) {
-        cb(null, Code.ENTRY.FA_TOKEN_ILLEGAL);
+        cb(null, Code.ENTRY.FA_TOKEN_INVALID);
         return;
     }
 
