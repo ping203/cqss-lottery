@@ -24,6 +24,8 @@ var AreaService = function () {
     this.globalEntityId = 0;
     this.platformTypeBet = new Map();
     this.latestBets = [];
+    this.winners = [];
+    this.intervalId = 0;
 };
 
 /**
@@ -81,7 +83,19 @@ AreaService.prototype.updateLatestBets = function (item) {
     }
 };
 
+AreaService.prototype.winnerNotice = function () {
+    if(this.winners.length > 0){
+        this.getLottery().winnerNotice(this.winners.pop());
+    }
+    else {
+        clearInterval(this.intervalId);
+        this.intervalId = 0;
+    }
+};
+
 AreaService.prototype.openLottery = function (numbers, period) {
+    this.winners = [];
+
     var openCodeResult = this.calcOpenLottery.calc(numbers);
     var parseResult = [];
     for (let item of openCodeResult) {
@@ -91,16 +105,28 @@ AreaService.prototype.openLottery = function (numbers, period) {
     this.getLottery().publishParseResult(parseResult);
 
     for (var id in this.players) {
-        this.getEntity(this.players[id]).openCode(period, openCodeResult, numbers);
+        var winner = this.getEntity(this.players[id]).openCode(period, openCodeResult, numbers);
+        if(!!winner){
+            this.winners.push(winner);
+        }
     }
 
     for (var id in this.trusteePlayers) {
-        this.trusteePlayers[id].openCode(period, openCodeResult, numbers);
+        var winner = this.trusteePlayers[id].openCode(period, openCodeResult, numbers);
+        if(!!winner){
+            this.winners.push(winner);
+        }
     }
 
     this.trusteePlayers = {};
-
     this.platformBet.resetBet();
+
+    if(this.intervalId != 0){
+        clearInterval(this.intervalId);
+        this.intervalId = 0;
+    }
+
+    this.intervalId = setInterval(this.winnerNotice.bind(this), 2000);
 };
 
 AreaService.prototype.canBetNow = function () {
@@ -206,7 +232,7 @@ AreaService.prototype.countdown = function () {
  * 发布公告
  */
 AreaService.prototype.notice = function () {
-    if (this.noticeTickCount >= 20) {
+    if (this.noticeTickCount >= 20 && this.intervalId === 0) {
         this.getLottery().publishNotice();
         this.noticeTickCount = 0;
     }

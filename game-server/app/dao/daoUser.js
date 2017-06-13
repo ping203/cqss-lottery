@@ -20,13 +20,27 @@ DaoUser.prototype.getPlayer = function (playerId, cb) {
         if (err !== null) {
             self.utils.invokeCallback(cb, err.message, null);
         } else if (!res || res.length <= 0) {
-            self.utils.invokeCallback(cb, null, []);
+            self.utils.invokeCallback(cb, null, null);
         } else {
             self.utils.invokeCallback(cb, null, bearcat.getBean("player", res[0]));
         }
     });
 };
 
+DaoUser.prototype.getPlayerByName = function (username, cb) {
+    var sql = 'select * from User where username = ?';
+    var args = [username];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            self.utils.invokeCallback(cb, err.message, null);
+        } else if (!res || res.length <= 0) {
+            self.utils.invokeCallback(cb, null, null);
+        } else {
+            self.utils.invokeCallback(cb, null, bearcat.getBean("player", res[0]));
+        }
+    });
+};
 // 获取我的好友
 DaoUser.prototype.getMyFriends = function (playerId, cb) {
     var sql = 'select friends from User where id = ?';
@@ -76,7 +90,6 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
         });
 };
 
-
 DaoUser.prototype.getPlayersIncomeId = function (cb) {
     var sql = 'select id,level from User';
     var args = [];
@@ -106,7 +119,6 @@ DaoUser.prototype.getPlayersRankId = function (cb) {
         }
     });
 };
-
 
 DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
     var sql = 'update User set accountAmount = accountAmount + ?  where id = ?';
@@ -179,36 +191,60 @@ DaoUser.prototype.setPlayerCanTalk = function (playerId, bTalk, cb) {
     });
 };
 
-/**
- * Get userInfo by username
- * @param {String} username
- * @param {function} cb
- */
-DaoUser.prototype.getUserByName = function (username, cb) {
-    var sql = 'select * from	User where username = ?';
-    var args = [username];
+DaoUser.prototype.getAgents = function (cb) {
+    var sql = 'select id, ext from User where role != ?';
+    var args = [this.consts.RoleType.PLAYER];
+    var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
-            this.utils.invokeCallback(cb, err.message, null);
+            self.utils.invokeCallback(cb, err.message, null);
         } else {
-            if (!!res && res.length === 1) {
-                var rs = res[0];
-                var user = new User({
-                    id: rs.id,
-                    name: rs.name,
-                    password: rs.password,
-                    phone: rs.phone,
-                    email: rs.email,
-                    from: rs.from,
-                    regTime: rs.regTime,
-                    inviter: rs.inviter
-                });
-                this.utils.invokeCallback(cb, null, user);
+            if (!!res && res.length >= 1) {
+
+                var agents = [];
+                for (let i = 0; i < res.length; i++) {
+                    agents.push({
+                        id: res[i].id,
+                        ext: JSON.parse(res[i].ext)
+                    })
+                }
+                self.utils.invokeCallback(cb, null, agents);
             } else {
-                this.utils.invokeCallback(cb, ' user not exist ', null);
+                self.utils.invokeCallback(cb, ' user not exist ', null);
             }
         }
     });
+};
+
+DaoUser.prototype.getUpperAgent = function (playerId, cb) {
+    var self = this;
+    var upperAgentId = {};
+        async.waterfall([
+                function (callback) {
+                    self.getPlayer(playerId, callback);
+                },
+                function (player, callback) {
+                    self.getPlayerByName(player.inviter, function (err, agent) {
+                        if(!!err || !agent){
+                            self.utils.invokeCallback(cb, '上级代理不存在', null);
+                            return;
+                        }
+                        upperAgentId = {
+                            id: agent.id,
+                            ext: JSON.parse(agent.ext)
+                        };
+
+                    });
+                }
+            ],
+            function (err) {
+                if (!!err) {
+                    self.utils.invokeCallback(cb, err, null);
+                } else {
+                    self.utils.invokeCallback(cb, null, upperAgentId);
+                }
+            });
+
 };
 
 DaoUser.prototype.getUserByPhone = function (phone, cb) {
@@ -238,31 +274,6 @@ DaoUser.prototype.getUserByPhone = function (phone, cb) {
         }
     });
 }
-
-DaoUser.prototype.getAgents = function (cb) {
-    var sql = 'select id, ext from User where role != ?';
-    var args = [this.consts.RoleType.PLAYER];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length >= 1) {
-
-                var agents = [];
-                for (let i = 0; i < res.length; i++) {
-                    agents.push({
-                        id: res[i].id,
-                        ext: JSON.parse(res[i].ext)
-                    })
-                }
-                self.utils.invokeCallback(cb, null, agents);
-            } else {
-                self.utils.invokeCallback(cb, ' user not exist ', null);
-            }
-        }
-    });
-};
 
 DaoUser.prototype.updatePlayer = function (player, cb) {
     var sql = 'update Player set roleName = ? ,imageId=?,rank = ? , sex = ?, pinCode = ? , accountAmount = ?, level = ?,' +

@@ -353,12 +353,18 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
         this.changeNotify();
     }
 
+    var winMoney = calcResult.winMoney - calcResult.betMoney;
     if(calcResult.betCount  > 0){
-        var winMoney = calcResult.winMoney - calcResult.betMoney;
         this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney,numbers:numbers, itemOK:calcResult.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
     }
 
     this.betMoneyMap.clear();
+
+    if(winMoney > 0){
+        return {name:this.roleName, money:winMoney};
+    }
+
+    return null;
 };
 
 // Emit the event 'save'.

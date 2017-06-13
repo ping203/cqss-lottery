@@ -78,6 +78,10 @@ CalcIncome.prototype.getPlayerTodayIncome = function (playerId, callback) {
     })
 };
 
+CalcIncome.prototype.getUpperAgent = function (playerId) {
+
+};
+
 CalcIncome.prototype.agentRebate = function (agent, callback) {
     // id, userId, level
     var self = this;
@@ -124,28 +128,51 @@ CalcIncome.prototype.agentRebate = function (agent, callback) {
 
                 }, function (err, income) {
 
-                    var rebateMoney = 0; //分成
-                    var rate = 0;
-                    if(!!agent.ext && !!agent.ext.divide){
-                        rate = agent.ext.divide
-                    }
+                    self.daoUser.getUpperAgent(agent.id, function (err, upper) {
 
-                    //盈亏金额
-                    var incomeMoney = (-income.incomeMoney) - income.defection;
-                    if (incomeMoney > 0) {
-                        agentIncomInit.rebateMoney = Math.abs(incomeMoney) * rate/100;
-                    }
+                        var upperRebateMoney = 0; //分成
+                        var rate = 0;
+                        var subRate = 0;
 
-                    agentIncomInit.betMoney = income.betMoney;
-                    agentIncomInit.incomeMoney = income.incomeMoney;
-                    agentIncomInit.rebateRate = rate;
-                    self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
-                        if (err) {
-                            logger.error('代理商分成记录失败!' + err.stack);
-                            cb('代理商分成记录失败');
-                            return;
+                        if(!!err){
+                            if(!!agent.ext && !!agent.ext.divide){
+                                rate = agent.ext.divide;
+                            }
                         }
-                        self.utils.invokeCallback(callback, null, res);
+                        else {
+                            if(!!upper.ext && !!upper.ext.divide){
+                                rate = upper.ext.divide;
+                                subRate = upper.ext.divide - agent.ext.divide;
+                            }
+                        }
+
+                        //盈亏金额
+                        var incomeMoney = (-income.incomeMoney) - income.defection;
+                        if (incomeMoney > 0) {
+                            agentIncomInit.rebateMoney = Math.abs(incomeMoney) * rate/100;
+                            if(subRate > 0){
+                                upperRebateMoney = Math.abs(incomeMoney) * subRate/100;
+                                agentIncomInit.rebateMoney -= upperRebateMoney;
+                            }
+                        }
+
+                        agentIncomInit.betMoney = income.betMoney;
+                        agentIncomInit.incomeMoney = income.incomeMoney;
+                        agentIncomInit.rebateRate = rate;
+                        self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
+                            if (err) {
+                                logger.error('代理商分成记录失败!' + err.stack);
+                                cb('代理商分成记录失败');
+                                return;
+                            }
+
+                            if(upperRebateMoney > 0){
+                                res.upper = {playerId:upper.id, rebateMoney:upperRebateMoney};
+                            }
+                            self.utils.invokeCallback(callback, null, res);
+                        });
+
+
                     });
                 });
             });
@@ -171,9 +198,15 @@ CalcIncome.prototype.playerIncomeInsertAccount = function (income, callback) {
 //代理商分成入账
 CalcIncome.prototype.agentsRebateInsertAccount = function (income, callback) {
     if (!!income && income.rebateMoney > 0) {
-        this.daoUser.updateAccountAmount(income.playerId, income.rebateMoney, callback);
-    }
-    else {
+        this.daoUser.updateAccountAmount(income.playerId, income.rebateMoney, function (err, result) {
+            if(!!income.upper && income.upper.rebateMoney > 0){
+                this.daoUser.updateAccountAmount(income.upper.playerId, income.upper.rebateMoney, callback);
+            }
+            else {
+                callback(null,null);
+            }
+        });
+    }else {
         callback(null,null);
     }
 };

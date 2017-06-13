@@ -45,8 +45,14 @@ Lottery.prototype.setTickCount = function(period, tick) {
     this.lastTickTime = Date.now();
 };
 
+//发布系统公告
 Lottery.prototype.publishNotice = function () {
     this.emit(this.consts.Event.area.notice, {lottery: this, content:this.sysConfig.getSysNotice()});
+};
+
+//发布中奖公告
+Lottery.prototype.winnerNotice = function (msg) {
+    this.emit(this.consts.Event.area.notice, {lottery: this, content:`恭喜${msg.name}中奖${msg.money}`});
 };
 
 Lottery.prototype.publishLottery = function (result) {
