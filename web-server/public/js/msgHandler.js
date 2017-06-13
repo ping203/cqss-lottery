@@ -16,6 +16,10 @@ function gameMsgInit() {
             tip('message', data.from);
     });
 
+    pomelo.on('onPlayerWinner', function (data) {
+        console.log('onPlayerWinner', data);
+    })
+
     //update user list
     pomelo.on('onEnterRoom', function(data) {
         console.log('onEnterRoom', data);

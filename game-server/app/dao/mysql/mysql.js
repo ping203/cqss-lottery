@@ -2,50 +2,54 @@
  * Created by linyng on 2017/4/20.
  */
 
-// mysql CRUD
 var sqlclient = module.exports;
 
 var _pool;
 
 var NND = {};
 
-/*
- * Init sql connection pool
- * @param {Object} app The app for the server.
- */
 NND.init = function(app){
     _pool = require('./dao-pool').createMysqlPool(app);
+
+    // _pool.on('acquire', function (connection) {
+    //     console.log('Connection %d acquired', connection.threadId);
+    // });
+    //
+    // _pool.on('connection', function (connection) {
+    //     connection.query('SET SESSION auto_increment_increment=1')
+    // });
+    //
+    // _pool.on('enqueue', function () {
+    //     console.log('Waiting for available connection slot');
+    // });
+    //
+    // _pool.on('release', function (connection) {
+    //     console.log('Connection %d released', connection.threadId);
+    // });
 };
 
-/**
- * Excute sql statement
- * @param {String} sql Statement The sql need to excute.
- * @param {Object} args The args for the sql.
- * @param {fuction} cb Callback function.
- *
- */
 NND.query = function(sql, args, callback){
-    const mysqlPromise = _pool.acquire();
-    mysqlPromise.then(function (client) {
-        client.query(sql, args, function(err, res) {
-            _pool.release(client);
-            callback.apply(null, [err, res]);
-        });
-    }).catch(function (err) {
-        console.error('[sqlqueryErr] '+err.stack);
+    _pool.getConnection(function(err, connection) {
+        if(!!connection){
+            connection.query(sql, args, function (error, results, fields) {
+                connection.release();
+                callback.apply(null, [error, results]);
+            });
+        }
+        else {
+            callback.apply(null, [err, null]);
+        }
     });
 };
 
-/**
- * Close connection pool.
- */
 NND.shutdown = function(){
-    _pool.destroyAllNow();
+    _pool.end(function (err) {
+        // all connections in the pool have ended
+        console.log('all connections in the pool have ended')
+    });
+
 };
 
-/**
- * init database
- */
 sqlclient.init = function(app) {
     if (!!_pool){
         return sqlclient;
@@ -59,9 +63,6 @@ sqlclient.init = function(app) {
     }
 };
 
-/**
- * shutdown database
- */
 sqlclient.shutdown = function(app) {
     NND.shutdown(app);
 };

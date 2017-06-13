@@ -1,48 +1,22 @@
 var _poolModule = require('generic-pool');
-var mysqlConfig = require('../../../../shared/config/mysql');
+var configs = require('../../../../shared/config/mysql');
 var mysql = require('mysql');
 
 var env = process.env.NODE_ENV || 'development';
-if(mysqlConfig[env]) {
-  mysqlConfig = mysqlConfig[env];
+
+if(configs[env]) {
+    configs = configs[env];
 }
 
-const factory = {
-    create: function(){
-        return new Promise(function(resolve, reject){
-
-            var client = mysql.createConnection({
-                host: mysqlConfig.host,
-                user: mysqlConfig.user,
-                password: mysqlConfig.password,
-                database: mysqlConfig.database
-            });
-
-            resolve(client);
-        });
-    },
-    destroy: function(client){
-        return new Promise(function(resolve){
-            client.end();
-            resolve();
-        });
-    }
-}
-
-var opts = {
-    max: 10, // maximum size of the pool
-    min: 2, // minimum size of the pool
-    idleTimeoutMillis : 30000,
-    log : false,
+var createMysqlPool = function (app) {
+    var pool  = mysql.createPool({
+        connectionLimit : 10,
+        host     : configs.host,
+        user     : configs.user,
+        password : configs.password,
+        database : configs.database
+    });
+    return pool;
 };
-
-/*
- * Create mysql connection pool.
- */
-
-
-var createMysqlPool = function () {
-    return _poolModule.createPool(factory, opts);
-}
 
 exports.createMysqlPool = createMysqlPool;

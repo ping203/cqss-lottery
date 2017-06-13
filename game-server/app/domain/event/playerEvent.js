@@ -53,13 +53,15 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
                 pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.playerWinner,{
                     entityId:player.entityId,
                     winMoney: args.winMoney,
-                    itemOK:args.itemOK
+                    itemOK:args.itemOK,
+                    numbers: args.numbers
                 },args.uids);
             }else {
                 args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.playerWinner,{
                     entityId:player.entityId,
                     winMoney: args.winMoney,
-                    itemOK:args.itemOK
+                    itemOK:args.itemOK,
+                    numbers: args.numbers
                 });
             }
         }
