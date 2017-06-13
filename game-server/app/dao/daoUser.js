@@ -65,14 +65,12 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
             }
         ],
         function (err, results) {
-            var player = results[0];
-            var betStatistics = results[1];
-
-            player.setBetStatistics(betStatistics);
-
             if (!!err) {
                 self.utils.invokeCallback(cb, err);
             } else {
+                var player = results[0];
+                var betStatistics = results[1];
+                player.setBetStatistics(betStatistics);
                 self.utils.invokeCallback(cb, null, player);
             }
         });

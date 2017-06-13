@@ -33,6 +33,7 @@ var opts = {
     idleTimeoutMillis : 30000,
     log : false,
     name     : 'mysql',
+    useConnectionPooling: true
 };
 
 /*

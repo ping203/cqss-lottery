@@ -5,6 +5,7 @@ var sync = require('pomelo-sync-plugin');
 var RouteUtil = require('./app/util/routeUtil');
 var logger = require('pomelo-logger').getLogger('bearcat-lottery');
 
+// Cannot enqueue Query after fatal error
 /**
  * Init app for client.
  */
@@ -82,6 +83,6 @@ process.on('uncaughtException', function (err) {
     logger.error(' Caught exception: ', err.stack);
 });
 
-app.set('errorHandler', function(err, msg, resp, session, cb) {
-    logger.error(' Caught error: ' , err, msg);
-});
+// app.set('errorHandler', function(err, msg, resp, session, cb) {
+//     logger.error(' Caught error: ' , err, msg);
+// });

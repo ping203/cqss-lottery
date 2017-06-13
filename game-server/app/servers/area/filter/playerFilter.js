@@ -38,7 +38,7 @@ PlayerFilter.prototype.before = function(msg, session, next){
         var self = this;
 		this.betParser.parse(msg.betData, function (err, result) {
 			if(err){
-                next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
+                 next(new Error(err.desc, err.code), new Answer.NoDataResponse(err));
                 return;
 			}
             msg.betParseInfo = result;

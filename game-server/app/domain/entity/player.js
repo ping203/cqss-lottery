@@ -235,6 +235,23 @@ Player.prototype.canBet = function (type, value) {
     return new Answer.DataResponse(err, {freeBetValue: freeBetValue});
 };
 
+Player.prototype.addBetValue = function (type, value) {
+    var num = this.betMoneyMap.get(type);
+    num = !!num ? num : 0;
+    num += value;
+    this.betMoneyMap.set(type, num);
+};
+
+
+Player.prototype.reduceBetValue = function (type, value) {
+    var num = this.betMoneyMap.get(type);
+    num = !!num ? num : 0;
+    num -= value;
+    this.betMoneyMap.set(type, num);
+    var limis = this.betLimitCfg.getPlayerValue(type);
+    return limis- num;
+};
+
 Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
     if (betParseInfo.total > this.accountAmount) {
         this.utils.invokeCallback(cb, Code.GAME.FA_ACCOUNTAMOUNT_NOT_ENOUGH, null);
@@ -265,11 +282,7 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
 
         for (var type in betParseInfo.betTypeInfo) {
             var freeBet = self.platformBet.addBet(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
-            betParseInfo.betTypeInfo[type].freeBetValue = freeBet;
-            var num = self.betMoneyMap.get(betParseInfo.betTypeInfo[type].type.code);
-            num = !!num ? num : 0;
-            num += betParseInfo.betTypeInfo[type].money;
-            self.betMoneyMap.set(betParseInfo.betTypeInfo[type].type.code, num);
+            self.addBetValue(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
         }
 
         betItem.setBetItems(betParseInfo.betItems);
@@ -288,7 +301,7 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
 Player.prototype.unBet = function (entityId, cb) {
     var betItem = this.bets.getItem(entityId);
     if (betItem) {
-        if (betItem.getState(entityId) != this.consts.BetState.BET_WAIT) {
+        if (betItem.getState() != this.consts.BetState.BET_WAIT) {
             this.utils.invokeCallback(cb, Code.GAME.FA_BET_STATE, null);
             return;
         }
@@ -302,11 +315,8 @@ Player.prototype.unBet = function (entityId, cb) {
             var freeValue = this.platformBet.reduceBet(betTypeInfo[type].type.code, betTypeInfo[type].money);
             betItem.setFreeBetValue(betTypeInfo[type].type.code, freeValue);
 
-            var num = this.betMoneyMap.get(betTypeInfo[type].type.code);
-            num = !!num ? num : 0;
-            num -= betTypeInfo[type].money;
-            this.betMoneyMap.set(betTypeInfo[type].type.code, num);
-            betItem.setPriFreeBetValue(betTypeInfo[type].type.code, num);
+            var priFreeValue = this.reduceBetValue(betTypeInfo[type].type.code, betTypeInfo[type].money);
+            betItem.setPriFreeBetValue(betTypeInfo[type].type.code, priFreeValue);
         }
 
         betItem.save();
