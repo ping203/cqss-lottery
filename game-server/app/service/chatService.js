@@ -12,6 +12,7 @@ var ChatService = function () {
     this.app = pomelo.app;
     this.roomMap = new Map();
     this.uidMap = new Map();
+    this.forbidTalkMap = new Set();
 };
 
 /**
@@ -33,9 +34,6 @@ ChatService.prototype.init = function () {
     });
 };
 
-/**
- * alloc room id base user level
- */
 ChatService.prototype.allocRoom = function (cb) {
     for(let [id, value] of this.roomMap){
         if(value.userMap.size < value.maxLoad){
@@ -46,10 +44,6 @@ ChatService.prototype.allocRoom = function (cb) {
     this.utils.invokeCallback(cb, 'No room available!', null);
 };
 
-/**
- * check room id is valid
- * @param roomId
- */
 ChatService.prototype.checkRoomIdValid = function (roomId) {
     if(this.roomMap.has(roomId)){
         return true;
@@ -57,22 +51,10 @@ ChatService.prototype.checkRoomIdValid = function (roomId) {
     return false;
 };
 
-/**
- * Get room list
- * @returns {array|*|Promise.<*>}
- */
 ChatService.prototype.getRoomList = function () {
     return this.dataApiUtil.room().data;
 };
 
-/**
- * Add player into the channel
- *
- * @param {String} userId         user id
- * @param {String} roleName  player's role name
- * @param {String} roomId channel name
- * @return {Number} see code.js
- */
 ChatService.prototype.add = function (userId, sid, roleName, roomId) {
     if (checkDuplicate(this, userId, roomId)) {
         return Code.OK;
@@ -92,12 +74,6 @@ ChatService.prototype.add = function (userId, sid, roleName, roomId) {
     addRecord(this, userId, roleName, sid, roomId);
 };
 
-/**
- * User leaves the channel
- *
- * @param  {String} userId         user id
- * @param  {String} roomId room id
- */
 ChatService.prototype.leave = function (userId, roomId) {
     var record = this.roomMap.get(roomId).userMap.get(userId);
     var channel = this.app.get('channelService').getChannel(roomId, true);
@@ -110,6 +86,20 @@ ChatService.prototype.leave = function (userId, roomId) {
     channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
     logger.error('ChatService.prototype.leave');
 };
+
+ChatService.prototype.canTalk = function (uid) {
+  return !this.forbidTalkMap.has(uid);
+};
+
+ChatService.prototype.forbidTalk = function (uid, operate) {
+    if(operate){
+        this.forbidTalkMap.add(uid);
+    }
+    else {
+        this.forbidTalkMap.delete(uid);
+    }
+};
+
 
 function strMapToObj(strMap) {
     let obj = Object.create(null);
@@ -128,14 +118,6 @@ ChatService.prototype.getUsers = function (roomId) {
     return strMapToObj(userMap);
 };
 
-/**
- * Kick user from chat service.
- * This operation would remove the user from all channels and
- * clear all the records of the user.
- *
- * @param  {String} uid         user id
- * @param  {String} roomId room id
- */
 ChatService.prototype.kick = function (userId, roomId) {
     var record = this.roomMap.get(roomId).userMap.get(userId);
     var channel = this.app.get('channelService').getChannel(roomId, true);
@@ -148,13 +130,6 @@ ChatService.prototype.kick = function (userId, roomId) {
     channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
 };
 
-/**
- * Push message by the specified channel
- *
- * @param  {String}   channelName channel name
- * @param  {Object}   msg         message json object
- * @param  {Function} cb          callback function
- */
 ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
     var channel = this.app.get('channelService').getChannel(roomId);
     if (!channel) {
@@ -165,15 +140,8 @@ ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
     channel.pushMessage(this.consts.Event.chat.chatMessage, msg, cb);
 };
 
-/**
- * Push message to the specified player
- *
- * @param  {String}   userId player's role name
- * @param  {Object}   msg        message json object
- * @param  {Function} cb         callback
- */
-ChatService.prototype.pushByUID = function (userId, msg, cb) {
-    var record = this.roomMap.get(msg.roomId).userMap.get(userId);
+ChatService.prototype.pushByUID = function (uid, msg, cb) {
+    var record = this.roomMap.get(msg.roomId).userMap.get(uid);
     if (!record) {
         cb(null, this.code.CHAT.FA_USER_NOT_ONLINE);
         return;
@@ -185,29 +153,16 @@ ChatService.prototype.pushByUID = function (userId, msg, cb) {
     }], cb);
 };
 
-/**
- * Cehck whether the user has already in the channel
- * @param service
- * @param userId
- * @param roomId
- * @returns {boolean}
- */
 var checkDuplicate = function (service, userId, roomId) {
     return !!service.roomMap.get(roomId) && !!service.roomMap.get(roomId).userMap.get(userId);
 };
 
-/**
- * Add records for the specified user
- */
 var addRecord = function (service, userId, roleName, sid, roomId) {
     var record = {uid: userId, name: roleName, sid: sid};
     service.roomMap.get(roomId).userMap.set(userId, record);
     service.uidMap.set(userId, roomId);
 };
 
-/**
- * Remove records for the specified user and channel pair
- */
 var removeRecord = function (service, userId, roomId) {
     service.roomMap.get(roomId).userMap.delete(userId);
     service.uidMap.delete(userId);

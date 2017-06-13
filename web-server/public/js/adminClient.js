@@ -104,5 +104,22 @@ adminClient.prototype.setConfig = function (configs,cb) {
     });
 };
 
+// {
+//     code:0, //0:禁言/解除禁言 1:解冻/冻结
+//     operate:true
+// }
+
+adminClient.prototype.playerCtrl = function (uid, ctrl, cb) {
+    var self = this;
+    pomelo.request('connector.entryHandler.playerCtrl', {uid: uid, ctrl:ctrl}, function (res) {
+        if (!res.result || res.result.code != 200) {
+            self.invokeCallback(cb, res.result);
+        }
+        else {
+            self.invokeCallback(cb, null,null);
+        }
+    });
+};
+
 window.adminClient = adminClient;
 

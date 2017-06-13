@@ -114,7 +114,7 @@ DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
-            logger.error('更新账户金额失败,',err);
+            logger.error('更新账户金额失败,', err);
             self.utils.invokeCallback(cb, err.message, false);
         } else {
             if (!!res && res.affectedRows > 0) {
@@ -140,6 +140,40 @@ DaoUser.prototype.getAccountAmount = function (playerId, cb) {
             } else {
                 logger.error('updateAccountAmount player failed!');
                 self.utils.invokeCallback(cb, 'user not exist', null);
+            }
+        }
+    });
+};
+
+DaoUser.prototype.setPlayerActive = function (playerId, bActive, cb) {
+    var sql = 'update User set active = ?  where id = ?';
+    var args = [bActive, playerId];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            self.utils.invokeCallback(cb, err, false);
+        } else {
+            if (!!res && res.affectedRows > 0) {
+                self.utils.invokeCallback(cb, null, true);
+            } else {
+                self.utils.invokeCallback(cb, null, false);
+            }
+        }
+    });
+};
+
+DaoUser.prototype.setPlayerCanTalk = function (playerId, bTalk, cb) {
+    var sql = 'update User set forbidTalk = ?  where id = ?';
+    var args = [bTalk, playerId];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            self.utils.invokeCallback(cb, err, false);
+        } else {
+            if (!!res && res.affectedRows > 0) {
+                self.utils.invokeCallback(cb, null, true);
+            } else {
+                self.utils.invokeCallback(cb, null, false);
             }
         }
     });
@@ -216,13 +250,13 @@ DaoUser.prototype.getAgents = function (cb) {
             if (!!res && res.length >= 1) {
 
                 var agents = [];
-                for (let i = 0; i< res.length; i++){
+                for (let i = 0; i < res.length; i++) {
                     agents.push({
-                        id:res[i].id,
-                        ext:JSON.parse(res[i].ext)
+                        id: res[i].id,
+                        ext: JSON.parse(res[i].ext)
                     })
                 }
-                self.utils.invokeCallback(cb, null,agents);
+                self.utils.invokeCallback(cb, null, agents);
             } else {
                 self.utils.invokeCallback(cb, ' user not exist ', null);
             }
@@ -230,11 +264,6 @@ DaoUser.prototype.getAgents = function (cb) {
     });
 };
 
-/**
- * Update a player
- * @param {Object} player The player need to update, all the propties will be update.
- * @param {function} cb Callback function.
- */
 DaoUser.prototype.updatePlayer = function (player, cb) {
     var sql = 'update Player set roleName = ? ,imageId=?,rank = ? , sex = ?, pinCode = ? , accountAmount = ?, level = ?,' +
         ' experience = ?, loginCount = ?, lastLoinTime = ?, areaId = ?,forbidTalk = ? where id = ?';

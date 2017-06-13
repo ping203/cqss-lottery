@@ -8,6 +8,11 @@ var Consts = function () {
         AGENT2:2
     };
 
+    this.PlayerCtrl = {
+        forbidTalk:0,
+        active:1
+    };
+
     this.RecordType = {
         RECHARGE:1,
         CASH:2

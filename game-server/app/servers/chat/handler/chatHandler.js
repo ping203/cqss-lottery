@@ -1,8 +1,8 @@
-var Code = require('../../../../../shared/code');
-var Answer = require('../../../../../shared/answer');
 var logger = require('pomelo-logger').getLogger(__filename);
 var pomelo = require('pomelo');
 var bearcat = require("bearcat");
+var Code = require('../../../../../shared/code');
+var Answer = require('../../../../../shared/answer');
 
 var ChatHandler = function(app) {
     this.app = app;
@@ -56,6 +56,11 @@ ChatHandler.prototype.leaveRoom = function (msg, session, next) {
  *
  */
 ChatHandler.prototype.sendChatMsg = function(msg, session, next) {
+    if(!this.chatService.canTalk(session.uid)){
+        next(null, new Answer.NoDataResponse(Code.CHAT.FA_CHAT_FORBIDTALK));
+        return;
+    }
+
     if(!this.consts.ChatMsgType.isSupported(msg.msgType)){
         next(null, new Answer.NoDataResponse(Code.CHAT.FA_UNSUPPORT_CHAT_MSGTYPE));
         return;

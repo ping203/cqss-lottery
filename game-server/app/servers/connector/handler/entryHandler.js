@@ -80,9 +80,38 @@ EntryHandler.prototype.cash = function (msg, session, next) {
 };
 
 EntryHandler.prototype.setConfig = function (msg, session, next) {
+    if(!msg.configs){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
     this.app.rpc.area.playerRemote.setConfig(session, msg.configs, function (err, result) {
         next(err, result);
     });
+};
+
+EntryHandler.prototype.playerCtrl = function (msg, session, next) {
+    if(!msg.uid || !msg.ctrl){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    var self = this;
+
+    switch (msg.ctrl.code){
+        case this.consts.PlayerCtrl.forbidTalk:
+            this.app.rpc.chat.chatRemote.userForbidTalk(session, msg.uid, msg.ctrl.operate, next);
+            break;
+        case this.consts.PlayerCtrl.active:
+            if(!msg.ctrl.operate){
+                self.app.get('sessionService').kick(msg.uid, '帐号冻结');
+            }
+            break;
+        default:
+            break;
+    }
+
+    this.app.rpc.area.playerRemote.playerCtrl(session, msg.uid, msg.ctrl, next);
 };
 
 EntryHandler.prototype.login = function (msg, session, next) {
@@ -170,7 +199,8 @@ module.exports = function (app) {
         props: [
             {name:"daoUser", ref:"daoUser"},
             {name:"dataApiUtil", ref:"dataApiUtil"},
-            {name:"utils", ref:"utils"}
+            {name:"utils", ref:"utils"},
+            {name:"consts", ref:"consts"},
         ]
     });
 };

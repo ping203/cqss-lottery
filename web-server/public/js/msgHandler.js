@@ -111,7 +111,7 @@ function gameMsgInit() {
 
     //handle disconect message, occours when the client is disconnect with servers
     pomelo.on('disconnect', function(reason) {
-        showLogin();
+        console.log('网络断开', reason);
     });
 
     // Handle user leave message, occours when players leave the area

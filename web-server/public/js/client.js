@@ -23,12 +23,13 @@ $(document).ready(function () {
     $('#recharge').on('click', recharge);
     $('#cash').on('click', cash);
     $('#setConfig').on('click', setConfig);
+    $('#playerCtrl').on('click', playerCtrl);
     $('#getPlayerBaseInfo').on('click', getPlayerBaseInfo);
 
     var _adminClient =  new window.adminClient();
 
     function adminLogin() {
-        _adminClient.login('sys', '0643b27b607544f8801bcff9ffa390ba', function (err, result) {
+        _adminClient.login('sys', 'f531c5257299441d8a32ffc5a0f0dde0', function (err, result) {
             if (!!err) {
                 console.log('管理员登录失败,', err);
                 return;
@@ -49,6 +50,16 @@ $(document).ready(function () {
 
     function cash() {
         _adminClient.cash(2, 5000, function (err, result) {
+            if (!!err) {
+                console.log('提现失败:', err);
+                return;
+            }
+            console.log('提现成功');
+        })
+    }
+    
+    function playerCtrl() {
+        _adminClient.playerCtrl(7, {code:0,operate:false}, function (err, result) {
             if (!!err) {
                 console.log('提现失败:', err);
                 return;

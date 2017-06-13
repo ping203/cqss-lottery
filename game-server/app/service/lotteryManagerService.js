@@ -96,7 +96,6 @@ LotteryManagerService.prototype.tick = function () {
             self.areaService.openLottery(result.last.numbers.split(','), result.last.period);
             self.latestPeriod = result.last.period;
             self.latestOpenTime = result.next.opentime.getTime();
-            console.log('-------------------------')
             self.latestOpenOriTime = result.next.oriTime.getTime();
             self.timeSync(result);
         }

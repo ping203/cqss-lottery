@@ -43,7 +43,7 @@ AreaService.prototype.init = function () {
             self.sysConfig.setConfigs(result);
             self.run();
             logger.info('平台参数配置成功');
-            schedule.scheduleJob('10 05 12 * * *', self.incomeScheduleTask.bind(self));
+            schedule.scheduleJob('0 0 2 * * *', self.incomeScheduleTask.bind(self));
             return;
         }
 
@@ -91,11 +91,11 @@ AreaService.prototype.openLottery = function (numbers, period) {
     this.getLottery().publishParseResult(parseResult);
 
     for (var id in this.players) {
-        this.getEntity(this.players[id]).openCode(period, openCodeResult);
+        this.getEntity(this.players[id]).openCode(period, openCodeResult, numbers);
     }
 
     for (var id in this.trusteePlayers) {
-        this.trusteePlayers[id].openCode(period, openCodeResult);
+        this.trusteePlayers[id].openCode(period, openCodeResult, numbers);
     }
 
     this.trusteePlayers = {};

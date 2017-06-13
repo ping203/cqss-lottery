@@ -4,11 +4,11 @@ var Code = require('../../../../../shared/code');
 var async = require('async');
 var logger = require('pomelo-logger').getLogger(__filename);
 
-var PlayerRemote = function(app) {
-	this.app = app;
-	this.utils = null;
-	this.consts = null;
-	this.areaService = null;
+var PlayerRemote = function (app) {
+    this.app = app;
+    this.utils = null;
+    this.consts = null;
+    this.areaService = null;
 }
 
 PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
@@ -22,7 +22,7 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
         player.areaService = self.areaService;
 
         var existPlayer = self.areaService.getPlayer(playerId);
-        if(existPlayer){
+        if (existPlayer) {
             self.utils.invokeCallback(cb, new Answer.NoDataResponse(Code.GAME.FA_USER_AREADY_LOGIN), null);
             return;
         }
@@ -40,22 +40,22 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
     });
 };
 
-PlayerRemote.prototype.playerLeave = function(playerId, cb) {
-	var player = this.areaService.getPlayer(playerId);
-	if (!player) {
-		this.utils.invokeCallback(cb);
-		return;
-	}
-	this.areaService.removePlayer(playerId);
-	this.areaService.getChannel().pushMessage({
-		route: 'onUserLeave',
-		code: this.consts.MESSAGE.RES,
-		playerId: playerId
-	});
-	this.utils.invokeCallback(cb);
+PlayerRemote.prototype.playerLeave = function (playerId, cb) {
+    var player = this.areaService.getPlayer(playerId);
+    if (!player) {
+        this.utils.invokeCallback(cb);
+        return;
+    }
+    this.areaService.removePlayer(playerId);
+    this.areaService.getChannel().pushMessage({
+        route: 'onUserLeave',
+        code: this.consts.MESSAGE.RES,
+        playerId: playerId
+    });
+    this.utils.invokeCallback(cb);
 };
 
-PlayerRemote.prototype.recharge = function (uid, money,cb) {
+PlayerRemote.prototype.recharge = function (uid, money, cb) {
     var player = this.areaService.getPlayer(uid);
     if (!!player) {
         player.recharge(money);
@@ -67,8 +67,8 @@ PlayerRemote.prototype.recharge = function (uid, money,cb) {
     //离线用户充值
     var self = this;
     this.daoUser.updateAccountAmount(uid, money, function (err, success) {
-        if(!!err || !success){
-            self.utils.invokeCallback(cb,'充值失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
+        if (!!err || !success) {
+            self.utils.invokeCallback(cb, '充值失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
             return;
         }
 
@@ -80,7 +80,7 @@ PlayerRemote.prototype.recharge = function (uid, money,cb) {
 PlayerRemote.prototype.cash = function (uid, money, cb) {
     var player = this.areaService.getPlayer(uid);
     if (!!player) {
-        if(!player.cash(money)){
+        if (!player.cash(money)) {
             this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
         }
         else {
@@ -97,21 +97,21 @@ PlayerRemote.prototype.cash = function (uid, money, cb) {
             self.daoUser.getAccountAmount(uid, scb);
         },
         function (amount, scb) {
-            if(amount >= money){
+            if (amount >= money) {
                 self.daoUser.updateAccountAmount(uid, -money, scb);
             }
             else {
                 self.utils.invokeCallback(cb, '提现失败', new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
             }
-        },function (success, scb) {
-            if(!success){
+        }, function (success, scb) {
+            if (!success) {
                 scb('提现失败');
-            }else {
+            } else {
                 scb();
             }
         }
-    ],function (err) {
-        if(err){
+    ], function (err) {
+        if (err) {
             self.utils.invokeCallback(cb, err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
@@ -129,10 +129,10 @@ PlayerRemote.prototype.setConfig = function (configs, cb) {
         return;
     }
 
-	//check config invalid
+    //check config invalid
     var self = this;
     this.daoConfig.updateConfig(confs, function (err, success) {
-        if(!!err || !success){
+        if (!!err || !success) {
             logger.error('updateConfig err:', err);
             self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.FAIL));
             return;
@@ -140,9 +140,32 @@ PlayerRemote.prototype.setConfig = function (configs, cb) {
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
         self.sysConfig.setConfigs(confs);
     });
-}
+};
 
-PlayerRemote.prototype.getPlayerBaseInfo = function(uid, cb){
+PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
+    var player = this.areaService.getPlayer(uid);
+    switch (ctrl.code) {
+        case this.consts.PlayerCtrl.forbidTalk:
+            if (!!player) {
+                player.setCanTalk(ctrl.operate);
+            }
+            else {
+                this.daoUser.setPlayerCanTalk(uid, ctrl.operate);
+            }
+            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+            return;
+        case this.consts.PlayerCtrl.active:
+            this.daoUser.setPlayerActive(uid, ctrl.operate);
+            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+            return;
+        default:
+            break;
+    }
+
+    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.FAIL));
+};
+
+PlayerRemote.prototype.getPlayerBaseInfo = function (uid, cb) {
     var player = this.areaService.getPlayer(uid);
     if (!!player) {
         this.utils.invokeCallback(cb, null, player.getBaseInfo());
@@ -158,24 +181,25 @@ PlayerRemote.prototype.getPlayerBaseInfo = function(uid, cb){
         self.utils.invokeCallback(cb, null, _player.getBaseInfo());
     });
 }
-module.exports = function(app) {
-	return bearcat.getBean({
-		id: "playerRemote",
-		func: PlayerRemote,
-		args: [{
-			name: "app",
-			value: app
-		}],
-		props: [{
-			name: "areaService",
-			ref: "areaService"
-		}, {
-			name: "utils",
-			ref: "utils"
-		}, {
-			name: "consts",
-			ref: "consts"
-		}, {
+
+module.exports = function (app) {
+    return bearcat.getBean({
+        id: "playerRemote",
+        func: PlayerRemote,
+        args: [{
+            name: "app",
+            value: app
+        }],
+        props: [{
+            name: "areaService",
+            ref: "areaService"
+        }, {
+            name: "utils",
+            ref: "utils"
+        }, {
+            name: "consts",
+            ref: "consts"
+        }, {
             name: "daoUser",
             ref: "daoUser"
         }, {
@@ -188,5 +212,5 @@ module.exports = function(app) {
             name: "daoRecord",
             ref: "daoRecord"
         }]
-	});
+    });
 };

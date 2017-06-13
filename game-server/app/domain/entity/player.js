@@ -189,17 +189,22 @@ Player.prototype.cash = function (money) {
 
 };
 
+Player.prototype.setCanTalk = function (canTalk) {
+    this.forbidTalk = canTalk;
+    this.save();
+};
+
 Player.prototype.getMyBets = function (skip, limit, cb) {
     this.daoBets.getBets(this.id, skip, limit, cb);
-}
+};
 
 Player.prototype.getMyIncomes = function (skip, limit, cb) {
     this.daoIncome.getPlayerIncomes(this.id, skip, limit, cb);
-}
+};
 
 Player.prototype.getFriendIncomes = function (skip, limit, cb) {
     this.daoIncome.getMyFriendIncomes(this.id, skip, limit, cb);
-}
+};
 
 Player.prototype.getBaseInfo = function () {
 
@@ -338,7 +343,7 @@ Player.prototype.calcExp = function (calcParam) {
 };
 
 
-Player.prototype.openCode = function (period, openCodeResult) {
+Player.prototype.openCode = function (period, openCodeResult, numbers) {
     var calcResult = this.bets.openCodeCalc(period, openCodeResult);
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
@@ -350,7 +355,7 @@ Player.prototype.openCode = function (period, openCodeResult) {
 
     if(calcResult.betCount  > 0){
         var winMoney = calcResult.winMoney - calcResult.betMoney;
-        this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney, itemOK:calcResult.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
+        this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney,numbers:numbers, itemOK:calcResult.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
     }
 
     this.betMoneyMap.clear();

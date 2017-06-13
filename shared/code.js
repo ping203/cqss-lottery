@@ -21,7 +21,8 @@ module.exports = {
         FA_UNKNOWN_CONNECTOR: 	{code:3003,desc:"未知连接服务器"},
         FA_USER_NOT_ONLINE: 	{code:3004,desc:"用户不在线"},
         FA_UNSUPPORT_CHAT_MSGTYPE: {code:3005,desc:"不支持的消息类型"},
-        FA_CHAT_DATA_ERROR: {code:3005,desc:"聊天数据不完整"}
+        FA_CHAT_DATA_ERROR: {code:3006,desc:"聊天数据不完整"},
+        FA_CHAT_FORBIDTALK: {code:3007,desc:"已被禁言"},
     },
     USER:{
         FA_USER_AREADY_EXIST:   {code:4001,desc:'用户名已经被使用'},

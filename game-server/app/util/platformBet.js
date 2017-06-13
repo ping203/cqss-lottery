@@ -16,11 +16,11 @@ PlatformBet.prototype.canBet = function (type, value) {
     var err = {};
     var freeBetValue = 0;
     if (this.betLimitCfg.platformLimit(type, newNum)) {
-        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - num;
+        freeBetValue = this.betLimitCfg.getPlatformValue(type) - num;
         err = Code.GAME.FA_BET_PLATFORM_LIMIT;
     }
     else {
-        freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
+        freeBetValue = this.betLimitCfg.getPlatformValue(type) - newNum;
         err = Code.OK;
     }
 
@@ -31,7 +31,7 @@ PlatformBet.prototype.addBet = function (type, value) {
     var num = this.platformTypeBet.get(type);
     var newNum = (!!num ? num : 0) + value;
     this.platformTypeBet.set(type, newNum);
-    var freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
+    var freeBetValue = this.betLimitCfg.getPlatformValue(type) - newNum;
     return freeBetValue;
 };
 
@@ -43,7 +43,7 @@ PlatformBet.prototype.reduceBet = function (type, value) {
         return;
     }
     this.platformTypeBet.set(type, newNum);
-    var freeBetValue = this.betLimitCfg.getPlatfromValue(type) - newNum;
+    var freeBetValue = this.betLimitCfg.getPlatformValue(type) - newNum;
     return freeBetValue;
 };
 

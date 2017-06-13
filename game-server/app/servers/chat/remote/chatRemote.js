@@ -3,7 +3,8 @@
  */
 
 var bearcat = require("bearcat");
-
+var Code = require('../../../../../shared/code');
+var Answer = require('../../../../../shared/answer');
 
 var ChatRemote = function(app) {
     this.app = app;
@@ -33,7 +34,13 @@ ChatRemote.prototype.kick = function(userId, roomId, cb) {
     if(!!roomId){
         this.chatService.kick(userId, roomId);
     }
-    cb();
+};
+
+ChatRemote.prototype.userForbidTalk = function (uid, operate, cb) {
+    if(!!uid){
+        this.chatService.forbidTalk(uid, operate);
+    }
+    cb(null, new Answer.NoDataResponse(Code.OK));
 };
 
 module.exports = function (app) {

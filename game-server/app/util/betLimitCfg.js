@@ -61,7 +61,6 @@ function BetLimitCfg() {
 };
 
 BetLimitCfg.prototype.init = function () {
-    this.singleMap = new Map();
     this.playerMap = new Map();
     this.platformMap = new Map();
 };
@@ -74,10 +73,6 @@ BetLimitCfg.prototype.update = function (configs) {
     for(var type in configs){
         switch (type){
             case 'size':
-                this.singleMap.set(this.consts.BetType.BetSize.code, configs[type].s);
-                this.singleMap.set(this.consts.BetType.BetSingleDouble.code, configs[type].s);
-                this.singleMap.set(this.consts.BetType.DragonAndTiger.code, configs[type].s);
-
                 this.playerMap.set(this.consts.BetType.BetSize.code, configs[type].m);
                 this.playerMap.set(this.consts.BetType.BetSingleDouble.code, configs[type].m);
                 this.playerMap.set(this.consts.BetType.DragonAndTiger.code, configs[type].m);
@@ -87,22 +82,18 @@ BetLimitCfg.prototype.update = function (configs) {
                 this.platformMap.set(this.consts.BetType.DragonAndTiger.code, configs[type].p);
                 break;
             case 'sz':
-                this.singleMap.set(this.consts.BetType.ShunZi.code, configs[type].s);
                 this.playerMap.set(this.consts.BetType.ShunZi.code, configs[type].m);
                 this.platformMap.set(this.consts.BetType.ShunZi.code, configs[type].p);
                 break;
             case 'bz':
-                this.singleMap.set(this.consts.BetType.Panther.code, configs[type].s);
                 this.playerMap.set(this.consts.BetType.Panther.code, configs[type].m);
                 this.platformMap.set(this.consts.BetType.Panther.code, configs[type].p);
                 break;
             case 'num':
-                this.singleMap.set(this.consts.BetType.number.code, configs[type].s);
                 this.playerMap.set(this.consts.BetType.number.code, configs[type].m);
                 this.platformMap.set(this.consts.BetType.number.code, configs[type].p);
                 break;
             case 'sum':
-                this.singleMap.set(this.consts.BetType.Equal15.code, configs[type].s);
                 this.playerMap.set(this.consts.BetType.Equal15.code, configs[type].m);
                 this.platformMap.set(this.consts.BetType.Equal15.code, configs[type].p);
                 break;
@@ -110,22 +101,6 @@ BetLimitCfg.prototype.update = function (configs) {
                 break;
         }
     }
-};
-
-BetLimitCfg.prototype.getSingleValue = function (type) {
-    var val = this.singleMap.get(type);
-    if(!val) val =300;
-    return val;
-}
-
-BetLimitCfg.prototype.singleLimit = function (type, value) {
-    var val = this.singleMap.get(type);
-    if(!val) val =300;
-    if(!!val && val >= value){
-        return false;
-    }
-
-    return true;
 };
 
 BetLimitCfg.prototype.getPlayerValue = function (type) {
@@ -144,7 +119,7 @@ BetLimitCfg.prototype.playerLimit = function (type, value) {
     return true;
 };
 
-BetLimitCfg.prototype.getPlatfromValue = function (type) {
+BetLimitCfg.prototype.getPlatformValue = function (type) {
     var val = this.platformMap.get(type);
     if(!val) val = 3000;
     return val;

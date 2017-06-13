@@ -27,7 +27,7 @@ CalcIncome.prototype.playerDefection = function (playerId, callback) {
                 defection: 0,
                 defectionRate: 0,
                 winRate: 0.0,
-                incomeTime: self.beginTime
+                incomeTime: self.incomeTime
             };
 
             if (!!income) {
@@ -105,7 +105,7 @@ CalcIncome.prototype.agentRebate = function (agent, callback) {
                 incomeMoney: 0,
                 rebateRate: 0,
                 rebateMoney: 0,
-                incomeTime: self.beginTime
+                incomeTime: self.incomeTime
             };
 
             if(!playerIds){
@@ -227,15 +227,16 @@ CalcIncome.prototype.calc = function () {
     var now = new Date();
     var begin = new Date(now);
     begin.setHours(0, 0, 0, 0);
- //   begin.setDate(begin.getDate()-1);
+    begin.setDate(begin.getDate()-1);
     this.beginTime = begin.getTime();
 
     var end = new Date(now);
-    end.setHours(23, 59, 59, 999);
- //   end.setDate(end.getDate()-1);
+    end.setHours(2, 0, 0, 0);
     this.endTime = end.getTime();
 
-    this.incomeTime = begin.getTime();
+    var calcTime = new Date(now);
+    calcTime.setHours(2,0,0,0);
+    this.incomeTime = calcTime.getTime();
 
     this.playersCalc();
 };
