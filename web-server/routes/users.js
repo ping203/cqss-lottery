@@ -18,24 +18,6 @@ router.get('/bar', function (ctx, next) {
     ctx.body = 'this is a users/bar response'
 })
 
-
-// router.get('/auth_success', function(ctx, next) {
-//     if (ctx.req.session.userId) {
-//         var token = Token.create(req.session.userId, Date.now(), secret);
-//         await ctx.render('auth', {code: 200, token: token, uid: req.session.userId});
-//     } else {
-//         ctx.res.render('auth', {code: 500});
-//     }
-// });
-
-/**
- * user login
- *
- * @param  {String}   username or phone
- * @param  {String}   pwd
- *
- */
-
 router.get('/weixin', function (ctx, next) {
     return new Promise((resove, reject) =>{
         daoSysParam.getPlatformParam(function (err, result) {
@@ -156,6 +138,7 @@ router.post('/checkPhone', function (ctx, next) {
     });
 });
 
+// 用户注册
 router.post('/register', function (ctx, next) {
     //console.log('req.params');
     let msg = ctx.request.body;
@@ -186,9 +169,7 @@ router.post('/register', function (ctx, next) {
                     cb(code.USER.FA_PHONE_AREADY_EXIST)
                 }
                 else {
-                    //todo: cancle invitor limite
-                   // daoUser.getUserByName(msg.inviter, cb);
-                    cb(null, {name:'ok'});
+                   daoUser.getUserByName(msg.inviter, cb);
                 }
             },function (inviter, cb) {
                 if(inviter){
@@ -210,7 +191,7 @@ router.post('/register', function (ctx, next) {
                 ctx.body = err;
                 resolve();
             }else {
-                daoUser.createUser(msg.username, msg.password, msg.phone, msg.inviter, from, _sysConfig.rank[0], _sysConfig.initial, function (err, uid) {
+                daoUser.createUser(msg.username, msg.password, msg.phone, msg.inviter, from, _sysConfig.rank[0], _sysConfig.initial, 0, function (err, uid) {
                     if (err) {
                         console.error(err);
                         ctx.body = code.DBFAIL;

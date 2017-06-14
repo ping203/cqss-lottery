@@ -27,6 +27,7 @@ DaoUser.prototype.getPlayer = function (playerId, cb) {
     });
 };
 
+// 通过名称获取好友
 DaoUser.prototype.getPlayerByName = function (username, cb) {
     var sql = 'select * from User where username = ?';
     var args = [username];
@@ -41,6 +42,7 @@ DaoUser.prototype.getPlayerByName = function (username, cb) {
         }
     });
 };
+
 // 获取我的好友
 DaoUser.prototype.getMyFriends = function (playerId, cb) {
     var sql = 'select friends from User where id = ?';
@@ -90,6 +92,7 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
         });
 };
 
+//获取玩家收益ID
 DaoUser.prototype.getPlayersIncomeId = function (cb) {
     var sql = 'select id,level from User';
     var args = [];
@@ -105,6 +108,7 @@ DaoUser.prototype.getPlayersIncomeId = function (cb) {
     });
 };
 
+//获取玩家排行ID
 DaoUser.prototype.getPlayersRankId = function (cb) {
     var sql = 'select id,roleName from User';
     var args = [];
@@ -120,6 +124,7 @@ DaoUser.prototype.getPlayersRankId = function (cb) {
     });
 };
 
+//更新玩家余额
 DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
     var sql = 'update User set accountAmount = accountAmount + ?  where id = ?';
     var args = [add, playerId];
@@ -139,6 +144,7 @@ DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
     });
 };
 
+// 获取玩家帐号余额
 DaoUser.prototype.getAccountAmount = function (playerId, cb) {
     var sql = 'select  accountAmount from User where id = ?';
     var args = [playerId];
@@ -157,6 +163,7 @@ DaoUser.prototype.getAccountAmount = function (playerId, cb) {
     });
 };
 
+// 设置玩家激活状态
 DaoUser.prototype.setPlayerActive = function (playerId, bActive, cb) {
     var sql = 'update User set active = ?  where id = ?';
     var args = [bActive, playerId];
@@ -174,6 +181,7 @@ DaoUser.prototype.setPlayerActive = function (playerId, bActive, cb) {
     });
 };
 
+// 设置玩家是否可以发言
 DaoUser.prototype.setPlayerCanTalk = function (playerId, bTalk, cb) {
     var sql = 'update User set forbidTalk = ?  where id = ?';
     var args = [bTalk, playerId];
@@ -191,6 +199,7 @@ DaoUser.prototype.setPlayerCanTalk = function (playerId, bTalk, cb) {
     });
 };
 
+// 获取平台所有代理商
 DaoUser.prototype.getAgents = function (cb) {
     var sql = 'select id, ext from User where role != ?';
     var args = [this.consts.RoleType.PLAYER];
@@ -216,6 +225,7 @@ DaoUser.prototype.getAgents = function (cb) {
     });
 };
 
+// 获取代理商的上级代理商
 DaoUser.prototype.getUpperAgent = function (playerId, cb) {
     var self = this;
     var upperAgentId = {};
@@ -247,99 +257,27 @@ DaoUser.prototype.getUpperAgent = function (playerId, cb) {
 
 };
 
-DaoUser.prototype.getUserByPhone = function (phone, cb) {
-    var sql = 'select * from  User where phone = ?';
-    var args = [phone];
-
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            this.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length === 1) {
-                var rs = res[0];
-                var user = new User({
-                    id: rs.id,
-                    name: rs.name,
-                    password: rs.password,
-                    phone: rs.phone,
-                    email: rs.email,
-                    from: rs.from,
-                    regTime: rs.regTime,
-                    inviter: rs.inviter
-                });
-                this.utils.invokeCallback(cb, null, user);
-            } else {
-                this.utils.invokeCallback(cb, ' user not exist ', null);
-            }
-        }
-    });
-}
-
-DaoUser.prototype.updatePlayer = function (player, cb) {
-    var sql = 'update Player set roleName = ? ,imageId=?,rank = ? , sex = ?, pinCode = ? , accountAmount = ?, level = ?,' +
-        ' experience = ?, loginCount = ?, lastLoinTime = ?, areaId = ?,forbidTalk = ? where id = ?';
-    var args = [player.roleName, player.imageId, player.rank, player.sex, player.pinCode, player.accountAmount,
-        player.level, player.experience, player.loginCount, player.lastLoinTime, player.areaId, player.forbidTalk, player.id];
-
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            this.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.affectedRows > 0) {
-                this.utils.invokeCallback(cb, null, true);
-            } else {
-                logger.error('update player failed!');
-                this.utils.invokeCallback(cb, null, false);
-            }
-        }
-    });
-};
-
-/**
- * Get an user's all players by userId
- * @param {Number} uid User Id.
- * @param {function} cb Callback function.
- */
-DaoUser.prototype.getPlayersByUid = function (uid, cb) {
-    var sql = 'select * from Player where userId = ?';
-    var args = [uid];
-    var self = this;
-
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err) {
-            self.utils.invokeCallback(cb, err.message, null);
-            return;
-        }
-
-        if (!res || res.length <= 0) {
-            self.utils.invokeCallback(cb, null, null);
-            return;
-        } else {
-            self.utils.invokeCallback(cb, null, res);
-        }
-    });
-};
-
-/**
- * get by Name
- * @param {String} name Player name
- * @param {function} cb Callback function
- */
-DaoUser.prototype.getPlayerByName = function (name, cb) {
-    var sql = 'select * from Player where name = ?';
-    var args = [name];
+// 获取所以被禁言的用户ID
+DaoUser.prototype.getForbidUserID = function (cb) {
+    var sql = 'select * from  User where forbidTalk = ?';
+    var args = [true];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
             self.utils.invokeCallback(cb, err.message, null);
-        } else if (!res || res.length <= 0) {
-            self.utils.invokeCallback(cb, null, null);
         } else {
-            self.utils.invokeCallback(cb, null, bearcat.getBean("player", res[0]));
+            if (!!res && res.length >= 1) {
+                var userIds = [];
+                for(let i = 0; i< res.length; ++i){
+                    userIds.push(res[i].id);
+                }
+                self.utils.invokeCallback(cb, null, userIds);
+            } else {
+                self.utils.invokeCallback(cb, ' user not exist ', null);
+            }
         }
     });
 };
-
 
 module.exports = {
     id: "daoUser",

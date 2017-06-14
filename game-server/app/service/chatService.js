@@ -12,7 +12,6 @@ var ChatService = function () {
     this.app = pomelo.app;
     this.roomMap = new Map();
     this.uidMap = new Map();
-    this.forbidTalkMap = new Set();
 };
 
 /**
@@ -31,6 +30,21 @@ ChatService.prototype.init = function () {
         roomItem.maxLoad = data.maxLoad;
         roomItem.userMap = new Map();
         self.roomMap.set(roomId, roomItem);
+    });
+
+    this.loadForbidTalkUser();
+    
+};
+
+ChatService.prototype.loadForbidTalkUser = function () {
+    var self = this;
+    this.daoUser.getForbidUserID(function (err, uids) {
+        if(err){
+            self.forbidTalkSet = new Set();
+        }
+        else {
+            self.forbidTalkSet = new Set(uids);
+        }
     });
 };
 
@@ -88,15 +102,15 @@ ChatService.prototype.leave = function (userId, roomId) {
 };
 
 ChatService.prototype.canTalk = function (uid) {
-  return !this.forbidTalkMap.has(uid);
+  return !this.forbidTalkSet.has(uid);
 };
 
 ChatService.prototype.forbidTalk = function (uid, operate) {
     if(operate){
-        this.forbidTalkMap.add(uid);
+        this.forbidTalkSet.add(uid);
     }
     else {
-        this.forbidTalkMap.delete(uid);
+        this.forbidTalkSet.delete(uid);
     }
 };
 
@@ -180,5 +194,8 @@ module.exports = {
     }, {
         name: "consts",
         ref: "consts"
+    }, {
+        name: "daoUser",
+        ref: "daoUser"
     }]
 }

@@ -19,10 +19,10 @@ const default_ext = {
  * @param {String} from Register source
  * @param {function} cb Call back function.
  */
-daoUser.createUser = function (username, password, phone, inviter, from, rank, accountAmount, cb){
-    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount,friends,ext) values(?,?,?,?,?,?,?,?,?,?,?,?)';
+daoUser.createUser = function (username, password, phone, inviter, from, rank, accountAmount, active, cb){
+    var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount,friends,ext, active) values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
     var regTime = Date.now(), roleName = random_name();
-    var args = [username, password, phone, from, regTime,inviter, default_role, roleName, rank, accountAmount, "[]", JSON.stringify(default_ext)];
+    var args = [username, password, phone, from, regTime,inviter, default_role, roleName, rank, accountAmount, "[]", JSON.stringify(default_ext), active];
 
     mysql.insert(sql, args, function(err,res){
         if(err !== null){

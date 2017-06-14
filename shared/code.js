@@ -8,7 +8,8 @@ module.exports = {
     ENTRY: {
         FA_TOKEN_INVALID: 	{code:1001,desc:"token无效"},
         FA_TOKEN_EXPIRE: 	{code:1002,desc:"token过期"},
-        FA_USER_NOT_EXIST: 	{code:1003,desc:"用户不存在"}
+        FA_USER_NOT_EXIST: 	{code:1003,desc:"用户不存在"},
+        FA_USER_NOT_ACTIVE: {code:1004,desc:"用户未激活"}
     },
 
     GATE: {

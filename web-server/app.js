@@ -70,7 +70,7 @@ const uuidV4 = require('uuid/v4');
 //Init sys user
 function initSys() {
     const uuid = uuidV4().replace(new RegExp(/(-)/g), '');
-    daoUser.createUser('sys', uuid, '', '', '', '',0, function (err, uid) {
+    daoUser.createUser('sys', uuid, '', '', '', '', 0, 1, function (err, uid) {
         if (err) {
             console.error(err);
         } else {

@@ -104,8 +104,8 @@ adminClient.prototype.setConfig = function (configs,cb) {
     });
 };
 
-// {
-//     code:0, //0:禁言/解除禁言 1:解冻/冻结
+// ctrl{
+//     code:0, //0:禁言 1:激活
 //     operate:true
 // }
 

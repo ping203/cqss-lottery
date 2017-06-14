@@ -1,6 +1,6 @@
 var Consts = function () {
 
-    this.BetCloseTime = 10; //s
+    this.BetCloseTime = 30; //s
 
     this.RoleType ={
         PLAYER:0,

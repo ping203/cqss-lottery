@@ -35,7 +35,6 @@ Bets.prototype.openCodeCalc = function (period, openCodeResult) {
     var calcResult = {winCount:0,winMoney:0,betMoney:0,betCount:0, itemOK:[]};
     for (var item of this.betMap.values()) {
         if (item.getState() === this.consts.BetState.BET_WAIT && item.period === period) {
-        // if (item.getState() === this.consts.BetState.BET_WAIT) {
             item.calcHarvest(openCodeResult);
             var subMoney = item.getWinMoney() - item.getBetMoney();
             if(subMoney > 0){
