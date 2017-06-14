@@ -60,8 +60,8 @@ CalcOpenLottery.prototype.equal15Calc = function (numbers) {
     var number1 = numbers[0];
     var number5 = numbers[4];
     if(number1 === number5){
-    //    this.equal15Result = '合';
-        this.openCodeResult.add('合');
+    this.openCodeResult.add('合');
+    this.openCodeResult.add('和');
     }
 };
 

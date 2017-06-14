@@ -59,7 +59,7 @@ $(document).ready(function () {
     }
     
     function playerCtrl() {
-        _adminClient.playerCtrl(2, {code:0,operate:true}, function (err, result) {
+        _adminClient.playerCtrl(2, {code:1,operate:false}, function (err, result) {
             if (!!err) {
                 console.log('提现失败:', err);
                 return;

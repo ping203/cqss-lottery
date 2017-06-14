@@ -65,8 +65,8 @@ app.use(users.routes(), users.allowedMethods());
 //Init mysql
 mysql.init();
 
-
 const uuidV4 = require('uuid/v4');
+
 //Init sys user
 function initSys() {
     const uuid = uuidV4().replace(new RegExp(/(-)/g), '');

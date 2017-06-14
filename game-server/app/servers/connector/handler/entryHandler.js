@@ -57,7 +57,7 @@ EntryHandler.prototype.recharge = function (msg, session, next) {
         return;
     }
 
-    this.app.rpc.area.playerRemote.recharge(session, msg.uid, money, function (err, result) {
+    this.app.rpc.area.playerRemote.recharge(session, Number(msg.uid), money, function (err, result) {
         next(err, result);
     });
 };
@@ -74,7 +74,7 @@ EntryHandler.prototype.cash = function (msg, session, next) {
         return;
     }
 
-    this.app.rpc.area.playerRemote.cash(session, msg.uid, money, function (err, result) {
+    this.app.rpc.area.playerRemote.cash(session, Number(msg.uid), money, function (err, result) {
         next(err, result);
     });
 };
@@ -100,18 +100,18 @@ EntryHandler.prototype.playerCtrl = function (msg, session, next) {
 
     switch (msg.ctrl.code){
         case this.consts.PlayerCtrl.forbidTalk:
-            this.app.rpc.chat.chatRemote.userForbidTalk(session, msg.uid, msg.ctrl.operate, next);
+            this.app.rpc.chat.chatRemote.userForbidTalk(session, Number(msg.uid), msg.ctrl.operate, next);
             break;
         case this.consts.PlayerCtrl.active:
             if(!msg.ctrl.operate){
-                self.app.get('sessionService').kick(msg.uid, '帐号冻结');
+                self.app.get('sessionService').kick(Number(msg.uid), '帐号冻结');
             }
             break;
         default:
             break;
     }
 
-    this.app.rpc.area.playerRemote.playerCtrl(session, msg.uid, msg.ctrl, next);
+    this.app.rpc.area.playerRemote.playerCtrl(session, Number(msg.uid), msg.ctrl, next);
 };
 
 EntryHandler.prototype.login = function (msg, session, next) {
