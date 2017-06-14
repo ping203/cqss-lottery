@@ -166,10 +166,9 @@ DaoUser.prototype.getAccountAmount = function (playerId, cb) {
 // 设置玩家激活状态
 DaoUser.prototype.setPlayerActive = function (playerId, bActive, cb) {
     var sql = 'update User set active = ?  where id = ?';
-    var args = [bActive, playerId];
+    var args = [bActive?1:0, playerId];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        logger.error('#######################setPlayerActive err:',err,'-----:',res);
         if (err !== null) {
             self.utils.invokeCallback(cb, err, false);
         } else {
@@ -185,10 +184,9 @@ DaoUser.prototype.setPlayerActive = function (playerId, bActive, cb) {
 // 设置玩家是否可以发言
 DaoUser.prototype.setPlayerCanTalk = function (playerId, bTalk, cb) {
     var sql = 'update User set forbidTalk = ?  where id = ?';
-    var args = [bTalk, playerId];
+    var args = [bTalk?1:0, playerId];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        logger.error('#######################setPlayerCanTalk err:',err,'-----:',res);
         if (err !== null) {
             self.utils.invokeCallback(cb, err, false);
         } else {
