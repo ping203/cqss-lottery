@@ -144,7 +144,7 @@ PlayerRemote.prototype.setConfig = function (configs, cb) {
 
 PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
     var player = this.areaService.getPlayer(uid);
-    switch (ctrl.code) {
+    switch (Number(ctrl.code)) {
         case this.consts.PlayerCtrl.forbidTalk:
             if (!!player) {
                 player.setCanTalk(ctrl.operate);

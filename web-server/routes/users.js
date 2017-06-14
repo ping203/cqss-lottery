@@ -45,8 +45,6 @@ router.post('/login', function (ctx, next) {
         return;
     }
 
-    const loginPwd = createSalt(msg.username + msg.password);
-
     return new Promise((resove, reject) => {
         if (loginType == 0) {
             daoUser.getUserByName(msg.username, function (err, user) {
@@ -64,6 +62,7 @@ router.post('/login', function (ctx, next) {
                     return;
                 }
 
+                const loginPwd = createSalt(msg.username + msg.password);
                 if(loginPwd !== user.password){
                     console.log('password incorrect!');
                     ctx.body = code.USER.FA_USER_LOGIN_ERROR;
@@ -91,6 +90,7 @@ router.post('/login', function (ctx, next) {
                     return;
                 }
 
+                const loginPwd = createSalt(user.username + msg.password);
                 if(loginPwd !== user.password){
                     console.log('password incorrect!');
                     ctx.body = code.USER.FA_USER_LOGIN_ERROR;

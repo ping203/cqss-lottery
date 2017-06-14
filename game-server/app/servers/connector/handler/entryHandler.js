@@ -95,10 +95,8 @@ EntryHandler.prototype.playerCtrl = function (msg, session, next) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
-
     var self = this;
-
-    switch (msg.ctrl.code){
+    switch (Number(msg.ctrl.code)){
         case this.consts.PlayerCtrl.forbidTalk:
             this.app.rpc.chat.chatRemote.userForbidTalk(session, Number(msg.uid), msg.ctrl.operate, next);
             break;
