@@ -20,7 +20,7 @@ SysConfig.prototype.setConfigs = function (configs) {
 
 //获取玩家初始化金币
 SysConfig.prototype.getPlayerInitialBank = function () {
-    return this._configs.initial;
+    return Number(this._configs.initial);
 }
 
 //获取系统公告
@@ -55,16 +55,9 @@ SysConfig.prototype.getGM = function () {
     return this._configs.gm;
 };
 
-SysConfig.prototype.getAgentFC = function (level) {
-    if(level > 0 && level <=2){
-        return this._configs.fc[level - 1];
-    }
-    return 0;
-};
-
 // 获取个人投注历史查看天数
 SysConfig.prototype.getPrivateBetDays = function () {
-    return this._configs.limit;
+    return Number(this._configs.limit);
 };
 
 module.exports =  {

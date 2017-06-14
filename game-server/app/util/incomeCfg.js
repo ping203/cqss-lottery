@@ -1,6 +1,7 @@
 /**
  * Created by linyng on 17-5-23.
  */
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'IncomeCfg');
 
 function IncomeCfg() {
 };
@@ -17,25 +18,24 @@ IncomeCfg.prototype.init = function () {
  * @param config
  */
 IncomeCfg.prototype.update = function (configs) {
-
     for (var type in configs.betRates){
         switch (type){
             case 'size':
-                this.betRate.set(this.consts.BetType.BetSize.code, configs.betRates[type]);
-                this.betRate.set(this.consts.BetType.BetSingleDouble.code, configs.betRates[type]);
-                this.betRate.set(this.consts.BetType.DragonAndTiger.code, configs.betRates[type]);
+                this.betRate.set(this.consts.BetType.BetSize.code, Number(configs.betRates[type]));
+                this.betRate.set(this.consts.BetType.BetSingleDouble.code, Number(configs.betRates[type]));
+                this.betRate.set(this.consts.BetType.DragonAndTiger.code, Number(configs.betRates[type]));
                 break;
             case 'sz':
-                this.betRate.set(this.consts.BetType.ShunZi.code, configs.betRates[type]);
+                this.betRate.set(this.consts.BetType.ShunZi.code, Number(configs.betRates[type]));
                 break;
             case 'bz':
-                this.betRate.set(this.consts.BetType.Panther.code, configs.betRates[type]);
+                this.betRate.set(this.consts.BetType.Panther.code, Number(configs.betRates[type]));
                 break;
             case 'num':
-                this.betRate.set(this.consts.BetType.number.code, configs.betRates[type]);
+                this.betRate.set(this.consts.BetType.number.code, Number(configs.betRates[type]));
                 break;
             case 'sum':
-                this.betRate.set(this.consts.BetType.Equal15.code, configs.betRates[type]);
+                this.betRate.set(this.consts.BetType.Equal15.code, Number(configs.betRates[type]));
                 break;
             default:
                 break;
@@ -43,7 +43,7 @@ IncomeCfg.prototype.update = function (configs) {
     }
 
     for (var index = 0; index < configs.defectionRates.length; ++index){
-        this.defectionRate.set(index+1,configs.defectionRates[index]);
+        this.defectionRate.set(index+1,Number(configs.defectionRates[index]));
     }
 };
 

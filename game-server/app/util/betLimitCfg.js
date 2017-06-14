@@ -73,29 +73,29 @@ BetLimitCfg.prototype.update = function (configs) {
     for(var type in configs){
         switch (type){
             case 'size':
-                this.playerMap.set(this.consts.BetType.BetSize.code, configs[type].m);
-                this.playerMap.set(this.consts.BetType.BetSingleDouble.code, configs[type].m);
-                this.playerMap.set(this.consts.BetType.DragonAndTiger.code, configs[type].m);
+                this.playerMap.set(this.consts.BetType.BetSize.code, Number(configs[type].m));
+                this.playerMap.set(this.consts.BetType.BetSingleDouble.code, Number(configs[type].m));
+                this.playerMap.set(this.consts.BetType.DragonAndTiger.code, Number(configs[type].m));
 
-                this.platformMap.set(this.consts.BetType.BetSize.code, configs[type].p);
-                this.platformMap.set(this.consts.BetType.BetSingleDouble.code, configs[type].p);
-                this.platformMap.set(this.consts.BetType.DragonAndTiger.code, configs[type].p);
+                this.platformMap.set(this.consts.BetType.BetSize.code, Number(configs[type].p));
+                this.platformMap.set(this.consts.BetType.BetSingleDouble.code, Number(configs[type].p));
+                this.platformMap.set(this.consts.BetType.DragonAndTiger.code, Number(configs[type].p));
                 break;
             case 'sz':
-                this.playerMap.set(this.consts.BetType.ShunZi.code, configs[type].m);
-                this.platformMap.set(this.consts.BetType.ShunZi.code, configs[type].p);
+                this.playerMap.set(this.consts.BetType.ShunZi.code, Number(configs[type].m));
+                this.platformMap.set(this.consts.BetType.ShunZi.code, Number(configs[type].p));
                 break;
             case 'bz':
-                this.playerMap.set(this.consts.BetType.Panther.code, configs[type].m);
-                this.platformMap.set(this.consts.BetType.Panther.code, configs[type].p);
+                this.playerMap.set(this.consts.BetType.Panther.code, Number(configs[type].m));
+                this.platformMap.set(this.consts.BetType.Panther.code, Number(configs[type].p));
                 break;
             case 'num':
-                this.playerMap.set(this.consts.BetType.number.code, configs[type].m);
-                this.platformMap.set(this.consts.BetType.number.code, configs[type].p);
+                this.playerMap.set(this.consts.BetType.number.code, Number(configs[type].m));
+                this.platformMap.set(this.consts.BetType.number.code, Number(configs[type].p));
                 break;
             case 'sum':
-                this.playerMap.set(this.consts.BetType.Equal15.code, configs[type].m);
-                this.platformMap.set(this.consts.BetType.Equal15.code, configs[type].p);
+                this.playerMap.set(this.consts.BetType.Equal15.code, Number(configs[type].m));
+                this.platformMap.set(this.consts.BetType.Equal15.code, Number(configs[type].p));
                 break;
             default:
                 break;

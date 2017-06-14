@@ -83,13 +83,10 @@ BetItem.prototype.getWinCount = function () {
 BetItem.prototype.getIncomValue = function (openInfo, item) {
     var inc = 0;
     var multi = this.incomeCfg.getBetRate(item.type.code);
-
     if(openInfo.has(item.result)){
-        inc = item.money * multi;
+        inc = item.money * (1 + multi);
     }
-
     if(inc > 0) this.winCount++;
-
     return inc;
 };
 
