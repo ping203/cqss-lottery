@@ -169,6 +169,7 @@ DaoUser.prototype.setPlayerActive = function (playerId, bActive, cb) {
     var args = [bActive, playerId];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        logger.error('#######################setPlayerActive err:',err,'-----:',res);
         if (err !== null) {
             self.utils.invokeCallback(cb, err, false);
         } else {
@@ -187,6 +188,7 @@ DaoUser.prototype.setPlayerCanTalk = function (playerId, bTalk, cb) {
     var args = [bTalk, playerId];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        logger.error('#######################setPlayerCanTalk err:',err,'-----:',res);
         if (err !== null) {
             self.utils.invokeCallback(cb, err, false);
         } else {
