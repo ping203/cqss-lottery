@@ -35,7 +35,7 @@ var betType = {
     BetSize:1, //和大小 (大100)  (小100)
     BetSingleDouble:2, //和单双 (单100  双100)
     DragonAndTiger:3, //龙虎 (龙100 虎100)
-    Equal15:4, //合/和玩法 (和100 合100)  （大单龙和60）
+    EQUAL15:4, //合/和玩法 (和100 合100)  （大单龙和60）
     PerPosSizeSingleDouble:5, //每个位置大小单双 (1／大双／100)
     PerPosValue:6, //每个位置值 (124/579/90)  组合(124/大单579/90)
     ContainValue:7, //包数字 （75/100） （8/100）

@@ -18,24 +18,53 @@ IncomeCfg.prototype.init = function () {
  * @param config
  */
 IncomeCfg.prototype.update = function (configs) {
+    logger.error('@@@@@@@@@@@@@@@@@configs', configs);
     for (var type in configs.betRates){
         switch (type){
             case 'size':
-                this.betRate.set(this.consts.BetType.BetSize.code, Number(configs.betRates[type]));
-                this.betRate.set(this.consts.BetType.BetSingleDouble.code, Number(configs.betRates[type]));
-                this.betRate.set(this.consts.BetType.DragonAndTiger.code, Number(configs.betRates[type]));
+                let size_sec = this.betType.getSectionCode(type);
+                logger.error('@@@@@@@@@@@@@@@@@size', size_sec);
+                if(size_sec){
+                    for(let i = size_sec.begin; i<= size_sec.end; i++){
+                        this.betRate.set(i, Number(configs.betRates[type]));
+                    }
+                }
                 break;
             case 'sz':
-                this.betRate.set(this.consts.BetType.ShunZi.code, Number(configs.betRates[type]));
+                let sz_sec = this.betType.getSectionCode(type);
+                logger.error('@@@@@@@@@@@@@@@@@sz', sz_sec);
+                if(sz_sec){
+                    for(let i = sz_sec.begin; i<= sz_sec.end; i++){
+                        this.betRate.set(i, Number(configs.betRates[type]));
+                    }
+                }
                 break;
             case 'bz':
-                this.betRate.set(this.consts.BetType.Panther.code, Number(configs.betRates[type]));
+                let bz_sec = this.betType.getSectionCode(type);
+                logger.error('@@@@@@@@@@@@@@@@@bz', bz_sec);
+                if(bz_sec){
+                    for(let i = bz_sec.begin; i<= bz_sec.end; i++){
+                        this.betRate.set(i, Number(configs.betRates[type]));
+                    }
+                }
                 break;
             case 'num':
-                this.betRate.set(this.consts.BetType.number.code, Number(configs.betRates[type]));
+                let num_sec = this.betType.getSectionCode(type);
+                logger.error('@@@@@@@@@@@@@@@@@num', num_sec);
+                if(num_sec){
+                    for(let i = num_sec.begin; i<= num_sec.end; i++){
+                        this.betRate.set(i, Number(configs.betRates[type]));
+                    }
+                }
                 break;
             case 'sum':
-                this.betRate.set(this.consts.BetType.Equal15.code, Number(configs.betRates[type]));
+                let sum_sec = this.betType.getSectionCode(type);
+                logger.error('@@@@@@@@@@@@@@@@@sum', sum_sec);
+                if(sum_sec){
+                    for(let i = sum_sec.begin; i<= sum_sec.end; i++){
+                        this.betRate.set(i, Number(configs.betRates[type]));
+                    }
+                }
                 break;
             default:
                 break;
@@ -69,6 +98,6 @@ module.exports = {
     func:IncomeCfg,
     init:"init",
     props:[
-        {name:"consts", ref:"consts"}
+        {name:"betType", ref:"betType"}
     ]
 };

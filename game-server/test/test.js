@@ -87,8 +87,6 @@ function testShunZi() {
     shunZiCalc([9,1,0,2,1]);
 }
 
-testShunZi();
-
     
 function test() {
 
@@ -111,7 +109,7 @@ function test() {
         BetSize:1, //和大小 (大100)  (小100)
         BetSingleDouble:2, //和单双 (单100  双100)
         DragonAndTiger:3, //龙虎 (龙100 虎100)
-        Equal15:4, //合/和玩法 (和100 合100)  （大单龙和60）
+        EQUAL15:4, //合/和玩法 (和100 合100)  （大单龙和60）
         PerPosSizeSingleDouble:5, //每个位置大小单双 (1／大双／100)
         PerPosValue:6, //每个位置值 (124/579/90)  组合(124/大单579/90)
         ContainValue:7, //包数字 （75/100） （8/100）
@@ -373,3 +371,19 @@ function test2() {
 // 和    9~10   0.5一级
 // 计算玩家盈利：投注额×赔率-本金=盈利
 // 中奖结果显示的的时候直接在投注对话框显示盈利
+
+
+
+
+function testBetType() {
+
+   // let reg1 = /^(?!0+(\.0+)?$)\d+(\.\d+)?$/;
+
+
+    var reg1 = /(^\d+)\/(.+)\/([0-9.]*)/;
+    let bet3 = '13/87/1888888.55';
+    let ret3 = bet3.match(reg1);
+    console.log(ret3);
+}
+
+testBetType();

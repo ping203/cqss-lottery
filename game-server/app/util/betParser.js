@@ -6,59 +6,15 @@ var Code = require('../../../shared/code');
 
 var BetParser = function () {
     this.splitReg=/.{1}/g;
-    this.reg1 = /(^[大小单双龙虎和合]+)\/?(\d+)/i;
-    this.reg2 = /(^\d+)\/(.+)\/(\d+)/i; //每位数字的大小单双值玩法
-    this.reg3 = /(^\d+)\/(\d+)/i; //包数字玩法
-    this.reg4 = /(^[豹顺]+)子?\/?(\d+)$/i;
-    this.reg5= /(^[豹顺]+)子?\/(\d+)\/(\d+)\/(\d+)/i;
-    this.reg6 = /(^['前','中','后'])([豹顺])\/?(\d+)$/i;
+    this.reg1 = /(^[大小单双龙虎和合]+)\/?([0-9.]*)$/i;
+    this.reg2 = /(^\d+)\/(.+)\/([0-9.]*)$/i; //每位数字的大小单双值玩法
+    this.reg3 = /(^\d+)\/([0-9.]*)$/i; //包数字玩法
+    this.reg4 = /(^[豹顺]+)子?\/?([0-9.]*)$/i;
+    this.reg5= /(^[豹顺]+)子?\/([0-9.]*)\/([0-9.]*)\/([0-9.]*)/i;
+    this.reg6 = /(^[前中后])([豹顺])\/?([0-9.]*)$/i;
 
     this.keyValue =['前','中','后'];
 };
-
-BetParser.prototype.handleReg = function (val) {
-    var type;
-    switch (val){
-        case '大':
-        case '小':
-            type = this.consts.BetType.BetSize;
-            break;
-        case '单':
-        case '双':
-            type = this.consts.BetType.BetSingleDouble;
-            break;
-        case '龙':
-        case '虎':
-            type = this.consts.BetType.DragonAndTiger;
-            break;
-        case '和':
-        case '合':
-            type = this.consts.BetType.Equal15;
-            break;
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            type = this.consts.BetType.number;
-            break;
-        case '豹':
-            type = this.consts.BetType.Panther;
-            break;
-        case '顺':
-            type = this.consts.BetType.ShunZi;
-            break;
-        default:
-            break;
-    }
-
-    return type;
-}
 
 BetParser.prototype.parse = function(data, cb){
     var total = 0;
@@ -70,13 +26,12 @@ BetParser.prototype.parse = function(data, cb){
     if(data.match(this.reg1)){
         isValid = true;
         var result = data.match(this.reg1);
-        perMoney = parseInt(result[2],10);
+        perMoney = Number(result[2]);
         var types = result[1].match(this.splitReg);
 
         var betTypeInfoItem = {money:0};
         for (var i = 0; i< types.length;++i){
-
-            var betType = this.handleReg(types[i]);
+            var betType = this.betType.get(types[i]);
             if(betType){
                 var item = {};
                 item.result = types[i];
@@ -92,7 +47,7 @@ BetParser.prototype.parse = function(data, cb){
                 }
                 betTypeInfo[betType.code].money += perMoney;
                 betTypeInfo[betType.code].type = betType;
-                betTypeInfo[betType.code].desc += `${item.result}:${perMoney} `
+                betTypeInfo[betType.code].desc += `${item.result}:${perMoney} `;
             }
             else {
                 isValid = false;
@@ -114,10 +69,10 @@ BetParser.prototype.parse = function(data, cb){
         }
 
         var types = result[2].match(this.splitReg);
-        perMoney = parseInt(result[3],10);
+        perMoney = Number(result[3]);
         for (var j=0;j< ballPos.length;++j){
             for (var i = 0; i< types.length;i++){
-                var betType = this.handleReg(types[i]);
+                var betType = this.betType.get(types[i], ballPos[j]);
                 if(betType){
                     var item = {};
                     item.type = betType;
@@ -146,12 +101,12 @@ BetParser.prototype.parse = function(data, cb){
         isValid = true;
         var result = data.match(this.reg3);
         var types = result[1].match(this.splitReg);
-        perMoney = parseInt(result[2],10);
+        perMoney = Number(result[2]);
 
         for (var i = 0; i< types.length;++i){
-            var betType = this.handleReg(types[i]);
-            if(betType){
-                for (var j=1;j<=5;j++){
+            for (var j=1;j<=5;j++){
+                var betType = this.betType.get(types[i], j);
+                if(betType){
                     var tempItem = {};
                     tempItem.type = betType;
                     tempItem.result = j + ':'+ types[i];
@@ -167,11 +122,10 @@ BetParser.prototype.parse = function(data, cb){
                     betTypeInfo[betType.code].type = betType;
                     betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `;
                 }
-            }
-            else {
-                isValid = false;
-                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
-                break;
+                else {
+                    cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
+                    return;
+                }
             }
         }
     }else if(data.match(this.reg5)){
@@ -179,25 +133,24 @@ BetParser.prototype.parse = function(data, cb){
         var result = data.match(this.reg5);
         var types = result[1].match(this.splitReg);
         var perMoneys = [];
-        perMoneys.push(parseInt(result[2], 10));
-        perMoneys.push(parseInt(result[3], 10));
-        perMoneys.push(parseInt(result[4], 10));
+        perMoneys.push(Number(result[2]));
+        perMoneys.push(Number(result[3]));
+        perMoneys.push(Number(result[4]));
 
         var sum =  perMoneys.reduce(function (previous, current, index, array) {
             return previous + current;
         })
 
         if(sum === 0){
-            perMoney = 0;
+            cb(Code.GAME.FA_BET_MONEY_NOTZERO, null);
+            return;
         }
-        else {
-            perMoney = 1;
-        }
+        perMoney = 1;
 
-        for (var i = 0; i< types.length;++i){
-            var betType = this.handleReg(types[i]);
-            if(betType){
-                for (var j=0;j<this.keyValue.length;j++){
+        for (var j=0;j<this.keyValue.length;j++){
+            for (var i = 0; i< types.length;++i){
+                var betType = this.betType.get(this.keyValue[j]+types[i]);
+                if(betType){
                     var tempItem = {};
                     tempItem.type = betType;
                     tempItem.result = this.keyValue[j]+types[i];
@@ -215,23 +168,21 @@ BetParser.prototype.parse = function(data, cb){
                     betTypeInfo[betType.code].type = betType;
                     betTypeInfo[betType.code].desc += `${tempItem.result}:${tempItem.money} `
                 }
-            }
-            else {
-                isValid = false;
-                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
-                break;
+                else {
+                    cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
+                    return;
+                }
             }
         }
     }else if(data.match(this.reg4)){
         isValid = true;
         var result = data.match(this.reg4);
         var types = result[1].match(this.splitReg);
-        perMoney = parseInt(result[2], 10);
-
-        for (var i = 0; i< types.length;++i){
-            var betType = this.handleReg(types[i]);
-            if(betType){
-                for (var j=0;j<this.keyValue.length;j++){
+        perMoney = Number(result[2]);
+        for (var j=0;j<this.keyValue.length;j++){
+            for (var i = 0; i< types.length;++i){
+                var betType = this.betType.get(this.keyValue[j]+types[i]);
+                if(betType){
                     var tempItem = {};
                     tempItem.type = betType;
                     tempItem.result = this.keyValue[j]+types[i];
@@ -247,11 +198,10 @@ BetParser.prototype.parse = function(data, cb){
                     betTypeInfo[betType.code].type = betType;
                     betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `
                 }
-            }
-            else {
-                isValid = false;
-                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
-                break;
+                else {
+                    cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
+                    return;
+                }
             }
         }
     }else if(data.match(this.reg6)){
@@ -259,9 +209,9 @@ BetParser.prototype.parse = function(data, cb){
         var result = data.match(this.reg6);
         var key = result[1];
         var type = result[2];
-        perMoney = parseInt(result[3], 10);
+        perMoney = Number(result[3]);
 
-        var betType = this.handleReg(type);
+        var betType = this.betType.get(key+type);
         if(betType){
             var tempItem = {};
             tempItem.type = betType;
@@ -292,6 +242,10 @@ BetParser.prototype.parse = function(data, cb){
             cb(Code.GAME.FA_BET_MONEY_NOTZERO, null);
             return;
         }
+        else if(!Number.isInteger(perMoney)){
+            cb(Code.GAME.FA_BET_MONEY_INTEGER, null);
+            return;
+        }
         var betResult = {};
         betResult.total = total;
         betResult.betTypeInfo = betTypeInfo;
@@ -308,7 +262,7 @@ module.exports = {
     id:"betParser",
     func:BetParser,
     props:[
-        {name:'consts',ref:'consts'}
+        {name:'betType',ref:'betType'}
     ]
 };
 

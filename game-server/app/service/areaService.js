@@ -307,7 +307,6 @@ AreaService.prototype.generateGlobalLottery = function () {
         kindName: lotteryData["1"].name,
         imgId: lotteryData["1"].imgId,
     });
-    logger.error('``````````````````````````', t);
     t.areaService = this;
     this.globalEntityId = t.entityId;
     this.addEntity(t);

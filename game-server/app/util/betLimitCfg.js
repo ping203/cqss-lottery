@@ -56,6 +56,8 @@
 //
 // 下标对应等级
 
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'betLimitCfg');
+
 function BetLimitCfg() {
 
 };
@@ -70,32 +72,147 @@ BetLimitCfg.prototype.init = function () {
  * @param config
  */
 BetLimitCfg.prototype.update = function (configs) {
-    for(var type in configs){
-        switch (type){
-            case 'size':
-                this.playerMap.set(this.consts.BetType.BetSize.code, Number(configs[type].m));
-                this.playerMap.set(this.consts.BetType.BetSingleDouble.code, Number(configs[type].m));
-                this.playerMap.set(this.consts.BetType.DragonAndTiger.code, Number(configs[type].m));
+    logger.error('@@@@@@@@@@@@@@@@@',configs);
+    for (let type in configs) {
+        switch (type) {
+            case 'big': {
+                let t = this.betType.get('大');
+                if (t) {
+                    this.playerMap.set(t.code, Number(configs[type].m));
+                    this.platformMap.set(t.code, Number(configs[type].p));
+                }
+            }
+                break;
+            case 'small': {
+                let t = this.betType.get('小');
+                if (t) {
+                    this.playerMap.set(t.code, Number(configs[type].m));
+                    this.platformMap.set(t.code, Number(configs[type].p));
+                }
+            }
+                break;
+            case 'single': {
+                let t = this.betType.get('单');
+                if (t) {
+                    this.playerMap.set(t.code, Number(configs[type].m));
+                    this.platformMap.set(t.code, Number(configs[type].p));
+                }
+            }
+                break;
+            case 'double': {
+                let t = this.betType.get('双');
+                if (t) {
+                    this.playerMap.set(t.code, Number(configs[type].m));
+                    this.platformMap.set(t.code, Number(configs[type].p));
+                }
+            }
+                break;
+            case 'dragon': {
+                let t = this.betType.get('龙');
+                if (t) {
+                    this.playerMap.set(t.code, Number(configs[type].m));
+                    this.platformMap.set(t.code, Number(configs[type].p));
+                }
+            }
+                break;
+            case 'tiger': {
+                let t = this.betType.get('虎');
+                if (t) {
+                    this.playerMap.set(t.code, Number(configs[type].m));
+                    this.platformMap.set(t.code, Number(configs[type].p));
+                }
+            }
+                break;
+            case 'equal': {
+                let t = this.betType.get('合');
+                if (t) {
+                    this.playerMap.set(t.code, Number(configs[type].m));
+                    this.platformMap.set(t.code, Number(configs[type].p));
+                }
+            }
+                break;
+            case 'sz': {
+                let dic = ['前', '中', '后'];
+                let szConfigs = configs[type];
+                for (let i = 0; i < dic.length; i++) {
+                    let t = this.betType.get(`${dic[i]}顺`);
+                    if (t) {
+                        this.playerMap.set(t.code, Number(szConfigs[i].m));
+                        this.platformMap.set(t.code, Number(szConfigs[i].p));
+                        logger.error('@@@@@@@@@@@@@@@@@',t.code,`${dic[i]}顺`,':m:',Number(szConfigs[i].m),'p:',Number(szConfigs[i].p));
+                    }
+                }
+            }
+                break;
+            case 'bz': {
+                let dic = ['前', '中', '后'];
+                let bzConfigs = configs[type];
+                for (let i = 0; i < dic.length; i++) {
+                    let t = this.betType.get(`${dic[i]}豹`);
+                    if (t) {
+                        this.playerMap.set(t.code, Number(bzConfigs[i].m));
+                        this.platformMap.set(t.code, Number(bzConfigs[i].p));
+                        logger.error('@@@@@@@@@@@@@@@@@',t.code,`${dic[i]}豹`,':m:',Number(bzConfigs[i].m),'p:',Number(bzConfigs[i].p));
+                    }
+                }
+            }
+                break;
+            case 'pos': {
+                let posConfigs = configs[type];
+                for (let pos = 0; pos < posConfigs.length; pos++) {
+                    let posConfig = posConfigs[pos];
+                    if (posConfig) {
+                        for (let pos_type in posConfig) {
+                            switch (pos_type) {
+                                case 'big': {
+                                    let t = this.betType.get('大', pos + 1);
+                                    if (t) {
+                                        this.playerMap.set(t.code, Number(posConfig[pos_type].m));
+                                        this.platformMap.set(t.code, Number(posConfig[pos_type].p));
+                                    }
+                                }
+                                    break;
+                                case 'small': {
+                                    let t = this.betType.get('小', pos + 1);
+                                    if (t) {
+                                        this.playerMap.set(t.code, Number(posConfig[pos_type].m));
+                                        this.platformMap.set(t.code, Number(posConfig[pos_type].p));
+                                    }
+                                }
+                                    break;
+                                case 'single':
+                                    let t = this.betType.get('单', pos + 1);
+                                    if (t) {
+                                        this.playerMap.set(t.code, Number(posConfig[pos_type].m));
+                                        this.platformMap.set(t.code, Number(posConfig[pos_type].p));
+                                    }
+                                    break;
+                                case 'double': {
+                                    let t = this.betType.get('双', pos + 1);
+                                    if (t) {
+                                        this.playerMap.set(t.code, Number(posConfig[pos_type].m));
+                                        this.platformMap.set(t.code, Number(posConfig[pos_type].p));
+                                    }
+                                }
 
-                this.platformMap.set(this.consts.BetType.BetSize.code, Number(configs[type].p));
-                this.platformMap.set(this.consts.BetType.BetSingleDouble.code, Number(configs[type].p));
-                this.platformMap.set(this.consts.BetType.DragonAndTiger.code, Number(configs[type].p));
-                break;
-            case 'sz':
-                this.playerMap.set(this.consts.BetType.ShunZi.code, Number(configs[type].m));
-                this.platformMap.set(this.consts.BetType.ShunZi.code, Number(configs[type].p));
-                break;
-            case 'bz':
-                this.playerMap.set(this.consts.BetType.Panther.code, Number(configs[type].m));
-                this.platformMap.set(this.consts.BetType.Panther.code, Number(configs[type].p));
-                break;
-            case 'num':
-                this.playerMap.set(this.consts.BetType.number.code, Number(configs[type].m));
-                this.platformMap.set(this.consts.BetType.number.code, Number(configs[type].p));
-                break;
-            case 'sum':
-                this.playerMap.set(this.consts.BetType.Equal15.code, Number(configs[type].m));
-                this.platformMap.set(this.consts.BetType.Equal15.code, Number(configs[type].p));
+                                    break;
+                                case 'num': {
+                                    let numConfigs = posConfig[pos_type];
+                                    for (let num = 0; num < numConfigs.length; num++) {
+                                        let numConfig = numConfigs[num];
+                                        let t = this.betType.get(num, pos + 1);
+                                        if (t) {
+                                            this.playerMap.set(t.code, Number(numConfig.m));
+                                            this.platformMap.set(t.code, Number(numConfig.p));
+                                        }
+                                    }
+                                }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
                 break;
             default:
                 break;
@@ -105,14 +222,16 @@ BetLimitCfg.prototype.update = function (configs) {
 
 BetLimitCfg.prototype.getPlayerValue = function (type) {
     var val = this.playerMap.get(type);
-    if(!val) val = 1000;
+    logger.error('@@@@@@@@@@@@@@@@@getPlayerValue',type,'val:',val);
+    if (!val) val = 1000;
     return val;
 }
 
 BetLimitCfg.prototype.playerLimit = function (type, value) {
     var val = this.playerMap.get(type);
-    if(!val) val = 1000;
-    if(!!val && val >= value){
+    logger.error('@@@@@@@@@@@@@@@@@playerLimit',type,'val:',val);
+    if (!val) val = 1000;
+    if (!!val && val >= value) {
         return false;
     }
 
@@ -121,24 +240,26 @@ BetLimitCfg.prototype.playerLimit = function (type, value) {
 
 BetLimitCfg.prototype.getPlatformValue = function (type) {
     var val = this.platformMap.get(type);
-    if(!val) val = 3000;
+    logger.error('@@@@@@@@@@@@@@@@@getPlatformValue',type,'val:',val);
+    if (!val) val = 3000;
     return val;
 };
 
 BetLimitCfg.prototype.platformLimit = function (type, value) {
     var val = this.platformMap.get(type);
-    if(!val) val = 3000;
-    if(!!val && val >= value){
+    logger.error('@@@@@@@@@@@@@@@@@platformLimit',type,'val:',val);
+    if (!val) val = 3000;
+    if (!!val && val >= value) {
         return false;
     }
     return true;
 };
 
 module.exports = {
-    id:"betLimitCfg",
-    func:BetLimitCfg,
-    init:"init",
-    props:[
-        {name:'consts',ref:'consts'}
+    id: "betLimitCfg",
+    func: BetLimitCfg,
+    init: "init",
+    props: [
+        {name: 'betType', ref: 'betType'}
     ]
 };

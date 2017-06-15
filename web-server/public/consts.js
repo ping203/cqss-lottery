@@ -102,7 +102,7 @@ var Consts = function () {
             code:3,
             desc:'龙虎'
         }, //龙虎 (龙100 虎100)
-        Equal15:{
+        EQUAL15:{
             code:4,
             desc:'和'
         }, //合/和玩法 (和100 合100)  （大单龙和60）
