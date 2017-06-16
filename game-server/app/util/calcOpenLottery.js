@@ -54,9 +54,9 @@ CalcOpenLottery.prototype.equal15Calc = function (numbers) {
 CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         var num = parseInt(numbers[i],10);
-        var size = num <=4 ? ((i+1)+':'+'小'):((i+1)+':'+'大');
+        var size = num <=4 ? ((i+1)+'/'+'小'):((i+1)+'/'+'大');
 
-        var sd = num%2 === 0?((i+1)+':'+'双'):((i+1)+':'+'单');
+        var sd = num%2 === 0?((i+1)+'/'+'双'):((i+1)+'/'+'单');
 
         this.openCodeResult.add(size);
         this.openCodeResult.add(sd);
@@ -66,7 +66,7 @@ CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
 //球值
 CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
-        var vals = (i+1)+':'+numbers[i];
+        var vals = (i+1)+'/'+numbers[i];
         this.openCodeResult.add(vals);
     }
 };
@@ -74,7 +74,7 @@ CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
 //包数字
 CalcOpenLottery.prototype.containValueCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
-        var vals = (i+1)+':'+numbers[i];
+        var vals = (i+1)+'/'+numbers[i];
         this.openCodeResult.add(vals);
     }
 };

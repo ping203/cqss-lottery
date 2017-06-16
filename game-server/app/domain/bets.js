@@ -33,9 +33,11 @@ Bets.prototype.getItem = function (entityId) {
 Bets.prototype.openCodeCalc = function (period, openCodeResult) {
     var calcResult = {winCount:0,winMoney:0,betMoney:0,betCount:0, itemOK:[]};
     for (var item of this.betMap.values()) {
+        //&& item.period === period
         if (item.getState() === this.consts.BetState.BET_WAIT && item.period === period) {
             item.calcHarvest(openCodeResult);
-            var subMoney = item.getWinMoney() - item.getBetMoney();
+            var subMoney = Number((item.getWinMoney() - item.getBetMoney()).toFixed(2));
+            logger.error('##################subMoney', subMoney);
             if(subMoney > 0){
                 item.setState(this.consts.BetState.BET_WIN);
                 calcResult.itemOK.push({id:item.id,state:this.consts.BetState.BET_WIN,money:subMoney});

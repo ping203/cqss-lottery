@@ -22,6 +22,19 @@ BetType.prototype.initMap = function () {
         }
         this._typeMap[key] =value;
     }
+
+    dic = ['大','小','单','双'];
+    for (let i= 1; i<=5;i++){
+        for (let j=0; j< dic.length; j++){
+            let key = `${i}球${dic[j]}`;
+            let value = {
+                code: ++initCode,
+                desc:key
+            }
+            this._typeMap[key] =value;
+        }
+    }
+
     let end =  initCode;
     this._typeDuration.set('size', {begin:begin,end:end});
 
@@ -55,17 +68,6 @@ BetType.prototype.initMap = function () {
 
 
     begin = initCode+1;
-    dic = ['大','小','单','双'];
-    for (let i= 1; i<=5;i++){
-        for (let j=0; j< dic.length; j++){
-            let key = `${i}球${dic[j]}`;
-            let value = {
-                code: ++initCode,
-                desc:key
-            }
-            this._typeMap[key] =value;
-        }
-    }
 
     for(let i=1; i<= 5; i++){
         for (let j=0;j<=9;j++){

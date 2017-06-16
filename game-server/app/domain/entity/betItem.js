@@ -86,7 +86,9 @@ BetItem.prototype.getIncomValue = function (openInfo, item) {
     logger.error('@@@@@@@@@@@@@@@@@@ item.result:',item.result, ' multi:',multi);
     if(openInfo.has(item.result)){
         inc = item.money * (1 + multi);
+        logger.error('@@@@@@@@@@@@@@@@@@ item.result111111:',item.result, ' multi:', multi, ' inc:', inc);
         inc = Number(inc.toFixed(2));
+        logger.error('@@@@@@@@@@@@@@@@@@ item.result222222:',item.result, ' multi:', multi, ' inc:', inc);
     }
     logger.error('@@@@@@@@@@@@@@@@@@ item.result:',item.result, ' multi:', multi, ' inc:', inc);
     if(inc > 0) this.winCount++;
@@ -94,7 +96,7 @@ BetItem.prototype.getIncomValue = function (openInfo, item) {
 };
 
 BetItem.prototype.calcHarvest = function (openInfo) {
-    for (let v in openInfo){
+    for (let v of openInfo){
         logger.error('@@@@@@@@@@@@@@@@@@ openInfo:',v);
     }
 

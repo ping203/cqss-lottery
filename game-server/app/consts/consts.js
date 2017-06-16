@@ -1,5 +1,23 @@
 var Consts = function () {
 
+    this.BetDic = {
+        BIG:'A',
+        SMALL:'B',
+        SINGLE:'C',
+        DOUBLE:'D',
+        DRAGON:'E',
+        TIGER:'F',
+        EQUAL:'G',
+        BAO:'H',
+        SHUN:'I'
+    };
+
+    this.BetPos = {
+        BEGIN:'B',
+        MID:'M',
+        END:'E'
+    }
+
     this.BetCloseTime = 30; //s
 
     this.RoleType ={

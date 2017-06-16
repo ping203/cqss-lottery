@@ -76,7 +76,7 @@ BetParser.prototype.parse = function(data, cb){
                 if(betType){
                     var item = {};
                     item.type = betType;
-                    item.result = ballPos[j] +':' + types[i];
+                    item.result = ballPos[j] +'/' + types[i];
                     item.money = perMoney;
 
                     betItems.push(item);

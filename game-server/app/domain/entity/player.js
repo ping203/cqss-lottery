@@ -372,12 +372,13 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
+        this.accountAmount = Number(this.accountAmount.toFixed(2));
         this.addExperience(this.calcExp(calcResult));
         this.save();
         this.changeNotify();
     }
 
-    var winMoney = calcResult.winMoney - calcResult.betMoney;
+    var winMoney = Number((calcResult.winMoney - calcResult.betMoney).toFixed(2));
     if(calcResult.betCount  > 0){
         this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney,numbers:numbers, itemOK:calcResult.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
     }

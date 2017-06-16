@@ -377,13 +377,23 @@ function test2() {
 
 function testBetType() {
 
-   // let reg1 = /^(?!0+(\.0+)?$)\d+(\.\d+)?$/;
+    let inc = 1.95;
+    let nu = 6666*1.95;
+    console.info(nu, typeof inc);
+
+    nu = parseFloat(nu.toFixed(2));
+
+    console.info('nu11:', nu, typeof nu);
+
+    var sub = nu - 6666 -6666;
 
 
-    var reg1 = /(^\d+)\/(.+)\/([0-9.]*)/;
-    let bet3 = '13/87/1888888.55';
-    let ret3 = bet3.match(reg1);
-    console.log(ret3);
+    console.log(sub);
+
+    console.log(0.1+0.4);
+
+
+
 }
 
 testBetType();
