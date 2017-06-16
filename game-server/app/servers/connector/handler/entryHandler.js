@@ -45,6 +45,7 @@ EntryHandler.prototype.adminLogin = function (msg, session, next) {
     });
 };
 
+// 后台充值
 EntryHandler.prototype.recharge = function (msg, session, next) {
     if(!msg.money || !msg.uid){
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
@@ -62,20 +63,16 @@ EntryHandler.prototype.recharge = function (msg, session, next) {
     });
 };
 
-EntryHandler.prototype.cash = function (msg, session, next) {
-    if(!msg.money || !msg.uid){
+// 后台提现确认
+EntryHandler.prototype.cashHandler = function (msg, session, next) {
+    if(!msg.uid || !msg.orderId || !msg.operate || !(!!msg.operate && (msg.operate === this.consts.RecordOperate.OPERATE_OK ||
+        msg.operate === this.consts.RecordOperate.OPERATE_ABORT))){
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
 
-    var money = parseInt(msg.money, 10);
-    if(isNaN(money)){
-        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
-        return;
-    }
-
-    this.app.rpc.area.playerRemote.cash(session, Number(msg.uid), money, function (err, result) {
-        next(err, result);
+    this.app.rpc.area.playerRemote.cashHandler(session, Number(msg.uid), Number(msg.orderId), Number(msg.operate), function (err, result) {
+        next(null, result);
     });
 };
 

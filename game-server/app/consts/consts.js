@@ -18,6 +18,13 @@ var Consts = function () {
         CASH:2
     };
 
+    // 充值提现操作状态
+    this.RecordOperate = {
+        OPERATE_REQ:1, //请求
+        OPERATE_OK:2, //确认
+        OPERATE_ABORT:3 //中断
+    }
+
     this.RES_CODE = {
         SUC_OK: 1, // success
         ERR_FAIL: -1, // Failded without specific reason

@@ -79,10 +79,11 @@ adminClient.prototype.recharge = function (uid, money, cb) {
     });
 };
 
-// 兑现
-adminClient.prototype.cash = function (uid, money, cb) {
+// 提现确认
+// operate(2：确认，3：撤销)
+adminClient.prototype.cash = function (uid, orderId, operate, cb) {
     var self = this;
-    pomelo.request('connector.entryHandler.cash', {uid: uid, money: money}, function (res) {
+    pomelo.request('connector.entryHandler.cashHandler', {uid: uid, orderId: orderId, operate:operate}, function (res) {
         if (!res.result || res.result.code != 200) {
             self.invokeCallback(cb, res.result);
         }

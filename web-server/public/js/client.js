@@ -49,7 +49,7 @@ $(document).ready(function () {
     }
 
     function cash() {
-        _adminClient.cash(2, 5000, function (err, result) {
+        _adminClient.cash(2, 1, 2, function (err, result) {
             if (!!err) {
                 console.log('提现失败:', err);
                 return;

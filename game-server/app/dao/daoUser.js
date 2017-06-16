@@ -27,6 +27,18 @@ DaoUser.prototype.getPlayer = function (playerId, cb) {
     });
 };
 
+DaoUser.prototype.updateAllOfline = function () {
+    var sql = 'update User set state = ?';
+    var args = [0];
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            logger.error('重置所有用户在线状态失败,', err);
+        } else {
+            logger.error('重置所有用户在线状态成功');
+        }
+    });
+};
+
 // 通过名称获取好友
 DaoUser.prototype.getPlayerByName = function (username, cb) {
     var sql = 'select * from User where username = ?';
@@ -78,15 +90,18 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
                     }
                     callback(err, betStatistics);
                 });
+            },
+            function (callback) {
+                self.daoBank.get(playerId, callback);
             }
         ],
         function (err, results) {
             if (!!err) {
                 self.utils.invokeCallback(cb, err);
             } else {
-                var player = results[0];
-                var betStatistics = results[1];
-                player.setBetStatistics(betStatistics);
+                let player = results[0];
+                player.setBetStatistics(results[1]);
+                player.setBank(results[2]);
                 self.utils.invokeCallback(cb, null, player);
             }
         });
@@ -287,6 +302,7 @@ module.exports = {
         {name: "dataApiUtil", ref: "dataApiUtil"},
         {name: "daoBets", ref: "daoBets"},
         {name: "consts", ref: "consts"},
+        {name: "daoBank", ref: "daoBank"},
     ]
 }
 

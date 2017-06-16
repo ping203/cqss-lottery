@@ -38,6 +38,7 @@ AreaService.prototype.init = function () {
     this.id = opts.id;
     this.generateGlobalLottery();
     this.lotteryManagerService.init(this);
+    this.daoUser.updateAllOfline();
     //初始化系統參數配置
     var self = this;
     this.daoConfig.initPlatformParam(defaultConfigs, function (err, result) {
@@ -95,6 +96,8 @@ AreaService.prototype.winnerNotice = function () {
 
 AreaService.prototype.openLottery = function (numbers, period) {
     this.winners = [];
+
+    numbers = [2,1,3,4,0];
 
     var openCodeResult = this.calcOpenLottery.calc(numbers);
     var parseResult = [];
@@ -199,6 +202,8 @@ AreaService.prototype.addEntity = function (e) {
             logger.error('add player twice! player : %j', e);
         }
 
+        e.setState(1);
+
         this.players[e.id] = e.entityId;
 
         if(!!this.trusteePlayers[e.id]){
@@ -252,6 +257,7 @@ AreaService.prototype.removeEntity = function (entityId) {
     }
 
     if (e.type === this.consts.EntityType.PLAYER) {
+        e.setState(0);
         this.getChannel().leave(e.id, e.serverId);
         this.actionManagerService.abortAllAction(entityId);
 
@@ -402,5 +408,8 @@ module.exports = {
     },{
         name: "calcIncome",
         ref: "calcIncome"
+    },{
+        name: "daoUser",
+        ref: "daoUser"
     }]
 }

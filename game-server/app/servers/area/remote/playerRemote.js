@@ -55,70 +55,75 @@ PlayerRemote.prototype.playerLeave = function (playerId, cb) {
     this.utils.invokeCallback(cb);
 };
 
+// 后台管理员充值
 PlayerRemote.prototype.recharge = function (uid, money, cb) {
-    var player = this.areaService.getPlayer(uid);
-    if (!!player) {
-        player.recharge(money);
-        this.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE);
-        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
-        return;
-    }
-
-    //离线用户充值
     var self = this;
     this.daoUser.updateAccountAmount(uid, money, function (err, success) {
         if (!!err || !success) {
             self.utils.invokeCallback(cb, '充值失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
             return;
         }
-
-        self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE);
+        self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE, self.consts.RecordOperate.OPERATE_OK);
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+
+        //在线用户及时到帐
+        var player = self.areaService.getPlayer(uid);
+        if (!!player) {
+            player.recharge(money);
+        }
     })
-}
+};
 
-PlayerRemote.prototype.cash = function (uid, money, cb) {
-    var player = this.areaService.getPlayer(uid);
-    if (!!player) {
-        if (!player.cash(money)) {
-            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
+// 拒绝提现，恢复到账户
+PlayerRemote.prototype.restoreMoney = function (uid, money, cb) {
+    var self = this;
+    this.daoUser.updateAccountAmount(uid, money, function (err, success) {
+        if (!!err || !success) {
+            self.utils.invokeCallback(cb, '退款失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
+            return;
         }
-        else {
-            this.daoRecord.add(uid, money, self.consts.RecordType.CASH);
-            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
-        }
-        return;
-    }
 
-    //离线用户提现
+        self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+        //在线用户及时到帐
+        var player = self.areaService.getPlayer(uid);
+        if (!!player) {
+            player.recharge(money);
+        }
+    })
+};
+
+// 后台管理员提现确认
+PlayerRemote.prototype.cashHandler = function (uid, orderId, operate, cb) {
     var self = this;
     async.waterfall([
         function (scb) {
-            self.daoUser.getAccountAmount(uid, scb);
+            self.daoRecord.getRecord(orderId, scb);
         },
-        function (amount, scb) {
-            if (amount >= money) {
-                self.daoUser.updateAccountAmount(uid, -money, scb);
-            }
-            else {
-                self.utils.invokeCallback(cb, '提现失败', new Answer.NoDataResponse(Code.GAME.FA_CAST_ERROR));
-            }
-        }, function (success, scb) {
-            if (!success) {
-                scb('提现失败');
-            } else {
+        function (record, scb) {
+            if(operate === self.consts.RecordOperate.OPERATE_ABORT){
+                self.restoreMoney(uid, record.num, function (err, resutl) {
+                    if(err){
+                        scb(err);
+                    }
+                    else {
+                        scb();
+                    }
+                });
+            }else {
                 scb();
             }
+        },
+        function (scb) {
+            self.daoRecord.setOperate(orderId, operate, scb);
         }
     ], function (err) {
         if (err) {
             self.utils.invokeCallback(cb, err, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
-        self.daoRecord.add(uid, money, self.consts.RecordType.CASH);
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
     });
-}
+};
 
 PlayerRemote.prototype.setConfig = function (configs, cb) {
     var confs;

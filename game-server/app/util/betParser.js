@@ -47,7 +47,7 @@ BetParser.prototype.parse = function(data, cb){
                 }
                 betTypeInfo[betType.code].money += perMoney;
                 betTypeInfo[betType.code].type = betType;
-                betTypeInfo[betType.code].desc += `${item.result}:${perMoney} `;
+                betTypeInfo[betType.code].desc += `${item.result}/${perMoney} `;
             }
             else {
                 isValid = false;
@@ -89,7 +89,7 @@ BetParser.prototype.parse = function(data, cb){
                     }
                     betTypeInfo[betType.code].money += perMoney;
                     betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${item.result}:${perMoney} `
+                    betTypeInfo[betType.code].desc += `${item.result}/${perMoney} `
 
                 }else {
                     cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
@@ -120,7 +120,7 @@ BetParser.prototype.parse = function(data, cb){
                     }
                     betTypeInfo[betType.code].money += perMoney;
                     betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `;
+                    betTypeInfo[betType.code].desc += `${tempItem.result}/${perMoney} `;
                 }
                 else {
                     cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
@@ -166,7 +166,7 @@ BetParser.prototype.parse = function(data, cb){
                     }
                     betTypeInfo[betType.code].money += tempItem.money;
                     betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${tempItem.result}:${tempItem.money} `
+                    betTypeInfo[betType.code].desc += `${tempItem.result}/${tempItem.money} `
                 }
                 else {
                     cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
@@ -196,7 +196,7 @@ BetParser.prototype.parse = function(data, cb){
                     }
                     betTypeInfo[betType.code].money += tempItem.money;
                     betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `
+                    betTypeInfo[betType.code].desc += `${tempItem.result}/${perMoney} `
                 }
                 else {
                     cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
@@ -226,7 +226,7 @@ BetParser.prototype.parse = function(data, cb){
             }
             betTypeInfo[betType.code].money += tempItem.money;
             betTypeInfo[betType.code].type = betType;
-            betTypeInfo[betType.code].desc += `${tempItem.result}:${perMoney} `;
+            betTypeInfo[betType.code].desc += `${tempItem.result}/${perMoney} `;
         }
         else {
             isValid = false;

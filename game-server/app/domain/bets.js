@@ -10,7 +10,6 @@ var Code = require('../../../shared/code');
 
 function Bets(opts) {
     this.opts = opts;
-    // this.id = opts.id;
     this.id = 1;
     this.betMap = new Map();
 };

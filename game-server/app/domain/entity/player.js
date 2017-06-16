@@ -24,6 +24,7 @@ function Player(opts) {
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
     this.lastLoinTime = opts.lastLoinTime;
+    this.state = opts.state;
 
     if(!!opts.ext){
         this.ext = JSON.parse(opts.ext);
@@ -50,10 +51,15 @@ Player.prototype.init = function () {
     this.betStatistics = null;
     this.bets = bearcat.getBean("bets", {})
     this.betMoneyMap = new Map(); //每一期个人投注类型总和限制
+    this.bank = null;
 };
 
 Player.prototype.setBetStatistics = function (betStatistics) {
     this.betStatistics = betStatistics;
+};
+
+Player.prototype.setBank = function (bank) {
+    this.bank = bank;
 };
 
 Player.prototype.restoreExceptBet = function () {
@@ -127,6 +133,11 @@ Player.prototype._upgrade = function () {
     this.setNextLevelExp();
 };
 
+Player.prototype.setState = function(state){
+    this.state = state;
+    this.save();
+};
+
 Player.prototype.setRoleName = function (name) {
     this.roleName = name;
     this.save();
@@ -150,15 +161,26 @@ Player.prototype.setPhone = function (phone) {
     return Code.OK;
 };
 
-Player.prototype.setPinCode = function (pinCode) {
+Player.prototype.bindCard = function (address, username, cardNO, pinCode, cb) {
     if(this.ext.pinCode === 1){
-        return Code.GAME.FA_MODIFY_LIMIT;
+        this.utils.invokeCallback(cb, Code.GAME.FA_CANNOT_REBIND_CARD, null);
+        return;
     }
-    this.pinCode = pinCode;
-    this.ext.pinCode = 1;
-    this.save();
-    this.changeNotify();
-    return Code.OK;
+
+    var self = this;
+    this.daoBank.bind(this.id, address, username, cardNO, function (err, result) {
+        if(!err && !!result){
+            self.pinCode = self.utils.createSalt(pinCode);
+            self.ext.pinCode = 1;
+            self.bank = result;
+            self.save();
+            self.changeNotify();
+            self.utils.invokeCallback(cb, null, result);
+        }
+        else {
+            self.utils.invokeCallback(cb, Code.DBFAIL, null);
+        }
+    });
 };
 
 Player.prototype.setEmail = function (email) {
@@ -176,17 +198,19 @@ Player.prototype.recharge = function (money) {
     this.accountAmount += money;
     this.save();
     this.changeNotify();
-    //todo 充值记录
 };
 
-Player.prototype.cash = function (money) {
-    if (this.accountAmount < money) return false;
+Player.prototype.cash = function (pinCode, money) {
+    if(pinCode !== this.pinCode){
+        return Code.GAME.FA_CAST_PINCODE_ERR;
+    }
+    if (this.accountAmount < money){
+        return Code.GAME.FA_CAST_ERROR;
+    };
     this.accountAmount -= money;
     this.save();
     this.changeNotify();
-    //todo 提现记录
-    return true;
-
+    return Code.OK;
 };
 
 Player.prototype.setCanTalk = function (canTalk) {
@@ -401,6 +425,8 @@ Player.prototype.strip = function () {
         loginCount: this.loginCount,
         lastLoinTime: this.lastLoinTime,
         betStatistics: this.betStatistics,
+        bank:this.bank,
+        state:this.state,
         ext:JSON.stringify(this.ext)
     };
 
@@ -445,6 +471,7 @@ module.exports = {
         {name: "daoIncome", ref: "daoIncome"},
         {name: "platformBet", ref: "platformBet"},
         {name: "betLimitCfg", ref: "betLimitCfg"},
-        {name: "sysConfig", ref: "sysConfig"}
+        {name: "sysConfig", ref: "sysConfig"},
+        {name: "daoBank", ref: "daoBank"}
     ]
 }

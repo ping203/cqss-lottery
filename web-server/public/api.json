@@ -246,6 +246,24 @@
         }
       }
     },{
+      "cashRequest": {
+        "router":"area.playerHandler.cashRequest",
+        "msg":{
+          "pinCode":"1231231",
+          "money":2000
+        }
+      }
+    },{
+      "bindBankCard": {
+        "router":"area.playerHandler.bindBankCard",
+        "msg":{
+          "address":"中国农业银行成都分行高新区营业部",
+          "username":"张有钱",
+          "cardNO":"622233432432000505035353",
+          "pinCode":"afdfdafafjkf423432"
+        }
+      }
+    },{
       "winRateRankList": {
         "router":"rank.rankHandler.winRateRankList",
         "msg":null

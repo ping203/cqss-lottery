@@ -114,11 +114,46 @@ PlayerHandler.prototype.setPhone = function (msg, session, next) {
     next(null, new Answer.NoDataResponse(ret));
 };
 
-PlayerHandler.prototype.setPinCode = function (msg, session, next) {
+PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
+    if(!msg.address || !msg.username || !msg.cardNO || !msg.pinCode){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
     var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
-    var ret = player.setPinCode(msg.pinCode);
-    next(null, new Answer.NoDataResponse(ret));
+    player.bindCard(msg.address, msg.username, msg.cardNO, msg.pinCode, function (err, result) {
+        if(!!err){
+            next(null, new Answer.NoDataResponse(err));
+        }
+        else {
+            next(null, new Answer.DataResponse(Code.OK, result));
+        }
+    });
+};
+
+PlayerHandler.prototype.cashRequest = function (msg, session, next) {
+    if(!msg.pinCode || !msg.money){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    var money = parseInt(msg.money, 10);
+    if(isNaN(money)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    var self = this;
+    this.daoRecord.add(session.uid, money, this.consts.RecordType.CASH, this.consts.RecordOperate.OPERATE_REQ, function (err, result) {
+        if(err){
+            next(null, new Answer.NoDataResponse(Code.DBFAIL));
+            return;
+        }
+        var playerId = session.uid;
+        var player = self.areaService.getPlayer(playerId);
+        let ret = player.cash(self.utils.createSalt(msg.pinCode), money);
+        next(null, new Answer.NoDataResponse(ret));
+    });
 };
 
 PlayerHandler.prototype.setEmail = function (msg, session, next) {
@@ -134,7 +169,7 @@ PlayerHandler.prototype.getGMWeiXin = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.getRecords = function (msg, session, next) {
-    this.daoRecord.get(session.uid, msg.skip, msg.limit, function (err, results) {
+    this.daoRecord.getRecords(session.uid, msg.skip, msg.limit, function (err, results) {
         if(!!err){
             next(null, new Answer.NoDataResponse(Code.DBFAIL));
             return;
@@ -168,7 +203,8 @@ module.exports = function (app) {
             {name: "consts", ref: "consts"},
             {name: "daoUser", ref: "daoUser"},
             {name: 'platformBet', ref: 'platformBet'},
-            {name: 'daoRecord', ref: 'daoRecord'}
+            {name: 'daoRecord', ref: 'daoRecord'},
+            {name: 'utils', ref: 'utils'},
         ]
     });
 };

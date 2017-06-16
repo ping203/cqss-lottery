@@ -6,15 +6,6 @@ function CalcOpenLottery() {
 }
 
 CalcOpenLottery.prototype.init = function () {
-    // this.totalSizeResult = null;
-    // this.totalSingleDoubleResult = null;
-    // this.dragonAndTigerResult = null;
-    // this.equal15Result = null;
-    // this.perPosSizeSingleDoubleResult = new Set();
-    // this.perPosValueResult = new Set();
-    // this.containValueResult = new Set();
-    // this.pantherResult = new Set();
-    // this.shunZiResult = new Set();
     this.openCodeResult = new Set();
 }
 
@@ -25,8 +16,6 @@ CalcOpenLottery.prototype.totalSizeCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         total += parseInt(numbers[i],10);
     }
-
-  //  this.totalSizeResult = total >= 23 ? '大':'小';
     this.openCodeResult.add(total >= 23 ? '大':'小');
 
 };
@@ -37,8 +26,6 @@ CalcOpenLottery.prototype.totalSingleDoubleCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         total += parseInt(numbers[i],10);
     }
-
-  //  this.totalSingleDoubleResult = total%2 === 0 ? '双':'单';
     this.openCodeResult.add(total%2 === 0 ? '双':'单');
 };
 
@@ -50,8 +37,6 @@ CalcOpenLottery.prototype.dragonAndTigerCalc = function (numbers) {
     if(number1 === number5){
         return;
     }
-
-  //  this.dragonAndTigerResult = number1 > number5 ? '龙':'虎';
     this.openCodeResult.add(number1 > number5 ? '龙':'虎');
 };
 
@@ -70,10 +55,8 @@ CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         var num = parseInt(numbers[i],10);
         var size = num <=4 ? ((i+1)+':'+'小'):((i+1)+':'+'大');
-       // this.perPosSizeSingleDoubleResult.add(size);
 
         var sd = num%2 === 0?((i+1)+':'+'双'):((i+1)+':'+'单');
-       // this.perPosSizeSingleDoubleResult.add(sd);
 
         this.openCodeResult.add(size);
         this.openCodeResult.add(sd);
@@ -84,7 +67,6 @@ CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
 CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         var vals = (i+1)+':'+numbers[i];
-       // this.perPosValueResult.add(vals);
         this.openCodeResult.add(vals);
     }
 };
@@ -93,7 +75,6 @@ CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
 CalcOpenLottery.prototype.containValueCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         var vals = (i+1)+':'+numbers[i];
-      //  this.containValueResult.add(vals);
         this.openCodeResult.add(vals);
     }
 };
@@ -101,17 +82,14 @@ CalcOpenLottery.prototype.containValueCalc = function (numbers) {
 //豹子、顺子 豹子：连续3球相同 顺子：连子
 CalcOpenLottery.prototype.pantherCalc = function (numbers) {
     if(numbers[0] === numbers[1] === numbers[2]){
-       // this.pantherResult.add('前豹');
         this.openCodeResult.add('前豹');
     }
 
     if(numbers[1] === numbers[2] === numbers[3]){
-       // this.pantherResult.add('中豹');
         this.openCodeResult.add('中豹');
     }
 
     if(numbers[2] === numbers[3] === numbers[4]){
-       // this.pantherResult.add('后豹');
         this.openCodeResult.add('后豹');
     }
 };
@@ -140,17 +118,14 @@ CalcOpenLottery.prototype.checkShunZi = function (numbers) {
 
 CalcOpenLottery.prototype.shunZiCalc = function (numbers) {
     if(this.checkShunZi([numbers[0],numbers[1],numbers[2]])){
-        //this.shunZiResult.add('前顺');
         this.openCodeResult.add('前顺');
     }
 
     if(this.checkShunZi([numbers[1],numbers[2],numbers[3]])){
-        //this.shunZiResult.add('中顺');
         this.openCodeResult.add('中顺');
     }
 
     if(this.checkShunZi([numbers[2],numbers[3],numbers[4]])){
-        //this.shunZiResult.add('后顺');
         this.openCodeResult.add('后顺');
     }
 };
@@ -166,18 +141,6 @@ CalcOpenLottery.prototype.calc = function (numbers) {
     this.containValueCalc(numbers);
     this.pantherCalc(numbers);
     this.shunZiCalc(numbers);
-
-    // var r =  {
-    //     totalSizeResult:this.totalSizeResult,
-    //     totalSingleDoubleResult:this.totalSingleDoubleResult,
-    //     dragonAndTigerResult:this.dragonAndTigerResult,
-    //     equal15Result:this.equal15Result,
-    //     perPosSizeSingleDoubleResult:this.perPosSizeSingleDoubleResult,
-    //     perPosValueResult:this.perPosValueResult,
-    //     containValueResult:this.containValueResult,
-    //     pantherResult:this.pantherResult,
-    //     shunZiResult:this.shunZiResult
-    // };
 
     return this.openCodeResult;
 }

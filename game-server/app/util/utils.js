@@ -1,7 +1,16 @@
-var util = require('util');
+const util = require('util');
+const crypto = require('crypto');
 
 var Utils = function() {
 
+};
+
+
+// 密码加密
+Utils.prototype.createSalt = function(pwd) {
+    const hash = crypto.createHash('sha1');
+    hash.update(pwd);
+    return hash.digest('hex');
 };
 
 // callback util

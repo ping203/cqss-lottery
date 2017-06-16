@@ -29,10 +29,28 @@ CREATE TABLE IF NOT EXISTS `User` (
   `loginCount` smallint(6) unsigned DEFAULT 0 COMMENT '登录次数',
   `lastLoinTime` bigint(20) unsigned DEFAULT NULL COMMENT '最后登录时间',
   `ext` json DEFAULT NULL COMMENT '扩展数据',
+  `state` tinyint(3) unsigned DEFAULT '0' COMMENT '在线状态',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `usernasys_configUserme_UNIQUE` (`username`),
+  UNIQUE KEY `username_UNIQUE` (`username`),
   UNIQUE KEY `phone_UNIQUE` (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+# ------------------------------------------------------------
+# Dump of table Bank(用户银行信息)
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `Bank`(
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
+  `address` varchar(128) COLLATE utf8_unicode_ci NOT NULL COMMENT '开户行地址',
+  `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '户名',
+  `cardNO` varchar(36) COLLATE utf8_unicode_ci NOT NULL COMMENT '卡号',
+  `bindTime` bigint(20) unsigned NOT NULL COMMENT '绑卡时间',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY(`uid`) REFERENCES User(`id`),
+  UNIQUE KEY `uid_UNIQUE` (`uid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
 # Dump of table BettingInformation(用户投注信息)
@@ -113,13 +131,14 @@ CREATE TABLE IF NOT EXISTS `config`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
-# Dump of table config(系统配置)
+# Dump of table Record(系统配置)
 # ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Record`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
   `num` bigint(20) NOT NULL COMMENT '金额',
   `type` smallint(6) unsigned NOT NULL COMMENT '类型1:充值，2：提现',
+  `operate` smallint(6) unsigned NOT NULL COMMENT '操作1:请求，2：确认，3：撤销',
   `create_time` bigint(20) unsigned NOT NULL COMMENT '记录时间',
    PRIMARY KEY (`id`),
    FOREIGN KEY(`uid`) REFERENCES User(`id`)
