@@ -53,7 +53,7 @@ AreaService.prototype.init = function () {
         logger.error('平台参数配置获取失败，系统无法工作');
     });
 
-    this.daoBets.getLatestBets(0,20, function (err, results) {
+    this.daoBets.getLatestBets(0,10, function (err, results) {
         if(err){
             return;
         }
