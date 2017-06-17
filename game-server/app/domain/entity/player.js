@@ -372,7 +372,6 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
-        this.accountAmount = Number(this.accountAmount.toFixed(2));
         this.addExperience(this.calcExp(calcResult));
         this.save();
         this.changeNotify();
@@ -420,7 +419,7 @@ Player.prototype.strip = function () {
         forbidTalk: this.forbidTalk,
         role: this.role,
         rank: this.rank,
-        accountAmount: this.accountAmount,
+        accountAmount: Number(this.accountAmount.toFixed(2)),
         level: this.level,
         experience: this.experience,
         loginCount: this.loginCount,
