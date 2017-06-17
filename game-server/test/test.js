@@ -377,20 +377,10 @@ function test2() {
 
 function testBetType() {
 
-    let inc = 1.95;
-    let nu = 6666*1.95;
-    console.info(nu, typeof inc);
-
-    nu = parseFloat(nu.toFixed(2));
-
-    console.info('nu11:', nu, typeof nu);
-
-    var sub = nu - 6666 -6666;
-
-
-    console.log(sub);
-
-    console.log(0.1+0.4);
+    this.reg2 = /(^[1-5]+)\/([大小单双0-9]+)\/([1-9][0-9]+)$/i; //每位数字的大小单双值玩法
+    var bet3 = '512/12大单3/100.0';
+    var ret3 = bet3.match(reg2);
+    console.log(ret3);
 
 
 

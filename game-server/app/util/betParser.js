@@ -6,12 +6,12 @@ var Code = require('../../../shared/code');
 
 var BetParser = function () {
     this.splitReg=/.{1}/g;
-    this.reg1 = /(^[大小单双龙虎和合]+)\/?([0-9.]*)$/i;
-    this.reg2 = /(^\d+)\/(.+)\/([0-9.]*)$/i; //每位数字的大小单双值玩法
-    this.reg3 = /(^\d+)\/([0-9.]*)$/i; //包数字玩法
-    this.reg4 = /(^[豹顺]+)子?\/?([0-9.]*)$/i;
-    this.reg5= /(^[豹顺]+)子?\/([0-9.]*)\/([0-9.]*)\/([0-9.]*)/i;
-    this.reg6 = /(^[前中后])([豹顺])\/?([0-9.]*)$/i;
+    this.reg1 = /(^[大小单双龙虎和合]+)\/?([1-9][0-9]*)$/i;
+    this.reg2 = /(^[1-5]+)\/([大小单双0-9]+)\/([1-9][0-9]*)$/i; //1~5球数字的大小单双值玩法
+    this.reg3 = /(^[0-9]+)\/([1-9][0-9]*)$/i; //包数字玩法
+    this.reg4 = /(^[豹顺]+)子?\/?([1-9][0-9]*)$/i;
+    this.reg5= /(^[豹顺]+)子?\/([0-9]+)\/([0-9]+)\/([0-9]+)$/i;
+    this.reg6 = /(^[前中后])([豹顺])\/?([1-9][0-9]*)$/i;
 
     this.keyValue =['前','中','后'];
 };
@@ -109,7 +109,7 @@ BetParser.prototype.parse = function(data, cb){
                 if(betType){
                     var tempItem = {};
                     tempItem.type = betType;
-                    tempItem.result = j + ':'+ types[i];
+                    tempItem.result = j + '/'+ types[i];
                     tempItem.money = perMoney;
                     betItems.push(tempItem);
 

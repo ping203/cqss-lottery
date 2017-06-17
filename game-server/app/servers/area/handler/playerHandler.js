@@ -3,6 +3,7 @@ var bearcat = require('bearcat');
 var fs = require('fs');
 var Answer = require('../../../../../shared/answer');
 var Code = require('../../../../../shared/code');
+const async = require('async');
 
 var PlayerHandler = function (app) {
     this.app = app;
@@ -11,37 +12,65 @@ var PlayerHandler = function (app) {
 };
 
 PlayerHandler.prototype.bet = function (msg, session, next) {
-    var period = this.areaService.getLottery().getNextPeriod();
-    var identify = this.areaService.getLottery().getIdentify();
-    var player = this.areaService.getPlayer(session.uid);
-    var parseBetInfo = msg.betParseInfo;
+    if (!this.areaService.canBetNow()) {
+        next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
+        return;
+    }
 
-    for (var type in parseBetInfo.betTypeInfo) {
-        // 平台限额检查
-        var answer = this.platformBet.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money);
-        if (answer.result.code != Code.OK.code) {
-            next(null, answer);
-            return;
-        }
-        parseBetInfo.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
-
-        //玩家限额检查
-        var pri = player.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money)
-        if (pri.result.code != Code.OK.code) {
-            next(null, pri);
-            return;
-        }
-        parseBetInfo.betTypeInfo[type].priFreeBetValue = pri.data.freeBetValue;
+    if (!msg.betData) {
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
     }
 
     var self = this;
-    player.bet(period, identify, msg.betData, parseBetInfo, function (err, betItem) {
-        if (err) {
-            next(null, new Answer.NoDataResponse(err));
+    async.waterfall([
+        function (cb) {
+            self.betParser.parse(msg.betData, function (err, result) {
+                if (err) {
+                    cb(new Answer.NoDataResponse(err));
+                    return;
+                }
+                cb(null, result);
+            });
+        }, function (result, cb) {
+            var period = self.areaService.getLottery().getNextPeriod();
+            var identify = self.areaService.getLottery().getIdentify();
+            var player = self.areaService.getPlayer(session.uid);
+            var parseBetInfo = result;
+
+            for (var type in parseBetInfo.betTypeInfo) {
+                // 平台限额检查
+                var answer = self.platformBet.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money);
+                if (answer.result.code != Code.OK.code) {
+                    cb(answer);
+                    return;
+                }
+                parseBetInfo.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
+
+                //玩家限额检查
+                var pri = player.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money)
+                if (pri.result.code != Code.OK.code) {
+                    cb(pri);
+                    return;
+                }
+                parseBetInfo.betTypeInfo[type].priFreeBetValue = pri.data.freeBetValue;
+            }
+            player.bet(period, identify, msg.betData, parseBetInfo, function (err, betItem) {
+                if (err) {
+                    cb(new Answer.NoDataResponse(err));
+                    return;
+                }
+                cb();
+                self.areaService.updateLatestBets(betItem);
+            });
+        }
+    ],function (err) {
+        logger.error('$$$$$$$$$$$$$$$$$$$$$$$,err',err);
+        if(err){
+            next(null, err);
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
-        self.areaService.updateLatestBets(betItem);
     });
 };
 
@@ -115,14 +144,14 @@ PlayerHandler.prototype.setPhone = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
-    if(!msg.address || !msg.username || !msg.cardNO || !msg.pinCode){
+    if (!msg.address || !msg.username || !msg.cardNO || !msg.pinCode) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
     var playerId = session.uid;
     var player = this.areaService.getPlayer(playerId);
     player.bindCard(msg.address, msg.username, msg.cardNO, msg.pinCode, function (err, result) {
-        if(!!err){
+        if (!!err) {
             next(null, new Answer.NoDataResponse(err));
         }
         else {
@@ -132,20 +161,20 @@ PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.cashRequest = function (msg, session, next) {
-    if(!msg.pinCode || !msg.money){
+    if (!msg.pinCode || !msg.money) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
 
     var money = parseInt(msg.money, 10);
-    if(isNaN(money)){
+    if (isNaN(money)) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
 
     var self = this;
     this.daoRecord.add(session.uid, money, this.consts.RecordType.CASH, this.consts.RecordOperate.OPERATE_REQ, function (err, result) {
-        if(err){
+        if (err) {
             next(null, new Answer.NoDataResponse(Code.DBFAIL));
             return;
         }
@@ -170,7 +199,7 @@ PlayerHandler.prototype.getGMWeiXin = function (msg, session, next) {
 
 PlayerHandler.prototype.getRecords = function (msg, session, next) {
     this.daoRecord.getRecords(session.uid, msg.skip, msg.limit, function (err, results) {
-        if(!!err){
+        if (!!err) {
             next(null, new Answer.NoDataResponse(Code.DBFAIL));
             return;
         }
@@ -205,6 +234,7 @@ module.exports = function (app) {
             {name: 'platformBet', ref: 'platformBet'},
             {name: 'daoRecord', ref: 'daoRecord'},
             {name: 'utils', ref: 'utils'},
+            {name: 'betParser', ref: 'betParser'}
         ]
     });
 };
