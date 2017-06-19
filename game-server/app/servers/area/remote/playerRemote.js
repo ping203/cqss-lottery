@@ -55,23 +55,31 @@ PlayerRemote.prototype.playerLeave = function (playerId, cb) {
     this.utils.invokeCallback(cb);
 };
 
-// 后台管理员充值
+// 后台管理员充值,事务回滚
 PlayerRemote.prototype.recharge = function (uid, money, cb) {
     var self = this;
-    this.daoUser.updateAccountAmount(uid, money, function (err, success) {
-        if (!!err || !success) {
-            self.utils.invokeCallback(cb, '充值失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
+    async.waterfall([
+        function (callback) {
+            self.daoUser.updateAccountAmount(uid, money,callback);
+        },
+        function (callback) {
+            self.daoUser.getAccountAmount(uid, callback);
+        },
+        function (freeMoney, callback) {
+            self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE, self.consts.RecordOperate.OPERATE_OK, freeMoney, callback);
+            //在线用户及时到帐
+            let player = self.areaService.getPlayer(uid);
+            if (!!player) {
+                player.recharge(money);
+            }
+        }
+    ],function (err) {
+        if(err){
+            self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_ERROR));
             return;
         }
-        self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE, self.consts.RecordOperate.OPERATE_OK);
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
-
-        //在线用户及时到帐
-        var player = self.areaService.getPlayer(uid);
-        if (!!player) {
-            player.recharge(money);
-        }
-    })
+    });
 };
 
 // 拒绝提现，恢复到账户
@@ -101,14 +109,19 @@ PlayerRemote.prototype.cashHandler = function (uid, orderId, operate, cb) {
         },
         function (record, scb) {
             if(operate === self.consts.RecordOperate.OPERATE_ABORT){
-                self.restoreMoney(uid, record.num, function (err, resutl) {
-                    if(err){
-                        scb(err);
-                    }
-                    else {
-                        scb();
-                    }
-                });
+                if(record.operate !== self.consts.RecordOperate.OPERATE_REQ){
+                    scb('订单异常操作');
+                }
+                else {
+                    self.restoreMoney(uid, record.num, function (err, resutl) {
+                        if(err){
+                            scb(err);
+                        }
+                        else {
+                            scb();
+                        }
+                    });
+                }
             }else {
                 scb();
             }
@@ -148,6 +161,7 @@ PlayerRemote.prototype.setConfig = function (configs, cb) {
     });
 };
 
+//{"uid":"2","ctrl":{"code":1,"operate":false}}
 PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
     var player = this.areaService.getPlayer(uid);
     switch (Number(ctrl.code)) {
@@ -156,19 +170,29 @@ PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
                 player.setCanTalk(ctrl.operate);
             }
             else {
-                this.daoUser.setPlayerCanTalk(uid, ctrl.operate);
+                this.daoUser.setPlayerCanTalk(uid, ctrl.operate, function (err, result) {
+                    if(result){
+                        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+                    }else {
+                        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.DBFAIL));
+                    }
+                });
             }
-            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
             return;
         case this.consts.PlayerCtrl.active:
-            this.daoUser.setPlayerActive(uid, ctrl.operate);
-            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+            this.daoUser.setPlayerActive(uid, ctrl.operate, function (err, result) {
+                if(result){
+                    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+                }
+                else {
+                    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.DBFAIL));
+                }
+            });
             return;
         default:
+            this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.FAIL));
             break;
     }
-
-    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.FAIL));
 };
 
 PlayerRemote.prototype.getPlayerBaseInfo = function (uid, cb) {

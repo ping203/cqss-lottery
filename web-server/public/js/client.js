@@ -29,7 +29,7 @@ $(document).ready(function () {
     var _adminClient =  new window.adminClient();
 
     function adminLogin() {
-        _adminClient.login('sys', '8f1e7f20b9684498ab7f94039b0c848e', function (err, result) {
+        _adminClient.login('sys', '759d56e7a39f4d1c9a846c9d57f5c2bd', function (err, result) {
             if (!!err) {
                 console.log('管理员登录失败,', err);
                 return;
@@ -49,7 +49,7 @@ $(document).ready(function () {
     }
 
     function cash() {
-        _adminClient.cash(2, 1, 2, function (err, result) {
+        _adminClient.cash(2, 3, 2, function (err, result) {
             if (!!err) {
                 console.log('提现失败:', err);
                 return;
@@ -59,7 +59,7 @@ $(document).ready(function () {
     }
     
     function playerCtrl() {
-        _adminClient.playerCtrl(2, {code:1,operate:false}, function (err, result) {
+        _adminClient.playerCtrl(2, {code:1,operate:true}, function (err, result) {
             if (!!err) {
                 console.log('提现失败:', err);
                 return;

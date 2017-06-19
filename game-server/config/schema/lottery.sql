@@ -131,12 +131,13 @@ CREATE TABLE IF NOT EXISTS `config`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # ------------------------------------------------------------
-# Dump of table Record(系统配置)
+# Dump of table Record(充值记录)
 # ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Record`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
   `num` bigint(20) NOT NULL COMMENT '金额',
+  `accountAmount` DECIMAL(20,2) NOT NULL COMMENT '用户余额',
   `type` smallint(6) unsigned NOT NULL COMMENT '类型1:充值，2：提现',
   `operate` smallint(6) unsigned NOT NULL COMMENT '操作1:请求，2：确认，3：撤销',
   `create_time` bigint(20) unsigned NOT NULL COMMENT '记录时间',

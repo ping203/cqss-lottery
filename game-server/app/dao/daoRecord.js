@@ -10,9 +10,9 @@ var DaoRecord = function () {
 
 };
 
-DaoRecord.prototype.add = function (playerId, num, type, operate, cb) {
-    var sql = 'insert into Record (uid,num,type,create_time, operate) values(?,?,?,?,?)';
-    var args = [playerId,num,type, Date.now(), operate];
+DaoRecord.prototype.add = function (playerId, num, type, operate, freeMoney, cb) {
+    var sql = 'insert into Record (uid,num,type,create_time, operate, accountAmount) values(?,?,?,?,?,?)';
+    var args = [playerId,num,type, Date.now(), operate, freeMoney];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {

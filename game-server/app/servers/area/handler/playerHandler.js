@@ -164,6 +164,7 @@ PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
     });
 };
 
+// 体现请求
 PlayerHandler.prototype.cashRequest = function (msg, session, next) {
     if (!msg.pinCode || !msg.money) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
@@ -176,16 +177,21 @@ PlayerHandler.prototype.cashRequest = function (msg, session, next) {
         return;
     }
 
-    var self = this;
-    this.daoRecord.add(session.uid, money, this.consts.RecordType.CASH, this.consts.RecordOperate.OPERATE_REQ, function (err, result) {
+    var playerId = session.uid;
+    var player = this.areaService.getPlayer(playerId);
+    let ret = player.cash(this.utils.createSalt(msg.pinCode), money);
+    if(ret.code !== Code.OK.code){
+        next(null, new Answer.NoDataResponse(ret));
+        return;
+    }
+
+    this.daoRecord.add(session.uid, money, this.consts.RecordType.CASH, this.consts.RecordOperate.OPERATE_REQ, player.accountAmount, function (err, result) {
         if (err) {
+            player.recharge(money);
             next(null, new Answer.NoDataResponse(Code.DBFAIL));
             return;
         }
-        var playerId = session.uid;
-        var player = self.areaService.getPlayer(playerId);
-        let ret = player.cash(self.utils.createSalt(msg.pinCode), money);
-        next(null, new Answer.NoDataResponse(ret));
+        next(null, new Answer.NoDataResponse(Code.OK));
     });
 };
 

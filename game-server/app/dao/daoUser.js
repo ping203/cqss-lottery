@@ -166,7 +166,7 @@ DaoUser.prototype.getAccountAmount = function (playerId, cb) {
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
+            self.utils.invokeCallback(cb, err, null);
         } else {
             if (!!res && res.length > 0) {
                 self.utils.invokeCallback(cb, null, res[0].accountAmount);
