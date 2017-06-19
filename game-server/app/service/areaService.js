@@ -97,7 +97,7 @@ AreaService.prototype.winnerNotice = function () {
 AreaService.prototype.openLottery = function (numbers, period) {
     this.winners = [];
 
-  //  numbers = [2,1,3,4,2];
+    //numbers = [9,2,9,1,0];
 
     var openCodeResult = this.calcOpenLottery.calc(numbers);
     var parseResult = [];

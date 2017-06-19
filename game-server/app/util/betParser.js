@@ -2,7 +2,7 @@
  * Created by linyng on 17-5-22.
  */
 
-var Code = require('../../../shared/code');
+const Code = require('../../../shared/code');
 
 var BetParser = function () {
     this.splitReg=/.{1}/g;
@@ -12,257 +12,394 @@ var BetParser = function () {
     this.reg4 = /(^[豹顺]+)子?\/?([1-9][0-9]*)$/i;
     this.reg5= /(^[豹顺]+)子?\/([0-9]+)\/([0-9]+)\/([0-9]+)$/i;
     this.reg6 = /(^[前中后])([豹顺])\/?([1-9][0-9]*)$/i;
-
     this.keyValue =['前','中','后'];
 };
 
-BetParser.prototype.parse = function(data, cb){
-    var total = 0;
-    var betTypeInfo = {};
-    var betItems =[];
-    var isValid = false;
-    var err = {};
-    var perMoney = 0;
-    if(data.match(this.reg1)){
-        isValid = true;
-        var result = data.match(this.reg1);
-        perMoney = Number(result[2]);
-        var types = result[1].match(this.splitReg);
+BetParser.prototype.checkType = function (betData) {
+    let type = this.consts.BetDataType.UNKNOWN;
+    if(betData.match(this.reg1)){
+        type = this.consts.BetDataType.SIZE;
+    }else if(betData.match(this.reg2)){
+        type = this.consts.BetDataType.POS;
+    }else if(betData.match(this.reg3)){
+        type = this.consts.BetDataType.NUM;
+    }else if(betData.match(this.reg4)){
+        type = this.consts.BetDataType.BS1;
+    }else if(betData.match(this.reg5)){
+        type = this.consts.BetDataType.BS2;
+    }else if(betData.match(this.reg6)){
+        type = this.consts.BetDataType.BS3;
+    }
 
-        var betTypeInfoItem = {money:0};
-        for (var i = 0; i< types.length;++i){
-            var betType = this.betType.get(types[i]);
-            if(betType){
-                var item = {};
-                item.result = types[i];
-                item.money = perMoney;
-                item.type= betType;
-                betItems.push(item);
+    return type;
+};
 
-                total+= perMoney;
+BetParser.prototype.handleSize = function (betData) {
+    let parseResult = {
+        error:Code.OK,
+        total:0,
+        betTypeInfo:{},
+        betItems:[]
+    };
 
-                if(undefined === betTypeInfo[betType.code]){
-                    betTypeInfo[betType.code]= {money:0,type:{}};
-                    betTypeInfo[betType.code].desc ="";
-                }
-                betTypeInfo[betType.code].money += perMoney;
-                betTypeInfo[betType.code].type = betType;
-                betTypeInfo[betType.code].desc += `${item.result}/${perMoney} `;
-            }
-            else {
-                isValid = false;
-                err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
-                break;
-            }
-        }
-    }else if(data.match(this.reg2)){
-        isValid = true;
-        var result = data.match(this.reg2);
-        var ballPos = result[1].match(this.splitReg);
+    let result = betData.match(this.reg1);
+    if(!result){
+        parseResult.error = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+        return parseResult;
+    }
 
-        //投注位置1～5
-        for(let i = 0; i< ballPos.length;++i){
-            if(ballPos[i]> 5 ||ballPos[i]<=0){
-                cb(Code.GAME.FA_BET_OPERATE_INVALID, null);
-                return;
-            }
-        }
+    let perMoney = parseInt(result[2],10);
+    if(isNaN(perMoney) || perMoney === 0){
+        parseResult.error = Code.GAME.FA_BET_MONEY_INVALID;
+        return parseResult;
+    }
 
-        var types = result[2].match(this.splitReg);
-        perMoney = Number(result[3]);
-        for (var j=0;j< ballPos.length;++j){
-            for (var i = 0; i< types.length;i++){
-                var betType = this.betType.get(types[i], ballPos[j]);
-                if(betType){
-                    var item = {};
-                    item.type = betType;
-                    item.result = ballPos[j] +'/' + types[i];
-                    item.money = perMoney;
-
-                    betItems.push(item);
-
-                    total+= perMoney;
-
-                    if(undefined === betTypeInfo[betType.code]){
-                        betTypeInfo[betType.code]= {money:0,type:{}};
-                        betTypeInfo[betType.code].desc ="";
-                    }
-                    betTypeInfo[betType.code].money += perMoney;
-                    betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${item.result}/${perMoney} `
-
-                }else {
-                    cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
-                    return;
-                }
-            }
-        }
-    }else if(data.match(this.reg3)){
-        isValid = true;
-        var result = data.match(this.reg3);
-        var types = result[1].match(this.splitReg);
-        perMoney = Number(result[2]);
-
-        for (var i = 0; i< types.length;++i){
-            for (var j=1;j<=5;j++){
-                var betType = this.betType.get(types[i], j);
-                if(betType){
-                    var tempItem = {};
-                    tempItem.type = betType;
-                    tempItem.result = j + '/'+ types[i];
-                    tempItem.money = perMoney;
-                    betItems.push(tempItem);
-
-                    total+= perMoney;
-                    if(undefined === betTypeInfo[betType.code]){
-                        betTypeInfo[betType.code]= {money:0,type:{}};
-                        betTypeInfo[betType.code].desc ="";
-                    }
-                    betTypeInfo[betType.code].money += perMoney;
-                    betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${tempItem.result}/${perMoney} `;
-                }
-                else {
-                    cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
-                    return;
-                }
-            }
-        }
-    }else if(data.match(this.reg5)){
-        isValid = true;
-        var result = data.match(this.reg5);
-        var types = result[1].match(this.splitReg);
-        var perMoneys = [];
-        perMoneys.push(Number(result[2]));
-        perMoneys.push(Number(result[3]));
-        perMoneys.push(Number(result[4]));
-
-        var sum =  perMoneys.reduce(function (previous, current, index, array) {
-            return previous + current;
-        })
-
-        if(sum === 0){
-            cb(Code.GAME.FA_BET_MONEY_NOTZERO, null);
-            return;
-        }
-        perMoney = 1;
-
-        for (var j=0;j<this.keyValue.length;j++){
-            for (var i = 0; i< types.length;++i){
-                var betType = this.betType.get(this.keyValue[j]+types[i]);
-                if(betType){
-                    var tempItem = {};
-                    tempItem.type = betType;
-                    tempItem.result = this.keyValue[j]+types[i];
-                    tempItem.money = perMoneys[j];
-
-                    if(tempItem.money === 0) continue;
-                    betItems.push(tempItem);
-
-                    total+= tempItem.money;
-                    if(undefined === betTypeInfo[betType.code]){
-                        betTypeInfo[betType.code]= {money:0,type:{}};
-                        betTypeInfo[betType.code].desc ="";
-                    }
-                    betTypeInfo[betType.code].money += tempItem.money;
-                    betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${tempItem.result}/${tempItem.money} `
-                }
-                else {
-                    cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
-                    return;
-                }
-            }
-        }
-    }else if(data.match(this.reg4)){
-        isValid = true;
-        var result = data.match(this.reg4);
-        var types = result[1].match(this.splitReg);
-        perMoney = Number(result[2]);
-        for (var j=0;j<this.keyValue.length;j++){
-            for (var i = 0; i< types.length;++i){
-                var betType = this.betType.get(this.keyValue[j]+types[i]);
-                if(betType){
-                    var tempItem = {};
-                    tempItem.type = betType;
-                    tempItem.result = this.keyValue[j]+types[i];
-                    tempItem.money = perMoney;
-                    betItems.push(tempItem);
-
-                    total+= perMoney;
-                    if(undefined === betTypeInfo[betType.code]){
-                        betTypeInfo[betType.code]= {money:0,type:{}};
-                        betTypeInfo[betType.code].desc ="";
-                    }
-                    betTypeInfo[betType.code].money += tempItem.money;
-                    betTypeInfo[betType.code].type = betType;
-                    betTypeInfo[betType.code].desc += `${tempItem.result}/${perMoney} `
-                }
-                else {
-                    cb(Code.GAME.FA_BET_TYPE_NOT_EXIST, null);
-                    return;
-                }
-            }
-        }
-    }else if(data.match(this.reg6)){
-        isValid = true;
-        var result = data.match(this.reg6);
-        var key = result[1];
-        var type = result[2];
-        perMoney = Number(result[3]);
-
-        var betType = this.betType.get(key+type);
+    let types = result[1].match(this.splitReg);
+    for (let i = 0; i< types.length;++i){
+        let betType = this.betType.get(types[i]);
         if(betType){
-            var tempItem = {};
-            tempItem.type = betType;
-            tempItem.result = key + type;
-            tempItem.money = perMoney;
-            betItems.push(tempItem);
+            let item = {};
+            item.result = types[i];
+            item.money = perMoney;
+            item.type= betType;
+            parseResult.betItems.push(item);
 
-            total+= perMoney;
-            if(undefined === betTypeInfo[betType.code]){
-                betTypeInfo[betType.code]= {money:0,type:{}};
-                betTypeInfo[betType.code].desc ="";
+            parseResult.total+= perMoney;
+
+            if(undefined === parseResult.betTypeInfo[betType.code]){
+                parseResult.betTypeInfo[betType.code]= {money:0,type:{}};
+                parseResult.betTypeInfo[betType.code].desc ="";
             }
-            betTypeInfo[betType.code].money += tempItem.money;
-            betTypeInfo[betType.code].type = betType;
-            betTypeInfo[betType.code].desc += `${tempItem.result}/${perMoney} `;
+            parseResult.betTypeInfo[betType.code].money += perMoney;
+            parseResult.betTypeInfo[betType.code].type = betType;
+            parseResult.betTypeInfo[betType.code].desc += `${item.result}/${perMoney} `;
         }
         else {
-            isValid = false;
-            err = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+            parseResult.error = Code.GAME.FA_BET_OPERATE_INVALID;
+            return parseResult;
         }
+    }
+
+    return parseResult;
+};
+
+BetParser.prototype.handlePos = function (betData) {
+    let parseResult = {
+        error:Code.OK,
+        total:0,
+        betTypeInfo:{},
+        betItems:[]
+    };
+
+    let result = betData.match(this.reg2);
+    if(!result){
+        parseResult.error = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+        return parseResult;
+    }
+
+    let ballPos = result[1].match(this.splitReg);
+
+    //投注位置1～5
+    for(let i = 0; i< ballPos.length;++i){
+        if(ballPos[i]> 5 ||ballPos[i]<=0){
+            parseResult.error = Code.GAME.FA_BET_BALL_INVALID;
+            return parseResult;
+        }
+    }
+
+    let perMoney = parseInt(result[3],10);
+    if(isNaN(perMoney) || perMoney === 0){
+        parseResult.error = Code.GAME.FA_BET_MONEY_INVALID;
+        return parseResult;
+    }
+
+    let types = result[2].match(this.splitReg);
+    for (let j=0;j< ballPos.length;++j){
+        for (let i = 0; i< types.length;i++){
+            let betType = this.betType.get(types[i], ballPos[j]);
+            if(betType){
+                let item = {};
+                item.type = betType;
+                item.result = ballPos[j] + this.consts.BET_SEPARATOR + types[i];
+                item.money = perMoney;
+
+                parseResult.betItems.push(item);
+
+                parseResult.total+= perMoney;
+
+                if(undefined === parseResult.betTypeInfo[betType.code]){
+                    parseResult.betTypeInfo[betType.code]= {money:0,type:{}};
+                    parseResult.betTypeInfo[betType.code].desc ="";
+                }
+                parseResult.betTypeInfo[betType.code].money += perMoney;
+                parseResult.betTypeInfo[betType.code].type = betType;
+                parseResult.betTypeInfo[betType.code].desc += `${item.result}${this.consts.DES_SEPARATOR}${perMoney} `
+
+            }else {
+                parseResult.error = Code.GAME.FA_BET_OPERATE_INVALID;
+                return parseResult;
+            }
+        }
+    }
+
+    return parseResult;
+};
+
+BetParser.prototype.handleNum = function (betData) {
+    let parseResult = {
+        error:Code.OK,
+        total:0,
+        betTypeInfo:{},
+        betItems:[]
+    };
+
+    let result = betData.match(this.reg3);
+    if(!result){
+        parseResult.error = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+        return parseResult;
+    }
+
+    let perMoney = parseInt(result[2],10);
+    if(isNaN(perMoney) || perMoney === 0){
+        parseResult.error = Code.GAME.FA_BET_MONEY_INVALID;
+        return parseResult;
+    }
+
+    let types = result[1].match(this.splitReg);
+    for (let i = 0; i< types.length;++i){
+        for (let j=1;j<=5;j++){
+            let betType = this.betType.get(types[i], j);
+            if(betType){
+                let tempItem = {};
+                tempItem.type = betType;
+                tempItem.result = j + this.consts.BET_SEPARATOR + types[i];
+                tempItem.money = perMoney;
+                parseResult.betItems.push(tempItem);
+
+                parseResult.total+= perMoney;
+                if(undefined === parseResult.betTypeInfo[betType.code]){
+                    parseResult.betTypeInfo[betType.code]= {money:0,type:{}};
+                    parseResult.betTypeInfo[betType.code].desc ="";
+                }
+                parseResult.betTypeInfo[betType.code].money += perMoney;
+                parseResult.betTypeInfo[betType.code].type = betType;
+                parseResult.betTypeInfo[betType.code].desc += `${tempItem.result}${this.consts.DES_SEPARATOR}${perMoney} `;
+            }
+            else {
+                parseResult.error = Code.GAME.FA_BET_OPERATE_INVALID;
+                return parseResult;
+            }
+        }
+    }
+
+    return parseResult;
+};
+
+BetParser.prototype.handleBS1 = function (betData) {
+    let parseResult = {
+        error:Code.OK,
+        total:0,
+        betTypeInfo:{},
+        betItems:[]
+    };
+
+    let result = betData.match(this.reg4);
+    if(!result){
+        parseResult.error = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+        return parseResult;
+    }
+
+    let perMoney = parseInt(result[2],10);
+    if(isNaN(perMoney) || perMoney === 0){
+        parseResult.error = Code.GAME.FA_BET_MONEY_INVALID;
+        return parseResult;
+    }
+
+    let types = result[1].match(this.splitReg);
+    for (let j=0;j<this.keyValue.length;j++){
+        for (let i = 0; i< types.length;++i){
+            let betType = this.betType.get(this.keyValue[j]+types[i]);
+            if(betType){
+                let tempItem = {};
+                tempItem.type = betType;
+                tempItem.result = this.keyValue[j]+types[i];
+                tempItem.money = perMoney;
+                parseResult.betItems.push(tempItem);
+
+                parseResult.total+= perMoney;
+                if(undefined === parseResult.betTypeInfo[betType.code]){
+                    parseResult.betTypeInfo[betType.code]= {money:0,type:{}};
+                    parseResult.betTypeInfo[betType.code].desc ="";
+                }
+                parseResult.betTypeInfo[betType.code].money += tempItem.money;
+                parseResult.betTypeInfo[betType.code].type = betType;
+                parseResult.betTypeInfo[betType.code].desc += `${tempItem.result}${this.consts.DES_SEPARATOR}${perMoney} `
+            }
+            else {
+                parseResult.error = Code.GAME.FA_BET_OPERATE_INVALID;
+                return parseResult;
+            }
+        }
+    }
+
+    return parseResult;
+};
+
+BetParser.prototype.handleBS2 = function (betData) {
+
+    let parseResult = {
+        error:Code.OK,
+        total:0,
+        betTypeInfo:{},
+        betItems:[]
+    };
+
+    let result = betData.match(this.reg5);
+    if(!result){
+        parseResult.error = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+        return parseResult;
+    }
+
+
+    let perMoneys = [];
+    perMoneys.push(Number(result[2]));
+    perMoneys.push(Number(result[3]));
+    perMoneys.push(Number(result[4]));
+
+    let sum =  perMoneys.reduce(function (previous, current, index, array) {
+        return previous + current;
+    })
+
+    if(isNaN(sum) || sum === 0){
+        parseResult.error = Code.GAME.FA_BET_MONEY_INVALID;
+        return parseResult;
+    }
+
+    let types = result[1].match(this.splitReg);
+    for (let j=0;j<this.keyValue.length;j++){
+        for (let i = 0; i< types.length;++i){
+            let betType = this.betType.get(this.keyValue[j]+types[i]);
+            if(betType){
+                let tempItem = {};
+                tempItem.type = betType;
+                tempItem.result = this.keyValue[j]+types[i];
+                tempItem.money = perMoneys[j];
+
+                if(tempItem.money === 0) continue;
+                parseResult.betItems.push(tempItem);
+
+                parseResult.total+= tempItem.money;
+                if(undefined === parseResult.betTypeInfo[betType.code]){
+                    parseResult.betTypeInfo[betType.code]= {money:0,type:{}};
+                    parseResult.betTypeInfo[betType.code].desc ="";
+                }
+                parseResult.betTypeInfo[betType.code].money += tempItem.money;
+                parseResult.betTypeInfo[betType.code].type = betType;
+                parseResult.betTypeInfo[betType.code].desc += `${tempItem.result}${this.consts.DES_SEPARATOR}${tempItem.money} `
+            }
+            else {
+                parseResult.error = Code.GAME.FA_BET_OPERATE_INVALID;
+                return parseResult;
+            }
+        }
+    }
+
+    return parseResult;
+};
+
+BetParser.prototype.handleBS3 = function (betData) {
+    let parseResult = {
+        error:Code.OK,
+        total:0,
+        betTypeInfo:{},
+        betItems:[]
+    };
+
+    let result = betData.match(this.reg6);
+    if(!result){
+        parseResult.error = Code.GAME.FA_BET_TYPE_NOT_EXIST;
+        return parseResult;
+    }
+
+    let perMoney = parseInt(result[3],10);
+    if(isNaN(perMoney) || perMoney === 0){
+        parseResult.error = Code.GAME.FA_BET_MONEY_INVALID;
+        return parseResult;
+    }
+
+    let key = result[1];
+    let type = result[2];
+    var betType = this.betType.get(key+type);
+    if(!betType){
+        parseResult.error = Code.GAME.FA_BET_OPERATE_INVALID;
+        return parseResult;
+    }
+
+    let tempItem = {};
+    tempItem.type = betType;
+    tempItem.result = key + type;
+    tempItem.money = perMoney;
+    parseResult.betItems.push(tempItem);
+
+    parseResult.total+= perMoney;
+    if(undefined === parseResult.betTypeInfo[betType.code]){
+        parseResult.betTypeInfo[betType.code]= {money:0,type:{}};
+        parseResult.betTypeInfo[betType.code].desc ="";
+    }
+    parseResult.betTypeInfo[betType.code].money += tempItem.money;
+    parseResult.betTypeInfo[betType.code].type = betType;
+    parseResult.betTypeInfo[betType.code].desc += `${tempItem.result}${this.consts.DES_SEPARATOR}${perMoney} `;
+
+    return parseResult;
+};
+
+BetParser.prototype.parse = function(data, cb){
+
+    var parseRet = null;
+    switch (this.checkType(data)){
+        case this.consts.BetDataType.SIZE:{
+            parseRet = this.handleSize(data);
+        }
+            break;
+        case this.consts.BetDataType.POS:{
+            parseRet = this.handlePos(data);
+        }
+            break;
+        case this.consts.BetDataType.NUM:{
+            parseRet = this.handleNum(data);
+        }
+            break;
+        case this.consts.BetDataType.BS1:{
+            parseRet = this.handleBS1(data);
+        }
+            break;
+        case this.consts.BetDataType.BS2:{
+            parseRet = this.handleBS2(data);
+        }
+            break;
+        case this.consts.BetDataType.BS3:{
+            parseRet = this.handleBS3(data);
+        }
+            break;
+        default:
+            parseRet = {error:Code.GAME.FA_BET_INFO_INVALID};
+            break;
+    }
+
+    if(!!parseRet && parseRet.error.code === Code.OK.code){
+        cb(null, parseRet);
     }
     else {
-        err = Code.GAME.FA_BET_OPERATE_INVALID;
+        cb(parseRet.error, null);
     }
-
-    if(isValid){
-        if(perMoney === 0){
-            cb(Code.GAME.FA_BET_MONEY_NOTZERO, null);
-            return;
-        }
-        else if(!Number.isInteger(perMoney)){
-            cb(Code.GAME.FA_BET_MONEY_INTEGER, null);
-            return;
-        }
-        var betResult = {};
-        betResult.total = total;
-        betResult.betTypeInfo = betTypeInfo;
-        betResult.betItems = betItems;
-
-        cb(null, betResult);
-        return;
-    }
-
-    cb(err, null);
 };
 
 module.exports = {
     id:"betParser",
     func:BetParser,
     props:[
-        {name:'betType',ref:'betType'}
+        {name:'betType',ref:'betType'},
+        {name:'consts',ref:'consts'}
     ]
 };
 

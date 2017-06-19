@@ -46,15 +46,17 @@ module.exports = {
         FA_ACCOUNTAMOUNT_NOT_ENOUGH: {code:5009, desc:"余额不足"},
         FA_BET_STATE: {code:5010, desc:"投注状态异常"},
         FA_ENTITY_NOT_EXIST: {code:5011, desc:"对象不存在"},
-        FA_BET_MONEY_NOTZERO: {code:5012, desc:"投注金额不能为0"},
+        FA_BET_MONEY_INVALID: {code:5012, desc:"投注金额无效"},
         FA_QUERY_INFO_IS_EMPTY: {code:5013, desc:"查詢不到指定信息"},
-        FA_BET_CHANNEL_CLOSE: {code:5014, desc:"投注通道已经关闭，等待下期投注"},
+        FA_BET_CHANNEL_CLOSE: {code:5014, desc:"投注操作通道已经关闭"},
         FA_RECHARGE_UID_ERROR: {code:5015, desc:"充值用户ID无效"},
         FA_CAST_ERROR: {code:5016, desc:"提现失败，余额不足"},
         FA_BET_OPERATE_INVALID: {code:5017, desc:"投注操作无效"},
         FA_MODIFY_LIMIT: {code:5018, desc:"无再次修改权限,请联系管理员"},
         FA_BET_MONEY_INTEGER: {code:5019, desc:"投注金额必须为整数"},
         FA_CANNOT_REBIND_CARD: {code:5020, desc:"不能重复绑定银行卡"},
-        FA_CAST_PINCODE_ERR: {code:5021, desc:"提款密码错误"}
+        FA_CAST_PINCODE_ERR: {code:5021, desc:"提款密码错误"},
+        FA_BET_BALL_INVALID: {code:5022, desc:"投注球无效"},
+        FA_BET_INFO_INVALID: {code:5023, desc:"投注信息无效"}
     }
 };

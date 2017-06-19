@@ -2,6 +2,8 @@
  * Created by linyng on 17-5-23.
  */
 
+var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'calcOpenLottery');
+
 function CalcOpenLottery() {
 }
 
@@ -16,7 +18,7 @@ CalcOpenLottery.prototype.totalSizeCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         total += parseInt(numbers[i],10);
     }
-    this.openCodeResult.add(total >= 23 ? '大':'小');
+    this.openCodeResult.add(total >= 23 ? this.consts.BetDic.BIG:this.consts.BetDic.SMALL);
 
 };
 
@@ -26,7 +28,7 @@ CalcOpenLottery.prototype.totalSingleDoubleCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         total += parseInt(numbers[i],10);
     }
-    this.openCodeResult.add(total%2 === 0 ? '双':'单');
+    this.openCodeResult.add(total%2 === 0 ? this.consts.BetDic.DOUBLE:this.consts.BetDic.SINGLE);
 };
 
 // 龙虎计算 龙 1>5 虎 1<5
@@ -37,7 +39,7 @@ CalcOpenLottery.prototype.dragonAndTigerCalc = function (numbers) {
     if(number1 === number5){
         return;
     }
-    this.openCodeResult.add(number1 > number5 ? '龙':'虎');
+    this.openCodeResult.add(number1 > number5 ? this.consts.BetDic.DRAGON:this.consts.BetDic.TIGER);
 };
 
 // 合玩法 1=5
@@ -45,8 +47,8 @@ CalcOpenLottery.prototype.equal15Calc = function (numbers) {
     var number1 = numbers[0];
     var number5 = numbers[4];
     if(number1 === number5){
-    this.openCodeResult.add('合');
-    this.openCodeResult.add('和');
+    this.openCodeResult.add(this.consts.BetDic.EQUAL1);
+    this.openCodeResult.add(this.consts.BetDic.EQUAL2);
     }
 };
 
@@ -54,9 +56,9 @@ CalcOpenLottery.prototype.equal15Calc = function (numbers) {
 CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
         var num = parseInt(numbers[i],10);
-        var size = num <=4 ? ((i+1)+'/'+'小'):((i+1)+'/'+'大');
+        var size = num <=4 ? ((i+1)+this.consts.BET_SEPARATOR+this.consts.BetDic.SMALL):((i+1)+this.consts.BET_SEPARATOR+this.consts.BetDic.BIG);
 
-        var sd = num%2 === 0?((i+1)+'/'+'双'):((i+1)+'/'+'单');
+        var sd = num%2 === 0?((i+1)+this.consts.BET_SEPARATOR+this.consts.BetDic.DOUBLE):((i+1)+this.consts.BET_SEPARATOR+this.consts.BetDic.SINGLE);
 
         this.openCodeResult.add(size);
         this.openCodeResult.add(sd);
@@ -66,7 +68,7 @@ CalcOpenLottery.prototype.perPosSizeSingleDoubleCalc = function (numbers) {
 //球值
 CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
-        var vals = (i+1)+'/'+numbers[i];
+        var vals = (i+1)+this.consts.BET_SEPARATOR+numbers[i];
         this.openCodeResult.add(vals);
     }
 };
@@ -74,7 +76,7 @@ CalcOpenLottery.prototype.perPosValueCalc = function (numbers) {
 //包数字
 CalcOpenLottery.prototype.containValueCalc = function (numbers) {
     for (var i = 0; i<numbers.length;++i){
-        var vals = (i+1)+'/'+numbers[i];
+        var vals = (i+1)+this.consts.BET_SEPARATOR+numbers[i];
         this.openCodeResult.add(vals);
     }
 };
@@ -82,15 +84,15 @@ CalcOpenLottery.prototype.containValueCalc = function (numbers) {
 //豹子、顺子 豹子：连续3球相同 顺子：连子
 CalcOpenLottery.prototype.pantherCalc = function (numbers) {
     if(numbers[0] === numbers[1] === numbers[2]){
-        this.openCodeResult.add('前豹');
+        this.openCodeResult.add(this.consts.BetBSPos.BEGIN + this.consts.BetDic.BAO);
     }
 
     if(numbers[1] === numbers[2] === numbers[3]){
-        this.openCodeResult.add('中豹');
+        this.openCodeResult.add(this.consts.BetBSPos.MID + this.consts.BetDic.BAO);
     }
 
     if(numbers[2] === numbers[3] === numbers[4]){
-        this.openCodeResult.add('后豹');
+        this.openCodeResult.add(this.consts.BetBSPos.END + this.consts.BetDic.BAO);
     }
 };
 
@@ -99,34 +101,46 @@ CalcOpenLottery.prototype.checkShunZi = function (numbers) {
         return a-b;
     });
 
-    if(sortNumbers[sortNumbers.length -1] === 9 && sortNumbers[sortNumbers.length -2] === 1 && sortNumbers[sortNumbers.length -3] === 0){
+    logger.error('@@@@@@@@@@@@@@@checkShunZi', numbers);
+
+    if(sortNumbers[2] === 9 && sortNumbers[1] === 1 && sortNumbers[0] === 0){
         return true;
     }
 
-    var index = 0;
-    var isShunZi = true;
-    do {
-        if(sortNumbers[index]+ 1 != sortNumbers[index+1]){
-            isShunZi =false;
-            break;
-        }
-        index++;
-    }while (index < 2);
+    if(sortNumbers[2] === 9 && sortNumbers[1] === 8 && sortNumbers[0] === 0){
+        return true;
+    }
 
-    return isShunZi;
+    if(sortNumbers[0] + 1 === sortNumbers[1] && sortNumbers[1]+1 === sortNumbers[2]){
+        return true;
+    }
+
+    return false;
+
+    // var index = 0;
+    // var isShunZi = true;
+    // do {
+    //     if(sortNumbers[index]+ 1 != sortNumbers[index+1]){
+    //         isShunZi =false;
+    //         break;
+    //     }
+    //     index++;
+    // }while (index < 2);
+    //
+    // return isShunZi;
 }
 
 CalcOpenLottery.prototype.shunZiCalc = function (numbers) {
     if(this.checkShunZi([numbers[0],numbers[1],numbers[2]])){
-        this.openCodeResult.add('前顺');
+        this.openCodeResult.add(this.consts.BetBSPos.BEGIN + this.consts.BetDic.SHUN);
     }
 
     if(this.checkShunZi([numbers[1],numbers[2],numbers[3]])){
-        this.openCodeResult.add('中顺');
+        this.openCodeResult.add(this.consts.BetBSPos.MID + this.consts.BetDic.SHUN);
     }
 
     if(this.checkShunZi([numbers[2],numbers[3],numbers[4]])){
-        this.openCodeResult.add('后顺');
+        this.openCodeResult.add(this.consts.BetBSPos.END + this.consts.BetDic.SHUN);
     }
 };
 

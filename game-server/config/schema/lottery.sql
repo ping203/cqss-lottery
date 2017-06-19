@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `Bets`(
   `period` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '期数',
   `identify` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '标志',
   `betInfo` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '投注信息{type:0,value:0}',
-  `state` smallint(6) unsigned NOT NULL COMMENT '0 待开奖，1 撤销，2 已经开奖',
+  `state` smallint(6) unsigned NOT NULL COMMENT '0待开奖，1 撤销，2 赢 3输',
   `betCount` smallint(6) unsigned NOT NULL COMMENT '投注数',
   `winCount` smallint(6) unsigned NOT NULL COMMENT '投赢注数',
   `betMoney` DECIMAL(20,2) unsigned NOT NULL COMMENT '投注金额',

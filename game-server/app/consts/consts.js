@@ -1,22 +1,36 @@
 var Consts = function () {
 
-    this.BetDic = {
-        BIG:'A',
-        SMALL:'B',
-        SINGLE:'C',
-        DOUBLE:'D',
-        DRAGON:'E',
-        TIGER:'F',
-        EQUAL:'G',
-        BAO:'H',
-        SHUN:'I'
+    this.DES_SEPARATOR = '/';
+    this.BET_SEPARATOR = '/';
+
+    this.BetDataType ={
+        UNKNOWN:0,
+        SIZE:1,
+        POS:2,
+        NUM:3,
+        BS1:4,
+        BS2:5,
+        BS3:6
     };
 
-    this.BetPos = {
-        BEGIN:'B',
-        MID:'M',
-        END:'E'
-    }
+    this.BetDic = {
+        BIG:'大',
+        SMALL:'小',
+        SINGLE:'单',
+        DOUBLE:'双',
+        DRAGON:'龙',
+        TIGER:'虎',
+        EQUAL1:'和',
+        EQUAL2:'合',
+        BAO:'豹',
+        SHUN:'顺'
+    };
+
+    this.BetBSPos = {
+        BEGIN:'前',
+        MID:'中',
+        END:'后'
+    };
 
     this.BetCloseTime = 30; //s
 
@@ -118,7 +132,7 @@ var Consts = function () {
         C:"C"
     }
 
-    // 0 待开奖，1 撤销，2 已经开奖
+    // 0待开奖，1 撤销，2 赢 3输
     this.BetState = {
         BET_WAIT:0,
         BET_CANCLE:1,

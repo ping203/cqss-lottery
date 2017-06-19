@@ -37,7 +37,7 @@ Bets.prototype.openCodeCalc = function (period, openCodeResult) {
         if (item.getState() === this.consts.BetState.BET_WAIT && item.period === period) {
             item.calcHarvest(openCodeResult);
             var subMoney = Number((item.getWinMoney() - item.getBetMoney()).toFixed(2));
-            logger.error('##################subMoney', subMoney);
+            logger.error('##################subMoney', subMoney, 'period:',period);
             if(subMoney > 0){
                 item.setState(this.consts.BetState.BET_WIN);
                 calcResult.itemOK.push({id:item.id,state:this.consts.BetState.BET_WIN,money:subMoney});

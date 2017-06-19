@@ -75,8 +75,12 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.unBet = function (msg, session, next) {
-    var player = this.areaService.getPlayer(session.uid);
+    if (!this.areaService.canBetNow()) {
+        next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
+        return;
+    }
 
+    var player = this.areaService.getPlayer(session.uid);
     var self = this;
     player.unBet(parseInt(msg.entityId, 10), function (err, betItem) {
         if (err) {

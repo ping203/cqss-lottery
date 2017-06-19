@@ -111,8 +111,8 @@ BetItem.prototype.getBetExternalInfo = function () {
     var betDescInfoFormat = "投注 ";
     var multiCount = 0;
     for (var type in this.betTypeInfo){
-        betTypeFormat += `${this.betTypeInfo[type].type.desc}/${this.betTypeInfo[type].freeBetValue}/`;
-        priFreeInfo += `${this.betTypeInfo[type].type.desc}/${this.betTypeInfo[type].priFreeBetValue}/`;
+        betTypeFormat += `${this.betTypeInfo[type].type.desc}${this.consts.DES_SEPARATOR}${this.betTypeInfo[type].freeBetValue}${this.consts.DES_SEPARATOR}`;
+        priFreeInfo += `${this.betTypeInfo[type].type.desc}${this.consts.DES_SEPARATOR}${this.betTypeInfo[type].priFreeBetValue}${this.consts.DES_SEPARATOR}`;
         betDescInfoFormat += `${this.betTypeInfo[type].desc}`;
         multiCount ++;
     }
@@ -120,8 +120,8 @@ BetItem.prototype.getBetExternalInfo = function () {
     if(multiCount > 1){
         betDescInfoFormat+="各1柱";
     }
-    betTypeFormat = betTypeFormat.substring(0, betTypeFormat.lastIndexOf('/'));
-    priFreeInfo = priFreeInfo.substring(0, priFreeInfo.lastIndexOf('/'));
+    betTypeFormat = betTypeFormat.substring(0, betTypeFormat.lastIndexOf(`${this.consts.DES_SEPARATOR}`));
+    priFreeInfo = priFreeInfo.substring(0, priFreeInfo.lastIndexOf(`${this.consts.DES_SEPARATOR}`));
 
     return {
         betFreeInfoFormat:betTypeFormat,
