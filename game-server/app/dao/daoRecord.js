@@ -41,9 +41,9 @@ DaoRecord.prototype.getRecord = function (orderId, cb) {
     var sql = 'select * from Record where id= ?';
     var self = this;
     pomelo.app.get('dbclient').insert(sql, [orderId], function (err, res) {
-        if (err !== null) {
+        if (err !== null || res.length === 0) {
             logger.error('读取流水记录失败,',err);
-            self.utils.invokeCallback(cb, err, null);
+            self.utils.invokeCallback(cb, '流水记录不存在', null);
         } else {
             self.utils.invokeCallback(cb, null, res[0]);
         }

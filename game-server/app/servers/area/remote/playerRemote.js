@@ -117,8 +117,9 @@ PlayerRemote.prototype.cashHandler = function (uid, orderId, operate, cb) {
             self.daoRecord.setOperate(orderId, operate, scb);
         }
     ], function (err) {
+        logger.error('cashHandler 管理员充值 操作',uid, orderId, operate);
         if (err) {
-            self.utils.invokeCallback(cb, err, new Answer.NoDataResponse(Code.FAIL));
+            self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.FAIL));
             return;
         }
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));

@@ -103,15 +103,15 @@ CalcOpenLottery.prototype.checkShunZi = function (numbers) {
 
     logger.error('@@@@@@@@@@@@@@@checkShunZi', numbers);
 
-    if(sortNumbers[2] === 9 && sortNumbers[1] === 1 && sortNumbers[0] === 0){
+    if(Number(sortNumbers[2]) === 9 && Number(sortNumbers[1]) === 1 && Number(sortNumbers[0]) === 0){
         return true;
     }
 
-    if(sortNumbers[2] === 9 && sortNumbers[1] === 8 && sortNumbers[0] === 0){
+    if(Number(sortNumbers[2]) === 9 && Number(sortNumbers[1]) === 8 && Number(sortNumbers[0]) === 0){
         return true;
     }
 
-    if(sortNumbers[0] + 1 === sortNumbers[1] && sortNumbers[1]+1 === sortNumbers[2]){
+    if(Number(sortNumbers[0]) + 1 === Number(sortNumbers[1]) && Number(sortNumbers[1]) + 1 === Number(sortNumbers[2])){
         return true;
     }
 
