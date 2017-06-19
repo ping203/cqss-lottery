@@ -62,7 +62,7 @@ PlayerRemote.prototype.recharge = function (uid, money, cb) {
         function (callback) {
             self.daoUser.updateAccountAmount(uid, money,callback);
         },
-        function (callback) {
+        function (ret, callback) {
             self.daoUser.getAccountAmount(uid, callback);
         },
         function (freeMoney, callback) {
