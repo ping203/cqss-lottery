@@ -211,7 +211,7 @@ session.on('closed', onUserLeave.bind(null, self.app));
 var onUserLeave = function (app, session, reason) {
   if (session && session.uid) {
     // rpc 调用
-    app.rpc.area.playerRemote.playerLeave(session, {playerId: session.get('playerId'), areaId: session.get('areaId')}, null);
+    app.rpc.game.playerRemote.playerLeave(session, {playerId: session.get('playerId'), areaId: session.get('areaId')}, null);
   }
 };
 ```

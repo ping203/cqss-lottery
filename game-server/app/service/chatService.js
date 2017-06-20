@@ -147,7 +147,7 @@ ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
         this.utils.invokeCallback(cb, Code.CHAT.FA_CHANNEL_NOT_EXIST);
         return;
     }
-    channel.pushMessage(this.consts.Event.chat.chatMessage, msg, cb);
+    channel.pushMessage(this.consts.Event.chat.chatMessage, msg, null);
     this.utils.invokeCallback(cb, Code.OK);
 };
 

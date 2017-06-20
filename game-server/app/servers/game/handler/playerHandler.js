@@ -254,6 +254,7 @@ PlayerHandler.prototype.sendChatMsg = function (msg, session, next) {
     this.app.rpc.chat.chatRemote.send(session, msg, session.uid, session.get('roomId'), function (result) {
         next(null, new Answer.NoDataResponse(result));
     });
+
 };
 
 module.exports = function (app) {
@@ -265,7 +266,7 @@ module.exports = function (app) {
             value: app
         }],
         props: [
-            {name: "GameService", ref: "GameService"},
+            {name: "gameService", ref: "gameService"},
             {name: "dataApiUtil", ref: "dataApiUtil"},
             {name: "consts", ref: "consts"},
             {name: "daoUser", ref: "daoUser"},

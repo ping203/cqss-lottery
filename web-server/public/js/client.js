@@ -3,7 +3,6 @@ $(document).ready(function () {
     showLogin();
 
     $('#login').on('click', login);
-    $('#joinRoom').on('click', joinRoom);
     $('#registe').on('click', register);
     $('#setRoleName').on('click', setRoleName);
     $('#getRecords').on('click', getRecords);

@@ -2,7 +2,7 @@
  * Created by linyng on 17-5-24.
  */
 
-var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'GameService');
+var logger = require('pomelo-logger').getLogger(__filename);
 var EventEmitter = require('events').EventEmitter;
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');

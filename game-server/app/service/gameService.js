@@ -71,6 +71,7 @@ GameService.prototype.run = function () {
 }
 
 GameService.prototype.tick = function () {
+    return;
     //run all the action
     this.actionManagerService.update();
     this.entityUpdate();

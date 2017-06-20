@@ -71,12 +71,12 @@
         "frontend": true
       }
     ],
-    "area": [
+    "game": [
       {
-        "id": "area-server-1",
+        "id": "game-server-1",
         "host": "127.0.0.1",
         "port": 3250,
-        "areaId": 1
+        "gameId": 1
       }
     ],
     "auth": [

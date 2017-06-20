@@ -58,7 +58,7 @@ EntryHandler.prototype.recharge = function (msg, session, next) {
         return;
     }
 
-    this.app.rpc.area.playerRemote.recharge(session, Number(msg.uid), money, function (err, result) {
+    this.app.rpc.game.playerRemote.recharge(session, Number(msg.uid), money, function (err, result) {
         next(err, result);
     });
 };
@@ -71,7 +71,7 @@ EntryHandler.prototype.cashHandler = function (msg, session, next) {
         return;
     }
 
-    this.app.rpc.area.playerRemote.cashHandler(session, Number(msg.uid), Number(msg.orderId), Number(msg.operate), function (err, result) {
+    this.app.rpc.game.playerRemote.cashHandler(session, Number(msg.uid), Number(msg.orderId), Number(msg.operate), function (err, result) {
         next(null, result);
     });
 };
@@ -82,7 +82,7 @@ EntryHandler.prototype.setConfig = function (msg, session, next) {
         return;
     }
 
-    this.app.rpc.area.playerRemote.setConfig(session, msg.configs, function (err, result) {
+    this.app.rpc.game.playerRemote.setConfig(session, msg.configs, function (err, result) {
         next(err, result);
     });
 };
@@ -106,7 +106,7 @@ EntryHandler.prototype.playerCtrl = function (msg, session, next) {
             break;
     }
 
-    this.app.rpc.area.playerRemote.playerCtrl(session, Number(msg.uid), msg.ctrl, next);
+    this.app.rpc.game.playerRemote.playerCtrl(session, Number(msg.uid), msg.ctrl, next);
 };
 
 EntryHandler.prototype.login = function (msg, session, next) {
@@ -141,7 +141,7 @@ EntryHandler.prototype.login = function (msg, session, next) {
             session.on('closed', onUserLeave.bind(null, self.app));
             session.pushAll(cb);
         },function (cb) {
-            self.app.rpc.area.playerRemote.playerJoin(session, _player.id, session.frontendId, cb);
+            self.app.rpc.game.playerRemote.playerJoin(session, _player.id, session.frontendId, cb);
         },function (playerJoinResult, cb) {
             if(playerJoinResult.result.code != Code.OK.code){
                 cb(playerJoinResult.result);
@@ -151,13 +151,12 @@ EntryHandler.prototype.login = function (msg, session, next) {
                 cb(null, playerJoinResult.data.gameId);
             }
         },function (gameId, cb) {
-            logger.error('aaaaaaaaaaaaaaaaaaaaaaaaaroomId:',gameId);
             self.app.rpc.chat.chatRemote.join(session, _player.id, session.frontendId, _player.roleName, gameId, function (result) {
                 if(result.code != Code.OK.code){
                     cb('加入聊天服务器失败');
                 }
                 else {
-                    session.set('roomId', areaId);
+                    session.set('roomId', gameId);
                     session.push('roomId', cb);
                 }
             });
@@ -182,7 +181,7 @@ var onUserLeave = function (app, session, reason) {
     if(!session || !session.uid) {
         return;
     }
-    app.rpc.area.playerRemote.playerLeave(session, session.uid, null);
+    app.rpc.game.playerRemote.playerLeave(session, session.uid, null);
     app.rpc.chat.chatRemote.leave(session, session.uid, session.get('roomId'),null);
     logger.error('@@@@@@@@@@@@@@@@@@@@@@用户退出@@@@@@@@@@@@@@@@@@uid:',session.uid,'name:', session.get('roleName'));
 };

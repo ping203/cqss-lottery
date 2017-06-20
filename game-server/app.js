@@ -44,9 +44,9 @@ var Configure = function () {
 
 
         // filter configures
-        app.filter(pomelo.filters.serial()); //主要负责保证所有从客户端到服务端的请求能够按顺序地处理
-        app.filter(pomelo.filters.time()); //主要负责记录请求的相应时间
-        app.filter(pomelo.filters.timeout()); //主要负责监控请求响应时间，如果超时就给出警告
+        // app.filter(pomelo.filters.serial()); //主要负责保证所有从客户端到服务端的请求能够按顺序地处理
+        // app.filter(pomelo.filters.time()); //主要负责记录请求的相应时间
+        // app.filter(pomelo.filters.timeout()); //主要负责监控请求响应时间，如果超时就给出警告
 
         // route configures
         app.route('area', RouteUtil.area);
