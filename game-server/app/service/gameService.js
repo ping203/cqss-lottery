@@ -18,6 +18,7 @@ var GameService = function () {
     this.trusteePlayers = {};
     this.entities = {};
     this.channel = null;
+    this.globalChannel = null;
     this.actionManagerService = null;
     this.lotteryManagerService = null;
     this.consts = null;
@@ -26,6 +27,8 @@ var GameService = function () {
     this.latestBets = [];
     this.winners = [];
     this.intervalId = 0;
+    this.gameId = pomelo.app.getCurServer().gameId+1000;
+    logger.error('GameService gameId:',this.gameId);
 };
 
 /**
@@ -158,13 +161,32 @@ GameService.prototype.getChannel = function () {
         return this.channel;
     }
 
-    this.channel = pomelo.app.get('channelService').getChannel('area_' + this.id, true);
+    this.channel = pomelo.app.get('channelService').getChannel('area_' + this.gameId, true);
     return this.channel;
+};
+
+GameService.prototype.getGlobalChannel = function () {
+    if (this.globalChannel) {
+        return this.globalChannel;
+    }
+
+    //  this.channel = pomelo.app.get('channelService').getChannel('area_' + this.id, true);
+    this.globalChannel = pomelo.app.get('globalChannelService');
+    return this.globalChannel;
+};
+
+GameService.prototype.pushMessage = function (uids, route, msg) {
+    this.getChannel().pushMessage('connector', route, msg, this.gameId, {isPush: true});
+};
+
+GameService.prototype.broadcastMessage = function (route, msg) {
+    this.getGlobalChannel().pushMessage('connector', route, msg, this.gameId, {isPush: true});
 };
 
 GameService.prototype.entityUpdate = function () {
     if (this.reduced.length > 0) {
-        this.getChannel().pushMessage(this.consts.Event.area.removeEntities, {entities: this.reduced});
+        //this.getChannel().pushMessage(this.consts.Event.area.removeEntities, {entities: this.reduced});
+        this.pushMessage(this.consts.Event.area.removeEntities, {entities: this.reduced});
         this.reduced = [];
     }
 
@@ -175,7 +197,8 @@ GameService.prototype.entityUpdate = function () {
             r.push(added[i].strip());
         }
 
-        this.getChannel().pushMessage(this.consts.Event.area.addEntities, {entities: r});
+        // this.getChannel().pushMessage(this.consts.Event.area.addEntities, {entities: r});
+        this.pushMessage(this.consts.Event.area.addEntities, {entities: r});
         this.added = [];
     }
 };
@@ -197,7 +220,8 @@ GameService.prototype.addEntity = function (e) {
     this.eventManager.addEvent(e);
 
     if (e.type === this.consts.EntityType.PLAYER) {
-        this.getChannel().add(e.id, e.serverId);
+
+        this.getChannel().add(this.gameId, e.id, e.serverId);
 
         if (!!this.players[e.id]) {
             logger.error('add player twice! player : %j', e);
@@ -259,7 +283,8 @@ GameService.prototype.removeEntity = function (entityId) {
 
     if (e.type === this.consts.EntityType.PLAYER) {
         e.setState(0);
-        this.getChannel().leave(e.id, e.serverId);
+        // this.getChannel().leave(e.id, e.serverId);
+        this.getChannel().leave(this.gameId, e.id, e.serverId);
         this.actionManagerService.abortAllAction(entityId);
 
         if(!e.isIdle()){
