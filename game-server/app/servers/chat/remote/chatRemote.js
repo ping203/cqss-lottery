@@ -5,7 +5,7 @@
 var bearcat = require("bearcat");
 var Code = require('../../../../../shared/code');
 var Answer = require('../../../../../shared/answer');
-
+const logger = require('pomelo-logger').getLogger(__filename);
 var ChatRemote = function(app) {
     this.app = app;
     this.channelService = app.get('channelService');
@@ -13,9 +13,39 @@ var ChatRemote = function(app) {
     this.utils = null;
 };
 
-ChatRemote.prototype.add = function(userId, roleName, roomId, cb) {
-    var code = this.chatService.add(userId, roleName, roomId);
-    cb(null, code);
+ChatRemote.prototype.join = function(playerId, sid, roleName, roomId, cb) {
+    var code = this.chatService.add(playerId, sid, roleName, roomId);
+    cb(code);
+};
+
+ChatRemote.prototype.leave = function(playerId, roomId, cb) {
+    if(!!roomId){
+        this.chatService.kick(playerId, roomId);
+    }
+    cb();
+};
+
+/**
+ * 聊天消息转发
+ */
+ChatRemote.prototype.send = function(msg, playerId, roomId, cb) {
+    if(!this.chatService.canTalk(playerId)){
+        this.utils.invokeCallback(cb, Code.CHAT.FA_CHAT_FORBIDTALK);
+        return;
+    }
+
+    if(!this.consts.ChatMsgType.isSupported(msg.msgType)){
+        this.utils.invokeCallback(cb, Code.CHAT.FA_UNSUPPORT_CHAT_MSGTYPE);
+        return;
+    }
+
+    if(!msg.from || !msg.target || !msg.content){
+        this.utils.invokeCallback(cb, Code.CHAT.FA_CHAT_DATA_ERROR);
+        return;
+    }
+    msg.time = Date.now();
+
+    this.chatService.pushByRoomId(roomId, msg, cb);
 };
 
 ChatRemote.prototype.get = function(name, flag) {
@@ -28,12 +58,6 @@ ChatRemote.prototype.get = function(name, flag) {
         users[i] = users[i].split('*')[0];
     }
     return users;
-};
-
-ChatRemote.prototype.kick = function(userId, roomId, cb) {
-    if(!!roomId){
-        this.chatService.kick(userId, roomId);
-    }
 };
 
 ChatRemote.prototype.userForbidTalk = function (uid, operate, cb) {

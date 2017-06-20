@@ -161,21 +161,21 @@
       }
     },{
       "bet": {
-        "router":"area.playerHandler.bet",
+        "router":"game.playerHandler.bet",
         "msg":{
           "betData":"1/223/100"
         }
       }
     },{
       "unBet": {
-        "router":"area.playerHandler.unBet",
+        "router":"game.playerHandler.unBet",
         "msg":{
           "entityId":100
         }
       }
     }, {
       "myBets": {
-        "router":"area.playerHandler.myBets",
+        "router":"game.playerHandler.myBets",
         "msg":{
           "skip":10,
           "limit":10
@@ -183,7 +183,7 @@
       }
     },{
       "myIncome": {
-        "router":"area.playerHandler.myIncome",
+        "router":"game.playerHandler.myIncome",
         "msg":{
           "skip":10,
           "limit":10
@@ -191,7 +191,7 @@
       }
     },{
       "friendIncome": {
-        "router":"area.playerHandler.friendIncome",
+        "router":"game.playerHandler.friendIncome",
         "msg":{
           "skip":10,
           "limit":10
@@ -199,47 +199,47 @@
       }
     },{
       "setRoleName": {
-        "router":"area.playerHandler.setRoleName",
+        "router":"game.playerHandler.setRoleName",
         "msg":{
           "roleName":"linyn"
         }
       }
     },{
       "setImageId": {
-        "router":"area.playerHandler.setImageId",
+        "router":"game.playerHandler.setImageId",
         "msg":{
           "imageId":1
         }
       }
     },{
       "setPinCode": {
-        "router":"area.playerHandler.setPinCode",
+        "router":"game.playerHandler.setPinCode",
         "msg":{
           "pinCode":11323
         }
       }
     },{
       "setEmail": {
-        "router":"area.playerHandler.setEmail",
+        "router":"game.playerHandler.setEmail",
         "msg":{
           "email":"linyn@126.com"
         }
       }
     },{
       "setPhone": {
-        "router":"area.playerHandler.setPhone",
+        "router":"game.playerHandler.setPhone",
         "msg":{
           "phone":"13355343423"
         }
       }
     },{
       "getGMWeiXin": {
-        "router":"area.playerHandler.getGMWeiXin",
+        "router":"game.playerHandler.getGMWeiXin",
         "msg":null
       }
     },{
       "getRecords": {
-        "router":"area.playerHandler.getRecords",
+        "router":"game.playerHandler.getRecords",
         "msg":{
           "skip":0,
           "limit":20
@@ -247,7 +247,7 @@
       }
     },{
       "cashRequest": {
-        "router":"area.playerHandler.cashRequest",
+        "router":"game.playerHandler.cashRequest",
         "msg":{
           "pinCode":"1231231",
           "money":2000
@@ -255,7 +255,7 @@
       }
     },{
       "bindBankCard": {
-        "router":"area.playerHandler.bindBankCard",
+        "router":"game.playerHandler.bindBankCard",
         "msg":{
           "address":"中国农业银行成都分行高新区营业部",
           "username":"张有钱",

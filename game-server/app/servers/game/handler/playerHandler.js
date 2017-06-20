@@ -8,11 +8,11 @@ const async = require('async');
 var PlayerHandler = function (app) {
     this.app = app;
     this.consts = null;
-    this.areaService = null;
+    this.gameService = null;
 };
 
 PlayerHandler.prototype.bet = function (msg, session, next) {
-    if (!this.areaService.canBetNow()) {
+    if (!this.gameService.canBetNow()) {
         next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
         return;
     }
@@ -33,9 +33,9 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
                 cb(null, result);
             });
         }, function (result, cb) {
-            var period = self.areaService.getLottery().getNextPeriod();
-            var identify = self.areaService.getLottery().getIdentify();
-            var player = self.areaService.getPlayer(session.uid);
+            var period = self.gameService.getLottery().getNextPeriod();
+            var identify = self.gameService.getLottery().getIdentify();
+            var player = self.gameService.getPlayer(session.uid);
             var parseBetInfo = result;
 
             for (var type in parseBetInfo.betTypeInfo) {
@@ -61,7 +61,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
                     return;
                 }
                 cb();
-                self.areaService.updateLatestBets(betItem);
+                self.gameService.updateLatestBets(betItem);
             });
         }
     ],function (err) {
@@ -75,12 +75,12 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.unBet = function (msg, session, next) {
-    if (!this.areaService.canBetNow()) {
+    if (!this.gameService.canBetNow()) {
         next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
         return;
     }
 
-    var player = this.areaService.getPlayer(session.uid);
+    var player = this.gameService.getPlayer(session.uid);
     var self = this;
     player.unBet(parseInt(msg.entityId, 10), function (err, betItem) {
         if (err) {
@@ -88,12 +88,12 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
-        self.areaService.updateLatestBets(betItem);
+        self.gameService.updateLatestBets(betItem);
     });
 };
 
 PlayerHandler.prototype.myBets = function (msg, session, next) {
-    var player = this.areaService.getPlayer(session.uid);
+    var player = this.gameService.getPlayer(session.uid);
     player.getMyBets(msg.skip, msg.limit, function (err, result) {
         if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
@@ -104,7 +104,7 @@ PlayerHandler.prototype.myBets = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.myIncome = function (msg, session, next) {
-    var player = this.areaService.getPlayer(session.uid);
+    var player = this.gameService.getPlayer(session.uid);
     player.getMyIncomes(msg.skip, msg.limit, function (err, result) {
         if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
@@ -115,7 +115,7 @@ PlayerHandler.prototype.myIncome = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.friendIncome = function (msg, session, next) {
-    var player = this.areaService.getPlayer(session.uid);
+    var player = this.gameService.getPlayer(session.uid);
     player.getFriendIncomes(msg.skip, msg.limit, function (err, result) {
         if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
@@ -127,7 +127,7 @@ PlayerHandler.prototype.friendIncome = function (msg, session, next) {
 
 PlayerHandler.prototype.setRoleName = function (msg, session, next) {
     var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
+    var player = this.gameService.getPlayer(playerId);
     player.setRoleName(msg.roleName);
 
     next(null, new Answer.NoDataResponse(Code.OK));
@@ -135,14 +135,14 @@ PlayerHandler.prototype.setRoleName = function (msg, session, next) {
 
 PlayerHandler.prototype.setImageId = function (msg, session, next) {
     var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
+    var player = this.gameService.getPlayer(playerId);
     player.setImageId(msg.imageId);
     next(null, new Answer.NoDataResponse(Code.OK));
 };
 
 PlayerHandler.prototype.setPhone = function (msg, session, next) {
     var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
+    var player = this.gameService.getPlayer(playerId);
     var ret = player.setPhone(msg.phone);
     next(null, new Answer.NoDataResponse(ret));
 };
@@ -153,7 +153,7 @@ PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
         return;
     }
     var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
+    var player = this.gameService.getPlayer(playerId);
     player.bindCard(msg.address, msg.username, msg.cardNO, msg.pinCode, function (err, result) {
         if (!!err) {
             next(null, new Answer.NoDataResponse(err));
@@ -164,7 +164,7 @@ PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
     });
 };
 
-// 体现请求
+// 提现请求
 PlayerHandler.prototype.cashRequest = function (msg, session, next) {
     if (!msg.pinCode || !msg.money) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
@@ -172,13 +172,13 @@ PlayerHandler.prototype.cashRequest = function (msg, session, next) {
     }
 
     var money = parseInt(msg.money, 10);
-    if (isNaN(money)) {
+    if (isNaN(money) || money === 0) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
 
     var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
+    var player = this.gameService.getPlayer(playerId);
     let ret = player.cash(this.utils.createSalt(msg.pinCode), money);
     if(ret.code !== Code.OK.code){
         next(null, new Answer.NoDataResponse(ret));
@@ -197,13 +197,13 @@ PlayerHandler.prototype.cashRequest = function (msg, session, next) {
 
 PlayerHandler.prototype.setEmail = function (msg, session, next) {
     var playerId = session.uid;
-    var player = this.areaService.getPlayer(playerId);
+    var player = this.gameService.getPlayer(playerId);
     var ret = player.setEmail(msg.email);
     next(null, new Answer.NoDataResponse(ret));
 };
 
 PlayerHandler.prototype.getGMWeiXin = function (msg, session, next) {
-    var lottery = this.areaService.getLottery();
+    var lottery = this.gameService.getLottery();
     next(null, new Answer.DataResponse(Code.OK, lottery.getWeiXin()));
 };
 
@@ -218,13 +218,41 @@ PlayerHandler.prototype.getRecords = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.getLotterys = function (msg, session, next) {
-    var lottery = this.areaService.getLottery();
+    var lottery = this.gameService.getLottery();
     lottery.getLotterys(msg.skip, msg.limit, function (err, result) {
         if (!!err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_LOTTERY_INFO_ERROR));
         } else {
             next(null, new Answer.DataResponse(Code.OK, result));
         }
+    });
+};
+
+PlayerHandler.prototype.getPlayerBaseInfo = function(msg, session, next){
+    if(!msg.uid){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    var player = this.gameService.getPlayer(msg.uid);
+    if (!!player) {
+        next(null, new Answer.DataResponse(Code.OK, player.getBaseInfo()));
+        return;
+    }
+
+    var self = this;
+    this.daoUser.getPlayerAllInfo(msg.uid, function (err, _player) {
+        if (err || !_player) {
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_PLAYER_INFO_ERROR));
+            return;
+        }
+        next(null, new Answer.DataResponse(Code.OK, _player.getBaseInfo()));
+    });
+};
+
+PlayerHandler.prototype.sendChatMsg = function (msg, session, next) {
+    this.app.rpc.chat.chatRemote.send(session, msg, session.uid, session.get('roomId'), function (result) {
+        next(null, new Answer.NoDataResponse(result));
     });
 };
 
@@ -237,7 +265,7 @@ module.exports = function (app) {
             value: app
         }],
         props: [
-            {name: "areaService", ref: "areaService"},
+            {name: "GameService", ref: "GameService"},
             {name: "dataApiUtil", ref: "dataApiUtil"},
             {name: "consts", ref: "consts"},
             {name: "daoUser", ref: "daoUser"},

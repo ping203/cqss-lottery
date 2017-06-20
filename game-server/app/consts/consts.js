@@ -3,6 +3,12 @@ var Consts = function () {
     this.DES_SEPARATOR = '/';
     this.BET_SEPARATOR = '/';
 
+    this.MsgNotifyType = {
+        RECHARGE:1, //充值成功msg{money:100}
+        CASHOK:2, //提现到账msg{money:150}
+        CASHFAIL:3 //提现失败msg{money:200}
+    };
+
     this.BetDataType ={
         UNKNOWN:0,
         SIZE:1,
@@ -115,7 +121,8 @@ var Consts = function () {
             lottery:'onLottery',
             notice:'onNotice',
             parseLottery:'onParseLottery',
-            playerWinner:'onPlayerWinner'
+            playerWinner:'onPlayerWinner',
+            defineNotify:'onDefineNotify',
         }
     };
 

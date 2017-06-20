@@ -3,7 +3,6 @@ var area = require('../../config/data/area');
 var player = require('../../config/data/player');
 var role = require('../../config/data/role');
 var lottery = require('../../config/data/lottery');
-var room = require('../../config/data/room.json');
 var task = require('../../config/data/talk.json');
 var lotteryApi = require('../../config/data/lotteryApi.json');
 
@@ -101,7 +100,6 @@ var DataApiUtil = function() {
   this.roleData = null;
   this.timeLotteryData = null;
   this.playerData = null;
-  this.roomData = null;
   this.taskData = null;
   this.lotteryApiData = null;
 }
@@ -140,15 +138,6 @@ DataApiUtil.prototype.player = function () {
 
   this.playerData = new DataApi(player);
   return this.playerData;
-}
-
-DataApiUtil.prototype.room = function () {
-    if(this.roomData){
-      return this.roomData;
-    }
-
-    this.roomData = new DataApi(room);
-    return this.roomData;
 }
 
 DataApiUtil.prototype.task = function () {

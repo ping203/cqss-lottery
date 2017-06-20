@@ -400,6 +400,10 @@ Player.prototype.changeNotify = function () {
     this.emit(this.consts.Event.area.playerChange, {player: this, uids: [{uid: this.id, sid: this.serverId}]});
 };
 
+Player.prototype.defineNotify = function(type, msg){
+    this.emit(this.consts.Event.area.defineNotify, {player:this, type:type, msg:msg, uids:[{uid: this.id, sid: this.serverId}]});
+};
+
 Player.prototype.strip = function () {
 
     var r = {

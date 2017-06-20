@@ -8,8 +8,17 @@ var PlayerRemote = function (app) {
     this.app = app;
     this.utils = null;
     this.consts = null;
-    this.areaService = null;
+    this.gameService = null;
 }
+
+// { main: '/media/linyng/402A1D572A1D4AF4/develop/project/lottery/game-server/app.js',
+//     env: 'development',
+//     id: 'game-server-1',
+//     host: '127.0.0.1',
+//     port: 3250,
+//     areaId: 1,
+//     args: '--inspect=10012',
+//     serverType: 'game' }
 
 PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
     var self = this;
@@ -19,21 +28,20 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
             return;
         }
         player.serverId = serverId;
-        player.areaService = self.areaService;
+        player.gameService = self.gameService;
 
-        var existPlayer = self.areaService.getPlayer(playerId);
+        var existPlayer = self.gameService.getPlayer(playerId);
         if (existPlayer) {
             self.utils.invokeCallback(cb, new Answer.NoDataResponse(Code.GAME.FA_USER_AREADY_LOGIN), null);
             return;
         }
 
-        if (!self.areaService.addEntity(player)) {
+        if (!self.gameService.addEntity(player)) {
             self.utils.invokeCallback(cb, new Answer.NoDataResponse(Code.GAME.FA_ADD_ENTITY_ERROR), null);
             return;
         }
 
-        // next(null, new Answer.DataResponse(Code.OK, player.strip()));
-        self.utils.invokeCallback(cb, null, new Answer.DataResponse(Code.OK, player.strip()));
+        self.utils.invokeCallback(cb, null, new Answer.DataResponse(Code.OK, {player:player.strip(), gameId:self.app.getCurServer().gameId}));
 
         // 服务器异常，造成投注异常数据（未开奖数据）
 //        player.restoreExceptBet();
@@ -41,13 +49,13 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
 };
 
 PlayerRemote.prototype.playerLeave = function (playerId, cb) {
-    var player = this.areaService.getPlayer(playerId);
+    var player = this.gameService.getPlayer(playerId);
     if (!player) {
         this.utils.invokeCallback(cb);
         return;
     }
-    this.areaService.removePlayer(playerId);
-    this.areaService.getChannel().pushMessage({
+    this.gameService.removePlayer(playerId);
+    this.gameService.getChannel().pushMessage({
         route: 'onUserLeave',
         code: this.consts.MESSAGE.RES,
         playerId: playerId
@@ -68,9 +76,10 @@ PlayerRemote.prototype.recharge = function (uid, money, cb) {
         function (freeMoney, callback) {
             self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE, self.consts.RecordOperate.OPERATE_OK, freeMoney, callback);
             //在线用户及时到帐
-            let player = self.areaService.getPlayer(uid);
+            let player = self.gameService.getPlayer(uid);
             if (!!player) {
                 player.recharge(money);
+                player.defineNotify(self.consts.MsgNotifyType.RECHARGE, {money:money});
             }
         }
     ],function (err) {
@@ -93,21 +102,24 @@ PlayerRemote.prototype.restoreMoney = function (uid, money, cb) {
 
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
         //在线用户及时到帐
-        var player = self.areaService.getPlayer(uid);
+        var player = self.gameService.getPlayer(uid);
         if (!!player) {
             player.recharge(money);
+            player.defineNotify(self.consts.MsgNotifyType.CASHFAIL, {money:money});
         }
     })
 };
 
 // 后台管理员提现确认
 PlayerRemote.prototype.cashHandler = function (uid, orderId, operate, cb) {
-    var self = this;
+    let self = this;
+    let _money = 0;
     async.waterfall([
         function (scb) {
             self.daoRecord.getRecord(orderId, scb);
         },
         function (record, scb) {
+            _money = record.num;
             if(operate === self.consts.RecordOperate.OPERATE_ABORT){
                 if(record.operate !== self.consts.RecordOperate.OPERATE_REQ){
                     scb('订单异常操作');
@@ -136,6 +148,11 @@ PlayerRemote.prototype.cashHandler = function (uid, orderId, operate, cb) {
             return;
         }
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+
+        var player = self.gameService.getPlayer(uid);
+        if (!!player) {
+            player.defineNotify(self.consts.MsgNotifyType.CASHOK, {money:_money});
+        }
     });
 };
 
@@ -163,7 +180,7 @@ PlayerRemote.prototype.setConfig = function (configs, cb) {
 
 //{"uid":"2","ctrl":{"code":1,"operate":false}}
 PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
-    var player = this.areaService.getPlayer(uid);
+    var player = this.gameService.getPlayer(uid);
     switch (Number(ctrl.code)) {
         case this.consts.PlayerCtrl.forbidTalk:
             if (!!player) {
@@ -195,23 +212,6 @@ PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
     }
 };
 
-PlayerRemote.prototype.getPlayerBaseInfo = function (uid, cb) {
-    var player = this.areaService.getPlayer(uid);
-    if (!!player) {
-        this.utils.invokeCallback(cb, null, player.getBaseInfo());
-        return;
-    }
-
-    var self = this;
-    this.daoUser.getPlayerAllInfo(uid, function (err, _player) {
-        if (err || !_player) {
-            self.utils.invokeCallback(cb, Code.GAME.FA_QUERY_PLAYER_INFO_ERROR, null);
-            return;
-        }
-        self.utils.invokeCallback(cb, null, _player.getBaseInfo());
-    });
-}
-
 module.exports = function (app) {
     return bearcat.getBean({
         id: "playerRemote",
@@ -221,8 +221,8 @@ module.exports = function (app) {
             value: app
         }],
         props: [{
-            name: "areaService",
-            ref: "areaService"
+            name: "gameService",
+            ref: "gameService"
         }, {
             name: "utils",
             ref: "utils"

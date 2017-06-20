@@ -49,7 +49,7 @@ var lotteryResultSample2 =  {
 LotteryManagerService.prototype.init = function (service) {
     this.lotteryData = this.dataApiUtil.lotteryApi().data;
     this.lotteryIds = this.dataApiUtil.lotteryApi().ids;
-    this.areaService = service;
+    this.gameService = service;
     this.tickCount = 0;
 
     setInterval(this.tick.bind(this), 2000);
@@ -65,7 +65,7 @@ LotteryManagerService.prototype.nextAddr = function () {
 };
 
 LotteryManagerService.prototype.timeSync = function (result) {
-    var lottery = this.areaService.getLottery();
+    var lottery = this.gameService.getLottery();
     if (!lottery) {
         return;
     }
@@ -86,14 +86,14 @@ LotteryManagerService.prototype.tick = function () {
             return;
         }
 
-        var lottery = self.areaService.getLottery();
+        var lottery = self.gameService.getLottery();
         if (!lottery) {
             return;
         }
 
         if (!self.latestPeriod || (!!self.latestPeriod && self.latestPeriod != result.last.period)) {
             lottery.publishLottery(result);
-            self.areaService.openLottery(result.last.numbers.split(','), result.last.period);
+            self.gameService.openLottery(result.last.numbers.split(','), result.last.period);
             self.latestPeriod = result.last.period;
             self.latestOpenTime = result.next.opentime.getTime();
             self.latestOpenOriTime = result.next.oriTime.getTime();
@@ -114,14 +114,14 @@ LotteryManagerService.prototype.tick = function () {
             return;
         }
 
-        var lottery = self.areaService.getLottery();
+        var lottery = self.gameService.getLottery();
         if (!lottery) {
             return;
         }
 
         if (!self.latestLotteryInfo || (!!self.latestLotteryInfo && self.latestLotteryInfo.next.period === result.last.period)) {
             lottery.publishLottery(result);
-            self.areaService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
+            self.gameService.openLottery(result.last.numbers.split(','), result.last.period, result.last.opentime);
 
             var sysTickTime = new Date(result.tickTime);
             var nextOpenTime = new Date(result.next.opentime);

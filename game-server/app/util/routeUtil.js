@@ -33,7 +33,7 @@ RouteUtil.area = function(session, msg, app, cb) {
     var areaServers = app.getServersByType('area');
 
     if(!areaServers || areaServers.length === 0) {
-        cb(new Error('can not find area servers.'), new Answer.NoDataResponse(Code.FAIL));
+        cb(new Error('can not find game servers.'), new Answer.NoDataResponse(Code.FAIL));
         return;
     }
 

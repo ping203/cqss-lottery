@@ -204,7 +204,7 @@ PlayerHandler.prototype.enterScene = function(msg, session, next) {
   });
 
   player.serverId = session.frontendId;
-  if (!this.areaService.addEntity(player)) {
+  if (!this.gameService.addEntity(player)) {
     logger.error("Add player to area faild! areaId : " + player.areaId);
     next(new Error('fail to add user into area'), {
       route: msg.route,
@@ -216,7 +216,7 @@ PlayerHandler.prototype.enterScene = function(msg, session, next) {
   var r = {
     code: this.consts.MESSAGE.RES,
     data: {
-      area: this.areaService.getAreaInfo(),
+      area: this.gameService.getAreaInfo(),
       playerId: player.id
     }
   };
@@ -280,12 +280,12 @@ player.on('pickItem', function(args) {
   });
 ```
 
-## areaService 编写
-areaService 里面维护着当前area里面的玩家, 排名, 宝物等数据  
+## GameService 编写
+GameService 里面维护着当前area里面的玩家, 排名, 宝物等数据
 它在tick时间内, 向channel广播更新着area里面的最新数据  
 
 ```
-AreaService.prototype.tick = function() {
+GameService.prototype.tick = function() {
   //run all the action
   this.actionManagerService.update();
   this.entityUpdate();
@@ -295,7 +295,7 @@ AreaService.prototype.tick = function() {
 
 entityUpdate 更新着area里面的entity情况  
 ```
-AreaService.prototype.entityUpdate = function() {
+GameService.prototype.entityUpdate = function() {
   if (this.reduced.length > 0) {
     this.getChannel().pushMessage({
       route: 'removeEntities',

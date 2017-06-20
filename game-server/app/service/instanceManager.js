@@ -1,8 +1,8 @@
 var pomelo = require('pomelo');
 var bearcat = require('bearcat');
 var logger = require('pomelo-logger').getLogger(__filename);
-var INSTANCE_SERVER = 'area';
 
+var INSTANCE_SERVER = 'area';
 //The instance map, key is instanceId, value is serverId
 var instances = {};
 
@@ -27,7 +27,7 @@ InstanceManager.prototype.removeServers = function(servers){
     var server = servers[i];
 
     if(server.serverType === 'area' && server.instance){
-      exp.removeServer(server.id);
+      this.removeServer(server.id);
     }
   }
 
@@ -40,7 +40,7 @@ InstanceManager.prototype.getInstance = function(args, cb){
 
   //If the instance exist, return the instance
   if(instances[instanceId]){
-    utils.invokeCallback(cb, null, instances[instanceId]);
+    this.utils.invokeCallback(cb, null, instances[instanceId]);
     return;
   }
 
@@ -62,7 +62,7 @@ InstanceManager.prototype.getInstance = function(args, cb){
   app.rpcInvoke(serverId, params, function(err, result){
     if(!!err) {
       console.error('create instance error!');
-      utils.invokeCallback(cb, err);
+      this.utils.invokeCallback(cb, err);
       return;
     }
 
@@ -71,7 +71,7 @@ InstanceManager.prototype.getInstance = function(args, cb){
       serverId : serverId
     };
 
-    utils.invokeCallback(cb, null, instances[instanceId]);
+    this.utils.invokeCallback(cb, null, instances[instanceId]);
   });
 
 };

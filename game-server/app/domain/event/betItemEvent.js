@@ -15,7 +15,7 @@ BetItemEvent.prototype.addEventForBetItem = function (betItem){
     betItem.on(this.consts.Event.area.countdown, function (args) {
       //  var lottery = self.getEntity(args.entityId);
         if (args.lottery) {
-            args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.countdown,{
+            args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.countdown,{
                 entityId: args.lottery.entityId,
                 tickCount: Math.floor(args.lottery.tickCount),
                 period:args.lottery.tickPeriod
@@ -34,7 +34,7 @@ BetItemEvent.prototype.addEventForBetItem = function (betItem){
                     lotteryResult: args.lotteryResult,
                 },args.uids);
             }else {
-                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.lottery,{
+                args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.lottery,{
                     entityId: args.entityId,
                     lotteryResult: args.lotteryResult,
                 });
@@ -48,7 +48,7 @@ BetItemEvent.prototype.addEventForBetItem = function (betItem){
     betItem.on(this.consts.Event.area.notice, function(data){
         var lottery = self.getEntity(args.entityId);
         if (lottery) {
-            lottery.areaService.getChannel().pushMessage(self.consts.Event.area.notice,{
+            lottery.gameService.getChannel().pushMessage(self.consts.Event.area.notice,{
                 entityId: args.entityId,
                 lotteryResult: args.lotteryResult,
             });

@@ -13,7 +13,7 @@ var EntryHandler = function (app) {
 EntryHandler.prototype.adminLogin = function (msg, session, next) {
     var token = msg.token, self = this;
     if (!token) {
-        next(new Error('invalid entry request: empty token'),new Answer.NoDataResponse(Code.PARAMERROR));
+        next(new Error('invalid entry request: empty token'), new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
 
@@ -134,8 +134,7 @@ EntryHandler.prototype.login = function (msg, session, next) {
             }
             _player = player;
             self.app.get('sessionService').kick(_player.id, cb);
-        },
-        function (cb) {
+        },function (cb) {
             session.bind(_player.id, cb);
         },function (cb) {
             session.set('roleName', _player.roleName);
@@ -148,9 +147,20 @@ EntryHandler.prototype.login = function (msg, session, next) {
                 cb(playerJoinResult.result);
             }
             else {
-                _playerJoinResult = playerJoinResult;
-                cb();
+                _playerJoinResult = playerJoinResult.data.player;
+                cb(null, playerJoinResult.data.gameId);
             }
+        },function (gameId, cb) {
+            logger.error('aaaaaaaaaaaaaaaaaaaaaaaaaroomId:',gameId);
+            self.app.rpc.chat.chatRemote.join(session, _player.id, session.frontendId, _player.roleName, gameId, function (result) {
+                if(result.code != Code.OK.code){
+                    cb('加入聊天服务器失败');
+                }
+                else {
+                    session.set('roomId', areaId);
+                    session.push('roomId', cb);
+                }
+            });
         }
     ], function (err) {
         if (err) {
@@ -160,7 +170,7 @@ EntryHandler.prototype.login = function (msg, session, next) {
         }
 
         logger.error('用户登录成功 uid:',session.uid,'name:', session.get('roleName'));
-        next(null, _playerJoinResult);
+        next(null, new Answer.DataResponse(Code.OK, _playerJoinResult));
     });
 };
 
@@ -173,7 +183,7 @@ var onUserLeave = function (app, session, reason) {
         return;
     }
     app.rpc.area.playerRemote.playerLeave(session, session.uid, null);
-    app.rpc.chat.chatRemote.kick(session, session.uid, session.get('roomId'),null);
+    app.rpc.chat.chatRemote.leave(session, session.uid, session.get('roomId'),null);
     logger.error('@@@@@@@@@@@@@@@@@@@@@@用户退出@@@@@@@@@@@@@@@@@@uid:',session.uid,'name:', session.get('roleName'));
 };
 

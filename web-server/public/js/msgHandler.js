@@ -102,10 +102,10 @@ function gameMsgInit() {
     pomelo.on('rankUpdate', function (data) {
         console.log('rankUpdate data:', data);
         // var ul = document.querySelector('#rank ul');
-        // var area = app.getCurArea();
+        // var game = app.getCurArea();
         // var li = "";
         // // data.entities.forEach(function(id) {
-        // //     var e = area.getEntity(id);
+        // //     var e = game.getEntity(id);
         // //     if (e) {
         // //         li += '<li><span>' + e.name + '</span><span>' + e.score + '</span></li>';
         // //     }
@@ -118,12 +118,12 @@ function gameMsgInit() {
         console.log('网络断开', reason);
     });
 
-    // Handle user leave message, occours when players leave the area
+    // Handle user leave message, occours when players leave the game
     pomelo.on('onPlayerLeave', function (data) {
-        // var area = app.getCurArea();
+        // var game = app.getCurArea();
         // var playerId = data.playerId;
         // console.log('onUserLeave invoke!');
-        // area.removePlayer(playerId);
+        // game.removePlayer(playerId);
     });
 
 

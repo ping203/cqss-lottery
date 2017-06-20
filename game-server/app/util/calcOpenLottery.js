@@ -81,65 +81,52 @@ CalcOpenLottery.prototype.containValueCalc = function (numbers) {
     }
 };
 
-//豹子、顺子 豹子：连续3球相同 顺子：连子
+//豹子：连续3球相同
 CalcOpenLottery.prototype.pantherCalc = function (numbers) {
-    if(numbers[0] === numbers[1] === numbers[2]){
+    if(numbers[0] === numbers[1] && numbers[1]=== numbers[2]){
         this.openCodeResult.add(this.consts.BetBSPos.BEGIN + this.consts.BetDic.BAO);
     }
 
-    if(numbers[1] === numbers[2] === numbers[3]){
+    if(numbers[1] === numbers[2] && numbers[2]=== numbers[3]){
         this.openCodeResult.add(this.consts.BetBSPos.MID + this.consts.BetDic.BAO);
     }
 
-    if(numbers[2] === numbers[3] === numbers[4]){
+    if(numbers[2] === numbers[3] && numbers[3]=== numbers[4]){
         this.openCodeResult.add(this.consts.BetBSPos.END + this.consts.BetDic.BAO);
     }
 };
 
+// 顺子：连子
 CalcOpenLottery.prototype.checkShunZi = function (numbers) {
     var sortNumbers =  numbers.sort(function (a, b) {
         return a-b;
     });
 
-    logger.error('@@@@@@@@@@@@@@@checkShunZi', numbers);
-
-    if(Number(sortNumbers[2]) === 9 && Number(sortNumbers[1]) === 1 && Number(sortNumbers[0]) === 0){
+    if(sortNumbers[2] === 9 && sortNumbers[1] === 1 && sortNumbers[0] === 0){
         return true;
     }
 
-    if(Number(sortNumbers[2]) === 9 && Number(sortNumbers[1]) === 8 && Number(sortNumbers[0]) === 0){
+    if(sortNumbers[2] === 9 && sortNumbers[1] === 8 && sortNumbers[0] === 0){
         return true;
     }
 
-    if(Number(sortNumbers[0]) + 1 === Number(sortNumbers[1]) && Number(sortNumbers[1]) + 1 === Number(sortNumbers[2])){
+    if((sortNumbers[0] + 1) === sortNumbers[1] && (sortNumbers[1] + 1) === sortNumbers[2]){
         return true;
     }
 
     return false;
-
-    // var index = 0;
-    // var isShunZi = true;
-    // do {
-    //     if(sortNumbers[index]+ 1 != sortNumbers[index+1]){
-    //         isShunZi =false;
-    //         break;
-    //     }
-    //     index++;
-    // }while (index < 2);
-    //
-    // return isShunZi;
 }
 
 CalcOpenLottery.prototype.shunZiCalc = function (numbers) {
-    if(this.checkShunZi([numbers[0],numbers[1],numbers[2]])){
+    if(this.checkShunZi([Number(numbers[0]),Number(numbers[1]),Number(numbers[2])])){
         this.openCodeResult.add(this.consts.BetBSPos.BEGIN + this.consts.BetDic.SHUN);
     }
 
-    if(this.checkShunZi([numbers[1],numbers[2],numbers[3]])){
+    if(this.checkShunZi([Number(numbers[1]),Number(numbers[2]),Number(numbers[3])])){
         this.openCodeResult.add(this.consts.BetBSPos.MID + this.consts.BetDic.SHUN);
     }
 
-    if(this.checkShunZi([numbers[2],numbers[3],numbers[4]])){
+    if(this.checkShunZi([Number(numbers[2]),Number(numbers[3]),Number(numbers[4])])){
         this.openCodeResult.add(this.consts.BetBSPos.END + this.consts.BetDic.SHUN);
     }
 };

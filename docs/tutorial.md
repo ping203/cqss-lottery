@@ -107,7 +107,7 @@ session.set('areaId', 1);
 进入游戏场景，客户端向服务端发起进入场景请求：
 
 ```javascript
-pomelo.request("area.playerHandler.enterScene", {name: name, playerId: data.playerId}, function(data) {
+pomelo.request("game.playerHandler.enterScene", {name: name, playerId: data.playerId}, function(data) {
   // ...
 });
 ```
@@ -154,7 +154,7 @@ function tick() {
 客户端
 ```javascript
 // 向服务端发送 move 请求通知
-pomelo.notify('area.playerHandler.move', {targetPos: {x: entity.x, y: entity.y}, target: targetId});
+pomelo.notify('game.playerHandler.move', {targetPos: {x: entity.x, y: entity.y}, target: targetId});
 ```
 服务端 `playerHandler` 接受请求：
 ```javascript
@@ -186,7 +186,7 @@ pomelo.request('connector.entryHandler.entry', {name: name}, function(data) {
 
 ```javascript
 // 向服务端发送 move 请求通知
-pomelo.notify('area.playerHandler.move', {targetPos: {x: entity.x, y: entity.y}, target: targetId});
+pomelo.notify('game.playerHandler.move', {targetPos: {x: entity.x, y: entity.y}, target: targetId});
 ```
 
 * Push （服务端主动发送消息到客户端）

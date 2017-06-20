@@ -3,7 +3,7 @@
  */
 
 const Code = require('../../../shared/code');
-const logger = require('pomelo-logger').getLogger('bearcat-lottery', 'AreaService');
+const logger = require('pomelo-logger').getLogger(__filename);
 const bearcat = require('bearcat');
 const pomelo = require('pomelo');
 
@@ -12,28 +12,17 @@ var ChatService = function () {
     this.app = pomelo.app;
     this.roomMap = new Map();
     this.uidMap = new Map();
+
+    // this.uidMap = {};
+    // this.nameMap = {};
+    // this.channelMap = {};
 };
 
 /**
  * 初始化聊天服务
  */
 ChatService.prototype.init = function () {
-    var roomData = this.dataApiUtil.room();
-    var self = this;
-    roomData.ids.forEach(function (roomId) {
-        var roomItem = {};
-        var data = roomData.data[roomId];
-        console.log(data);
-        roomItem.id = data.id;
-        roomItem.name = data.name;
-        roomItem.accessLevel = data.accessLevel;
-        roomItem.maxLoad = data.maxLoad;
-        roomItem.userMap = new Map();
-        self.roomMap.set(roomId, roomItem);
-    });
-
     this.loadForbidTalkUser();
-    
 };
 
 ChatService.prototype.loadForbidTalkUser = function () {
@@ -69,35 +58,43 @@ ChatService.prototype.getRoomList = function () {
     return this.dataApiUtil.room().data;
 };
 
-ChatService.prototype.add = function (userId, sid, roleName, roomId) {
-    if (checkDuplicate(this, userId, roomId)) {
+ChatService.prototype.add = function (playerId, sid, roleName, roomId) {
+    if (checkDuplicate(this, playerId, roomId)) {
         return Code.OK;
     }
 
-    var enterRoomId = this.uidMap.get(userId);
-    if(enterRoomId){
-        this.leave(userId, enterRoomId);
+    var enterRoomId = this.uidMap.get(playerId);
+    if(!!enterRoomId){
+        this.leave(playerId, enterRoomId);
     }
 
     var channel = this.app.get('channelService').getChannel(roomId, true);
     if (!channel) {
         return Code.CHAT.FA_CHANNEL_CREATE;
     }
-    channel.pushMessage(this.consts.Event.chat.enterRoom, {uid:userId,roleName:roleName});
-    channel.add(userId, sid);
-    addRecord(this, userId, roleName, sid, roomId);
+    channel.pushMessage(this.consts.Event.chat.enterRoom, {uid:playerId,roleName:roleName});
+    channel.add(playerId, sid);
+    addRecord(this, playerId, roleName, sid, roomId);
+
+    return Code.OK;
 };
 
-ChatService.prototype.leave = function (userId, roomId) {
-    var record = this.roomMap.get(roomId).userMap.get(userId);
+ChatService.prototype.leave = function (playerId, roomId) {
+    logger.error('!!!!!!!!!!!ChatService leave', playerId, roomId);
+
+    var record = this.roomMap.get(roomId).get(playerId);
     var channel = this.app.get('channelService').getChannel(roomId, true);
 
-    if (channel && record) {
-        channel.leave(userId, record.sid);
-    }
-    removeRecord(this, userId, roomId);
+    logger.error('!!!!!!!!!!!ChatService record', record);
 
-    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
+    if (channel && record) {
+        channel.leave(playerId, record.sid);
+        logger.error('!!!!!!!!!!!ChatService record 11111', record);
+    }
+
+    removeRecord(this, playerId, roomId);
+
+    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:playerId});
     logger.error('ChatService.prototype.leave');
 };
 
@@ -132,30 +129,30 @@ ChatService.prototype.getUsers = function (roomId) {
     return strMapToObj(userMap);
 };
 
-ChatService.prototype.kick = function (userId, roomId) {
-    var record = this.roomMap.get(roomId).userMap.get(userId);
+ChatService.prototype.kick = function (playerId, roomId) {
+    var record = this.roomMap.get(roomId).get(playerId);
     var channel = this.app.get('channelService').getChannel(roomId, true);
 
     if (channel && record) {
-        channel.leave(userId, record.sid);
+        channel.leave(playerId, record.sid);
     }
-    removeRecord(this, userId, roomId);
+    removeRecord(this, playerId, roomId);
 
-    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:userId});
+    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:playerId});
 };
 
 ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
     var channel = this.app.get('channelService').getChannel(roomId);
     if (!channel) {
-        cb(new Error('channel ' + roomId + ' dose not exist'));
+        this.utils.invokeCallback(cb, Code.CHAT.FA_CHANNEL_NOT_EXIST);
         return;
     }
-
     channel.pushMessage(this.consts.Event.chat.chatMessage, msg, cb);
+    this.utils.invokeCallback(cb, Code.OK);
 };
 
 ChatService.prototype.pushByUID = function (uid, msg, cb) {
-    var record = this.roomMap.get(msg.roomId).userMap.get(uid);
+    var record = this.roomMap.get(msg.roomId).get(uid);
     if (!record) {
         cb(null, this.code.CHAT.FA_USER_NOT_ONLINE);
         return;
@@ -167,19 +164,27 @@ ChatService.prototype.pushByUID = function (uid, msg, cb) {
     }], cb);
 };
 
-var checkDuplicate = function (service, userId, roomId) {
-    return !!service.roomMap.get(roomId) && !!service.roomMap.get(roomId).userMap.get(userId);
+var checkDuplicate = function (service, playerId, roomId) {
+    return !!service.roomMap.get(roomId) && !!service.roomMap.get(roomId).get(playerId);
 };
 
-var addRecord = function (service, userId, roleName, sid, roomId) {
-    var record = {uid: userId, name: roleName, sid: sid};
-    service.roomMap.get(roomId).userMap.set(userId, record);
-    service.uidMap.set(userId, roomId);
+var addRecord = function (service, playerId, roleName, sid, roomId) {
+    let record = {uid: playerId, name: roleName, sid: sid};
+    let userMap = service.roomMap.get(roomId);
+    if(!userMap){
+        userMap = new Map;
+        service.roomMap.set(roomId, userMap);
+    }
+    userMap.set(playerId, record);
+    service.uidMap.set(playerId, roomId);
 };
 
-var removeRecord = function (service, userId, roomId) {
-    service.roomMap.get(roomId).userMap.delete(userId);
-    service.uidMap.delete(userId);
+var removeRecord = function (service, playerId, roomId) {
+    let userMap = service.roomMap.get(roomId);
+    if(!!userMap){
+        userMap.delete(playerId);
+        service.uidMap.delete(playerId);
+    }
 };
 
 module.exports = {

@@ -1,4 +1,4 @@
-var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'AreaService');
+var logger = require('pomelo-logger').getLogger(__filename);
 var EventEmitter = require('events').EventEmitter;
 var bearcat = require('bearcat');
 var pomelo = require('pomelo');
@@ -8,7 +8,7 @@ var defaultConfigs = require('../../../shared/config/sysParamConfig.json');
 var schedule = require('node-schedule');
 
 
-var AreaService = function () {
+var GameService = function () {
     this.id = 0;
     this.noticeTickCount = 0; // player score rank
     this.countdownCount = 0;
@@ -33,7 +33,7 @@ var AreaService = function () {
  * @param {Object} opts
  * @api public
  */
-AreaService.prototype.init = function () {
+GameService.prototype.init = function () {
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
     this.generateGlobalLottery();
@@ -62,15 +62,15 @@ AreaService.prototype.init = function () {
 };
 
 // 玩家
-AreaService.prototype.incomeScheduleTask = function () {
+GameService.prototype.incomeScheduleTask = function () {
     this.calcIncome.calc();
 };
 
-AreaService.prototype.run = function () {
+GameService.prototype.run = function () {
     setInterval(this.tick.bind(this), 100);
 }
 
-AreaService.prototype.tick = function () {
+GameService.prototype.tick = function () {
     //run all the action
     this.actionManagerService.update();
     this.entityUpdate();
@@ -78,13 +78,13 @@ AreaService.prototype.tick = function () {
     this.notice();
 };
 
-AreaService.prototype.updateLatestBets = function (item) {
+GameService.prototype.updateLatestBets = function (item) {
     if(this.latestBets.unshift(item) > 20){
         this.latestBets.pop();
     }
 };
 
-AreaService.prototype.winnerNotice = function () {
+GameService.prototype.winnerNotice = function () {
     if(this.winners.length > 0){
         this.getLottery().winnerNotice(this.winners.pop());
     }
@@ -94,7 +94,7 @@ AreaService.prototype.winnerNotice = function () {
     }
 };
 
-AreaService.prototype.openLottery = function (numbers, period) {
+GameService.prototype.openLottery = function (numbers, period) {
     this.winners = [];
 
     //numbers = [9,2,9,1,0];
@@ -132,7 +132,7 @@ AreaService.prototype.openLottery = function (numbers, period) {
     this.intervalId = setInterval(this.winnerNotice.bind(this), 2000);
 };
 
-AreaService.prototype.canBetNow = function () {
+GameService.prototype.canBetNow = function () {
     if(this.getLottery().getTickCount() < this.consts.BetCloseTime){
         return false;
     }
@@ -140,19 +140,19 @@ AreaService.prototype.canBetNow = function () {
     return true;
 };
 
-AreaService.prototype.addAction = function (action) {
+GameService.prototype.addAction = function (action) {
     return this.actionManager().addAction(action);
 };
 
-AreaService.prototype.abortAction = function (type, id) {
+GameService.prototype.abortAction = function (type, id) {
     return this.actionManager().abortAction(type, id);
 };
 
-AreaService.prototype.abortAllAction = function (id) {
+GameService.prototype.abortAllAction = function (id) {
     return this.actionManager().abortAllAction(id);
 };
 
-AreaService.prototype.getChannel = function () {
+GameService.prototype.getChannel = function () {
     if (this.channel) {
         return this.channel;
     }
@@ -161,7 +161,7 @@ AreaService.prototype.getChannel = function () {
     return this.channel;
 };
 
-AreaService.prototype.entityUpdate = function () {
+GameService.prototype.entityUpdate = function () {
     if (this.reduced.length > 0) {
         this.getChannel().pushMessage(this.consts.Event.area.removeEntities, {entities: this.reduced});
         this.reduced = [];
@@ -179,10 +179,10 @@ AreaService.prototype.entityUpdate = function () {
     }
 };
 /**
- * Add entity to area
- * @param {Object} e Entity to add to the area.
+ * Add entity to game
+ * @param {Object} e Entity to add to the game.
  */
-AreaService.prototype.addEntity = function (e) {
+GameService.prototype.addEntity = function (e) {
     if (!e || !e.entityId) {
         return false;
     }
@@ -224,7 +224,7 @@ AreaService.prototype.addEntity = function (e) {
 /**
  * 下期开奖倒计时
  */
-AreaService.prototype.countdown = function () {
+GameService.prototype.countdown = function () {
     if (this.countdownCount >= 5) {
         this.getLottery().countdown();
         this.countdownCount = 0;
@@ -236,7 +236,7 @@ AreaService.prototype.countdown = function () {
 /**
  * 发布公告
  */
-AreaService.prototype.notice = function () {
+GameService.prototype.notice = function () {
     if (this.noticeTickCount >= 20 && this.intervalId === 0) {
         this.getLottery().publishNotice();
         this.noticeTickCount = 0;
@@ -246,11 +246,11 @@ AreaService.prototype.notice = function () {
 
 
 /**
- * Remove Entity form area
+ * Remove Entity form game
  * @param {Number} entityId The entityId to remove
  * @return {boolean} remove result
  */
-AreaService.prototype.removeEntity = function (entityId) {
+GameService.prototype.removeEntity = function (entityId) {
     var e = this.entities[entityId];
     if (!e) {
         return true;
@@ -273,10 +273,10 @@ AreaService.prototype.removeEntity = function (entityId) {
 };
 
 /**
- * Get entity from area
+ * Get entity from game
  * @param {Number} entityId.
  */
-AreaService.prototype.getEntity = function (entityId) {
+GameService.prototype.getEntity = function (entityId) {
     return this.entities[entityId];
 };
 
@@ -284,7 +284,7 @@ AreaService.prototype.getEntity = function (entityId) {
  * Get entities by given id list
  * @param {Array} The given entities' list.
  */
-AreaService.prototype.getEntities = function (ids) {
+GameService.prototype.getEntities = function (ids) {
     var result = [];
     for (var i = 0; i < ids.length; i++) {
         var entity = this.entities[ids[i]];
@@ -296,7 +296,7 @@ AreaService.prototype.getEntities = function (ids) {
     return result;
 };
 
-AreaService.prototype.getAllPlayers = function () {
+GameService.prototype.getAllPlayers = function () {
     var _players = [];
     var players = this.players;
     for (var id in players) {
@@ -306,23 +306,23 @@ AreaService.prototype.getAllPlayers = function () {
     return _players;
 };
 
-AreaService.prototype.generateGlobalLottery = function () {
+GameService.prototype.generateGlobalLottery = function () {
     var lotteryData = this.dataApiUtil.lottery().data;
     var t = bearcat.getBean('lottery', {
         kindId: lotteryData["1"].id,
         kindName: lotteryData["1"].name,
         imgId: lotteryData["1"].imgId,
     });
-    t.areaService = this;
+    t.gameService = this;
     this.globalEntityId = t.entityId;
     this.addEntity(t);
 };
 
-AreaService.prototype.getLottery = function () {
+GameService.prototype.getLottery = function () {
     return this.entities[this.globalEntityId];
 }
 
-AreaService.prototype.getAllEntities = function () {
+GameService.prototype.getAllEntities = function () {
     var r = {};
     var entities = this.entities;
 
@@ -334,12 +334,12 @@ AreaService.prototype.getAllEntities = function () {
     // return this.entities;
 };
 
-AreaService.prototype.getPlayer = function (playerId) {
+GameService.prototype.getPlayer = function (playerId) {
     var entityId = this.players[playerId];
     return this.entities[entityId];
 };
 
-AreaService.prototype.removePlayer = function (playerId) {
+GameService.prototype.removePlayer = function (playerId) {
     var entityId = this.players[playerId];
 
     if (entityId) {
@@ -348,30 +348,17 @@ AreaService.prototype.removePlayer = function (playerId) {
     }
 };
 
-/**
- * Get area entities for given postion and range.
- */
-AreaService.prototype.getAreaInfo = function () {
-    var entities = this.getAllEntities();
-    return {
-        id: this.id,
-        entities: entities,
-        width: this.width,
-        height: this.height
-    };
-};
-
-AreaService.prototype.entities = function () {
+GameService.prototype.entities = function () {
     return this.entities;
 };
 
-AreaService.prototype.actionManager = function () {
+GameService.prototype.actionManager = function () {
     return this.actionManagerService;
 };
 
 module.exports = {
-    id: "areaService",
-    func: AreaService,
+    id: "gameService",
+    func: GameService,
     props: [{
         name: "actionManagerService",
         ref: "actionManagerService"

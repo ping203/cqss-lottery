@@ -7,19 +7,20 @@ var InstanceRemote = function (app) {
 
 InstanceRemote.prototype.create = function(params, cb){
   logger.error('create server params : %j', params);
-  instanceManager.getInstance(params, function(err, result){
+  let self = this;
+  this.instanceManager.getInstance(params, function(err, result){
     if(err){
       logger.error('create instance error! args : %j, err : %j', params, err);
-      utils.invokeCallback(cb, err);
+      self.utils.invokeCallback(cb, err);
     }else{
-      utils.invokeCallback(cb, null, result);
+      self.utils.invokeCallback(cb, null, result);
     }
   });
 };
 
 InstanceRemote.prototype.remove = function(id, cb){
-  instanceManager.remove(id);
-  utils.invokeCallback(cb, null, id);
+  this.instanceManager.remove(id);
+  this.utils.invokeCallback(cb, null, id);
 };
 
 module.exports = function (app) {

@@ -23,6 +23,32 @@ var Configure = function () {
         app.set('dbclient', dbclient);
         app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient,interval:500}});
 
+        app.enable('systemMonitor');
+
+        // proxy configures
+        app.set('proxyConfig', {
+            cacheMsg: true,
+            interval: 30,
+            lazyConnection: true
+            // enableRpcLog: true
+        });
+
+        // remote configures
+        app.set('remoteConfig', {
+            cacheMsg: true,
+            interval: 30
+        });
+
+
+        app.before(pomelo.filters.toobusy()); // 服务器繁忙
+
+
+        // filter configures
+        app.filter(pomelo.filters.serial()); //主要负责保证所有从客户端到服务端的请求能够按顺序地处理
+        app.filter(pomelo.filters.time()); //主要负责记录请求的相应时间
+        app.filter(pomelo.filters.timeout()); //主要负责监控请求响应时间，如果超时就给出警告
+
+        // route configures
         app.route('area', RouteUtil.area);
         app.route('chat', RouteUtil.chat);
     });
@@ -38,7 +64,9 @@ var Configure = function () {
     app.configure('production|development', 'connector', function () {
         app.set('connectorConfig', {
             connector: pomelo.connectors.hybridconnector,
-            heartbeat: 100
+            heartbeat : 30,
+            useDict : true,
+            useProtobuf : true
         });
     });
 
@@ -48,12 +76,12 @@ var Configure = function () {
         app.set('session', require('./config/session.json'));
     });
 
-    app.configure('production|development', 'area', function () {
+    app.configure('production|development', 'game', function () {
         app.filter(pomelo.filters.serial());
         app.before(bearcat.getBean('playerFilter'));
 
-        app.areaService = bearcat.getBean('areaService');
-        app.areaService.init();
+        app.gameService = bearcat.getBean('gameService');
+        app.gameService.init();
     });
 
     // Configure for chat server
@@ -67,6 +95,14 @@ var Configure = function () {
         app.rankService = bearcat.getBean('rankService');
         app.rankService.init();
     });
+
+    app.configure('production|development', 'manager', function(){
+        var events = pomelo.events;
+        app.instanceManager = bearcat.getBean('instanceManager');
+        app.event.on(events.ADD_SERVERS, app.instanceManager.addServers);
+        app.event.on(events.REMOVE_SERVERS, app.instanceManager.removeServers);
+    });
+
 }
 
 var contextPath = require.resolve('./context.json');

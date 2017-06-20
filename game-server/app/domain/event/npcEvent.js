@@ -12,7 +12,7 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 	lottery.on(this.consts.Event.area.countdown, function (args) {
       //  var lottery = self.getEntity(args.entityId);
         if (args.lottery) {
-            args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.countdown,{
+            args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.countdown,{
                 entityId: args.lottery.entityId,
                 tickCount: Math.floor(args.lottery.tickCount),
                 period:args.lottery.tickPeriod
@@ -32,7 +32,7 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
                     preLottery:args.preLottery
                 },args.uids);
             }else {
-                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.lottery,{
+                args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.lottery,{
                     entityId: args.entityId,
                     lotteryResult: args.lotteryResult,
                     preLottery:args.preLottery
@@ -43,7 +43,7 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 
 	lottery.on(this.consts.Event.area.notice, function(args){
         if (args.lottery) {
-            args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.notice,{
+            args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.notice,{
                 entityId: args.lottery.entityId,
                 notice: args.content,
             });
@@ -58,7 +58,7 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
                     parseResult: args.parseResult,
                 },args.uids);
             }else {
-                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.parseLottery,{
+                args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.parseLottery,{
                     entityId: args.lottery.entityId,
                     parseResult: args.parseResult,
                 });
@@ -78,7 +78,7 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
                     betItems: betItems,
                 },args.uids);
             }else {
-                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.playerBets,{
+                args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.playerBets,{
                     entityId: args.lottery.entityId,
                     betItems: betItems,
                 });

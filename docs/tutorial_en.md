@@ -108,7 +108,7 @@ session.set('areaId', 1);
 
 The client send a request to the server for entering game scene
 ```javascript
-pomelo.request("area.playerHandler.enterScene", {name: name, playerId: data.playerId}, function(data) {
+pomelo.request("game.playerHandler.enterScene", {name: name, playerId: data.playerId}, function(data) {
   // ...
 });
 ```
@@ -159,7 +159,7 @@ A player do a `move` action
 client:
 ```javascript
 // send a `move` request to server
-pomelo.notify('area.playerHandler.move', {targetPos: {x: entity.x, y: entity.y}, target: targetId});
+pomelo.notify('game.playerHandler.move', {targetPos: {x: entity.x, y: entity.y}, target: targetId});
 ```
 server:
 ```javascript
@@ -192,7 +192,7 @@ pomelo.request('connector.entryHandler.entry', {name: name}, function(data) {
 
 ```javascript
 // send a notification to server
-pomelo.notify('area.playerHandler.move', {targetPos: {x: entity.x, y: entity.y}, target: targetId});
+pomelo.notify('game.playerHandler.move', {targetPos: {x: entity.x, y: entity.y}, target: targetId});
 ```
 
 * Push

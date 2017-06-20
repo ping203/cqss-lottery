@@ -11,7 +11,7 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
         var player = args.player;
         if (player) {
             var betItem = args.betItem.strip();
-            player.areaService.getChannel().pushMessage(self.consts.Event.area.playerBet,{
+            player.gameService.getChannel().pushMessage(self.consts.Event.area.playerBet,{
                 entityId:player.entityId,
                 betItem: betItem
             });
@@ -22,7 +22,7 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
         var player = args.player;
         if (player) {
             var betItem = args.betItem.strip();
-            player.areaService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
+            player.gameService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
                 entityId:player.entityId,
                 betItem: betItem
             });
@@ -38,7 +38,7 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
                     player: player.strip()
                 },args.uids);
             }else {
-                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.playerChange,{
+                args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.playerChange,{
                     entityId:player.entityId,
                     player: player.strip()
                 });
@@ -57,7 +57,7 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
                     numbers: args.numbers
                 },args.uids);
             }else {
-                args.lottery.areaService.getChannel().pushMessage(self.consts.Event.area.playerWinner,{
+                args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.playerWinner,{
                     entityId:player.entityId,
                     winMoney: args.winMoney,
                     itemOK:args.itemOK,
