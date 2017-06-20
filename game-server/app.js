@@ -1,17 +1,19 @@
 // const heapdump = require('heapdump');
-var bearcat = require('bearcat');
-var pomelo = require('pomelo');
-var sync = require('pomelo-sync-plugin');
-var RouteUtil = require('./app/util/routeUtil');
-var logger = require('pomelo-logger').getLogger('bearcat-lottery');
+const bearcat = require('bearcat');
+const pomelo = require('pomelo');
+const sync = require('pomelo-sync-plugin');
+const RouteUtil = require('./app/util/routeUtil');
+const globalChannel = require('pomelo-globalchannel-plugin');
+const status = require('pomelo-status-plugin');
+const logger = require('pomelo-logger').getLogger(__filename);
 
 // Cannot enqueue Query after fatal error
 /**
  * Init app for client.
  */
-var app = pomelo.createApp();
+const app = pomelo.createApp();
 
-var Configure = function () {
+const Configure = function () {
     app.set('name', 'lottery');
 
     app.loadConfig('mysql', app.getBase() + '/../shared/config/mysql.json');
@@ -22,6 +24,21 @@ var Configure = function () {
         let dbclient = require('./app/dao/mysql/mysql').init(app);
         app.set('dbclient', dbclient);
         app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient,interval:500}});
+
+        app.use(globalChannel, {globalChannel: {
+            prefix: 'globalChannel',
+            host: '127.0.0.1',
+            port: 6379,
+            cleanOnStartUp: true
+        }});
+
+        app.use(status, {status: {
+            prefix: 'status',
+            host: '127.0.0.1',
+            port: 6379,
+            cleanOnStartUp: true
+        }});
+
 
         app.enable('systemMonitor');
 
@@ -105,7 +122,7 @@ var Configure = function () {
 
 }
 
-var contextPath = require.resolve('./context.json');
+const contextPath = require.resolve('./context.json');
 bearcat.createApp([contextPath]);
 
 bearcat.start(function () {

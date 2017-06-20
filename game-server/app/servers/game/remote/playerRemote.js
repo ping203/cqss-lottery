@@ -21,6 +21,7 @@ var PlayerRemote = function (app) {
 //     serverType: 'game' }
 
 PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
+    logger.error('game:',this.app.getCurServer());
     var self = this;
     this.daoUser.getPlayerAllInfo(playerId, function (err, player) {
         if (err || !player) {

@@ -68,12 +68,14 @@ ChatService.prototype.add = function (playerId, sid, roleName, roomId) {
         this.leave(playerId, enterRoomId);
     }
 
-    var channel = this.app.get('channelService').getChannel(roomId, true);
+   // var channel = this.app.get('channelService').getChannel(roomId, true);
+    var channel = this.app.get('globalChannelService');
     if (!channel) {
         return Code.CHAT.FA_CHANNEL_CREATE;
     }
-    channel.pushMessage(this.consts.Event.chat.enterRoom, {uid:playerId,roleName:roleName});
-    channel.add(playerId, sid);
+    //channel.pushMessage(this.consts.Event.chat.enterRoom, {uid:playerId,roleName:roleName});
+    //channel.add(playerId, sid);
+    channel.add(roomId, playerId, sid);
     addRecord(this, playerId, roleName, sid, roomId);
 
     return Code.OK;
@@ -83,18 +85,20 @@ ChatService.prototype.leave = function (playerId, roomId) {
     logger.error('!!!!!!!!!!!ChatService leave', playerId, roomId);
 
     var record = this.roomMap.get(roomId).get(playerId);
-    var channel = this.app.get('channelService').getChannel(roomId, true);
+  //  var channel = this.app.get('channelService').getChannel(roomId, true);
+    var channel = this.app.get('globalChannelService');
 
     logger.error('!!!!!!!!!!!ChatService record', record);
 
     if (channel && record) {
-        channel.leave(playerId, record.sid);
+      //  channel.leave(playerId, record.sid);
+        channel.leave(roomId, playerId, record.sid);
         logger.error('!!!!!!!!!!!ChatService record 11111', record);
     }
 
     removeRecord(this, playerId, roomId);
 
-    channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:playerId});
+   // channel.pushMessage(this.consts.Event.chat.leaveRoom, {uid:playerId});
     logger.error('ChatService.prototype.leave');
 };
 
@@ -142,13 +146,36 @@ ChatService.prototype.kick = function (playerId, roomId) {
 };
 
 ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
-    var channel = this.app.get('channelService').getChannel(roomId);
+  //  var channel = this.app.get('channelService').getChannel(roomId);
+    logger.error('ChatService.prototype.pushByRoomId 111111,', roomId);
+    var channel = this.app.get('globalChannelService');
     if (!channel) {
         this.utils.invokeCallback(cb, Code.CHAT.FA_CHANNEL_NOT_EXIST);
         return;
     }
-    channel.pushMessage(this.consts.Event.chat.chatMessage, msg, null);
-    this.utils.invokeCallback(cb, Code.OK);
+
+    logger.error('ChatService.prototype.pushByRoomId 222222');
+
+    // var param = {
+    //     route: this.consts.Event.chat.chatMessage,
+    //     msg: msg.content,
+    //     from: msg.from,
+    //     target: msg.target
+    // };
+
+    // channel.pushMessage(this.consts.Event.chat.chatMessage, msg, null);
+    var self  = this;
+    channel.pushMessage('connector',this.consts.Event.chat.chatMessage, msg, roomId, {isPush:true}, function (err, fails) {
+        logger.error('ChatService.prototype.pushByRoomId 333333333');
+        if(err) {
+            console.error('send message to all users error: %j, fail ids: %j', err, fails);
+            self.utils.invokeCallback(cb, Code.FAIL);
+            return;
+        }
+        self.utils.invokeCallback(cb, Code.OK);
+        logger.error('ChatService.prototype.pushByRoomId 444444');
+    });
+
 };
 
 ChatService.prototype.pushByUID = function (uid, msg, cb) {

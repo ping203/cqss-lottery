@@ -110,6 +110,8 @@ EntryHandler.prototype.playerCtrl = function (msg, session, next) {
 };
 
 EntryHandler.prototype.login = function (msg, session, next) {
+    logger.error('connector:',this.app.getCurServer());
+
     var token = msg.token, self = this;
     if (!token) {
         next(new Error('invalid entry request: empty token'),new Answer.NoDataResponse(Code.PARAMERROR));
@@ -156,6 +158,7 @@ EntryHandler.prototype.login = function (msg, session, next) {
                     cb('加入聊天服务器失败');
                 }
                 else {
+                    logger.error('@@@@@@@@@@@@@@@@@@@@@@gameId:', gameId);
                     session.set('roomId', gameId);
                     session.push('roomId', cb);
                 }

@@ -14,6 +14,7 @@ var ChatRemote = function(app) {
 };
 
 ChatRemote.prototype.join = function(playerId, sid, roleName, roomId, cb) {
+    logger.error('chat:',this.app.getCurServer());
     var code = this.chatService.add(playerId, sid, roleName, roomId);
     cb(code);
 };

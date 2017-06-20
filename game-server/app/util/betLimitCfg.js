@@ -72,7 +72,6 @@ BetLimitCfg.prototype.init = function () {
  * @param config
  */
 BetLimitCfg.prototype.update = function (configs) {
-    logger.error('@@@@@@@@@@@@@@@@@',configs);
     for (let type in configs) {
         switch (type) {
             case 'big': {
@@ -139,7 +138,6 @@ BetLimitCfg.prototype.update = function (configs) {
                     if (t) {
                         this.playerMap.set(t.code, Number(szConfigs[i].m));
                         this.platformMap.set(t.code, Number(szConfigs[i].p));
-                        logger.error('@@@@@@@@@@@@@@@@@',t.code,`${dic[i]}顺`,':m:',Number(szConfigs[i].m),'p:',Number(szConfigs[i].p));
                     }
                 }
             }
@@ -152,7 +150,6 @@ BetLimitCfg.prototype.update = function (configs) {
                     if (t) {
                         this.playerMap.set(t.code, Number(bzConfigs[i].m));
                         this.platformMap.set(t.code, Number(bzConfigs[i].p));
-                        logger.error('@@@@@@@@@@@@@@@@@',t.code,`${dic[i]}豹`,':m:',Number(bzConfigs[i].m),'p:',Number(bzConfigs[i].p));
                     }
                 }
             }
@@ -222,14 +219,12 @@ BetLimitCfg.prototype.update = function (configs) {
 
 BetLimitCfg.prototype.getPlayerValue = function (type) {
     var val = this.playerMap.get(type);
-    logger.error('@@@@@@@@@@@@@@@@@getPlayerValue',type,'val:',val);
     if (!val) val = 1000;
     return val;
 }
 
 BetLimitCfg.prototype.playerLimit = function (type, value) {
     var val = this.playerMap.get(type);
-    logger.error('@@@@@@@@@@@@@@@@@playerLimit',type,'val:',val);
     if (!val) val = 1000;
     if (!!val && val >= value) {
         return false;
@@ -240,14 +235,12 @@ BetLimitCfg.prototype.playerLimit = function (type, value) {
 
 BetLimitCfg.prototype.getPlatformValue = function (type) {
     var val = this.platformMap.get(type);
-    logger.error('@@@@@@@@@@@@@@@@@getPlatformValue',type,'val:',val);
     if (!val) val = 3000;
     return val;
 };
 
 BetLimitCfg.prototype.platformLimit = function (type, value) {
     var val = this.platformMap.get(type);
-    logger.error('@@@@@@@@@@@@@@@@@platformLimit',type,'val:',val);
     if (!val) val = 3000;
     if (!!val && val >= value) {
         return false;

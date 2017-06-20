@@ -18,12 +18,10 @@ IncomeCfg.prototype.init = function () {
  * @param config
  */
 IncomeCfg.prototype.update = function (configs) {
-    logger.error('@@@@@@@@@@@@@@@@@configs', configs);
     for (var type in configs.betRates){
         switch (type){
             case 'size':
                 let size_sec = this.betType.getSectionCode(type);
-                logger.error('@@@@@@@@@@@@@@@@@size', size_sec);
                 if(size_sec){
                     for(let i = size_sec.begin; i<= size_sec.end; i++){
                         this.betRate.set(i, Number(configs.betRates[type]));
@@ -32,7 +30,6 @@ IncomeCfg.prototype.update = function (configs) {
                 break;
             case 'sz':
                 let sz_sec = this.betType.getSectionCode(type);
-                logger.error('@@@@@@@@@@@@@@@@@sz', sz_sec);
                 if(sz_sec){
                     for(let i = sz_sec.begin; i<= sz_sec.end; i++){
                         this.betRate.set(i, Number(configs.betRates[type]));
@@ -41,7 +38,6 @@ IncomeCfg.prototype.update = function (configs) {
                 break;
             case 'bz':
                 let bz_sec = this.betType.getSectionCode(type);
-                logger.error('@@@@@@@@@@@@@@@@@bz', bz_sec);
                 if(bz_sec){
                     for(let i = bz_sec.begin; i<= bz_sec.end; i++){
                         this.betRate.set(i, Number(configs.betRates[type]));
@@ -50,7 +46,6 @@ IncomeCfg.prototype.update = function (configs) {
                 break;
             case 'num':
                 let num_sec = this.betType.getSectionCode(type);
-                logger.error('@@@@@@@@@@@@@@@@@num', num_sec);
                 if(num_sec){
                     for(let i = num_sec.begin; i<= num_sec.end; i++){
                         this.betRate.set(i, Number(configs.betRates[type]));
@@ -59,7 +54,6 @@ IncomeCfg.prototype.update = function (configs) {
                 break;
             case 'sum':
                 let sum_sec = this.betType.getSectionCode(type);
-                logger.error('@@@@@@@@@@@@@@@@@sum', sum_sec);
                 if(sum_sec){
                     for(let i = sum_sec.begin; i<= sum_sec.end; i++){
                         this.betRate.set(i, Number(configs.betRates[type]));
