@@ -28,7 +28,7 @@ var GameService = function () {
     this.winners = [];
     this.intervalId = 0;
     this.gameId = pomelo.app.getCurServer().gameId+1000;
-    logger.error('GameService gameId:',this.gameId);
+    logger.error('#####################GameService gameId:',this.gameId);
 };
 
 /**
@@ -161,7 +161,7 @@ GameService.prototype.getChannel = function () {
         return this.channel;
     }
 
-    this.channel = pomelo.app.get('channelService').getChannel('area_' + this.gameId, true);
+    this.channel = pomelo.app.get('channelService').getChannel('game_' + this.gameId, true);
     return this.channel;
 };
 
@@ -169,8 +169,6 @@ GameService.prototype.getGlobalChannel = function () {
     if (this.globalChannel) {
         return this.globalChannel;
     }
-
-    //  this.channel = pomelo.app.get('channelService').getChannel('area_' + this.id, true);
     this.globalChannel = pomelo.app.get('globalChannelService');
     return this.globalChannel;
 };
