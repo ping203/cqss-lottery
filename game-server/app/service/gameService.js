@@ -12,8 +12,6 @@ var GameService = function () {
     this.id = 0;
     this.noticeTickCount = 0; // player score rank
     this.countdownCount = 0;
-    this.added = []; // the added entities in one tick
-    this.reduced = []; // the reduced entities in one tick
     this.players = {};
     this.trusteePlayers = {};
     this.entities = {};
@@ -27,8 +25,7 @@ var GameService = function () {
     this.latestBets = [];
     this.winners = [];
     this.intervalId = 0;
-    this.gameId = pomelo.app.getCurServer().gameId+1000;
-    logger.error('#####################GameService gameId:',this.gameId);
+    this.gameId = -1;
 };
 
 /**
@@ -37,6 +34,7 @@ var GameService = function () {
  * @api public
  */
 GameService.prototype.init = function () {
+    this.gameId = 1001;//pomelo.app.getCurServer().gameId+1000;
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
     this.generateGlobalLottery();
@@ -77,7 +75,6 @@ GameService.prototype.tick = function () {
     return;
     //run all the action
     this.actionManagerService.update();
-    this.entityUpdate();
     this.countdown();
     this.notice();
 };
@@ -100,7 +97,7 @@ GameService.prototype.winnerNotice = function () {
 
 GameService.prototype.openLottery = function (numbers, period) {
     this.winners = [];
-
+    logger.error('#####################GameService openLottery gameId:',this.gameId,'pid:', process.pid, 'title:',process.title);
     //numbers = [9,2,9,1,0];
 
     var openCodeResult = this.calcOpenLottery.calc(numbers);
@@ -173,33 +170,10 @@ GameService.prototype.getGlobalChannel = function () {
     return this.globalChannel;
 };
 
-GameService.prototype.pushMessage = function (uids, route, msg) {
-    this.getChannel().pushMessage('connector', route, msg, this.gameId, {isPush: true});
-};
-
 GameService.prototype.broadcastMessage = function (route, msg) {
     this.getGlobalChannel().pushMessage('connector', route, msg, this.gameId, {isPush: true});
 };
 
-GameService.prototype.entityUpdate = function () {
-    if (this.reduced.length > 0) {
-        //this.getChannel().pushMessage(this.consts.Event.area.removeEntities, {entities: this.reduced});
-        this.pushMessage(this.consts.Event.area.removeEntities, {entities: this.reduced});
-        this.reduced = [];
-    }
-
-    if (this.added.length > 0) {
-        var added = this.added;
-        var r = [];
-        for (var i = 0; i < added.length; i++) {
-            r.push(added[i].strip());
-        }
-
-        // this.getChannel().pushMessage(this.consts.Event.area.addEntities, {entities: r});
-        this.pushMessage(this.consts.Event.area.addEntities, {entities: r});
-        this.added = [];
-    }
-};
 /**
  * Add entity to game
  * @param {Object} e Entity to add to the game.
@@ -219,7 +193,8 @@ GameService.prototype.addEntity = function (e) {
 
     if (e.type === this.consts.EntityType.PLAYER) {
 
-        this.getChannel().add(this.gameId, e.id, e.serverId);
+        this.getChannel().add(e.id, e.serverId);
+        this.getGlobalChannel().add(this.gameId, e.id, e.serverId);
 
         if (!!this.players[e.id]) {
             logger.error('add player twice! player : %j', e);
@@ -238,8 +213,6 @@ GameService.prototype.addEntity = function (e) {
         this.getLottery().initPublishParseResult([{uid: e.id, sid: e.serverId}]);
         this.getLottery().initPublishLatestBets(this.latestBets,[{uid: e.id, sid: e.serverId}]);
     }
-
-    this.added.push(e);
     return true;
 };
 
@@ -282,7 +255,8 @@ GameService.prototype.removeEntity = function (entityId) {
     if (e.type === this.consts.EntityType.PLAYER) {
         e.setState(0);
         // this.getChannel().leave(e.id, e.serverId);
-        this.getChannel().leave(this.gameId, e.id, e.serverId);
+        this.getChannel().leave(e.id, e.serverId);
+        this.getGlobalChannel().leave(this.gameId, e.id, e.serverId);
         this.actionManagerService.abortAllAction(entityId);
 
         if(!e.isIdle()){
@@ -292,7 +266,6 @@ GameService.prototype.removeEntity = function (entityId) {
     }
 
     delete this.entities[entityId];
-    this.reduced.push(entityId);
     return true;
 };
 

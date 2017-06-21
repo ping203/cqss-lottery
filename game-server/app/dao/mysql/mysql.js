@@ -10,22 +10,6 @@ var NND = {};
 
 NND.init = function(app){
     _pool = require('./dao-pool').createMysqlPool(app);
-
-    // _pool.on('acquire', function (connection) {
-    //     console.log('Connection %d acquired', connection.threadId);
-    // });
-    //
-    // _pool.on('connection', function (connection) {
-    //     connection.query('SET SESSION auto_increment_increment=1')
-    // });
-    //
-    // _pool.on('enqueue', function () {
-    //     console.log('Waiting for available connection slot');
-    // });
-    //
-    // _pool.on('release', function (connection) {
-    //     console.log('Connection %d released', connection.threadId);
-    // });
 };
 
 NND.query = function(sql, args, callback){

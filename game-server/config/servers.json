@@ -16,7 +16,7 @@
         "port": 3150,
         "clientPort": 3010,
         "frontend": true,
-        "max-connections":2,
+        "max-connections":1000,
         "args": "--inspect=10011"
       },
       {
@@ -41,6 +41,12 @@
         "port": 3250,
         "gameId": 1,
         "args": "--inspect=10012"
+      },
+      {
+        "id": "game-server-2",
+        "host": "127.0.0.1",
+        "port": 3251,
+        "gameId": 2
       }
     ],
     "auth": [

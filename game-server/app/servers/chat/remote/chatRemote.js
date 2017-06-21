@@ -15,13 +15,13 @@ var ChatRemote = function(app) {
 
 ChatRemote.prototype.join = function(playerId, sid, roleName, roomId, cb) {
     logger.error('chat:',this.app.getCurServer());
-    var code = this.chatService.add(playerId, sid, roleName, roomId);
+    var code = this.chatService.add(playerId, sid, roleName, 1);
     cb(code);
 };
 
 ChatRemote.prototype.leave = function(playerId, roomId, cb) {
     if(!!roomId){
-        this.chatService.kick(playerId, roomId);
+        this.chatService.kick(playerId, 1);
     }
     cb();
 };
@@ -46,7 +46,11 @@ ChatRemote.prototype.send = function(msg, playerId, roomId, cb) {
     }
     msg.time = Date.now();
 
-    this.chatService.pushByRoomId(roomId, msg, cb);
+    this.chatService.pushByRoomId(1, msg, cb);
+};
+
+ChatRemote.prototype.getChatHistory = function (roomId, cb) {
+    
 };
 
 ChatRemote.prototype.get = function(name, flag) {

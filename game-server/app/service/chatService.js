@@ -12,6 +12,7 @@ var ChatService = function () {
     this.app = pomelo.app;
     this.roomMap = new Map();
     this.uidMap = new Map();
+    this.chatHistory = [];
 
     // this.uidMap = {};
     // this.nameMap = {};
@@ -146,36 +147,34 @@ ChatService.prototype.kick = function (playerId, roomId) {
 };
 
 ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
-  //  var channel = this.app.get('channelService').getChannel(roomId);
-    logger.error('ChatService.prototype.pushByRoomId 111111,', roomId);
     var channel = this.app.get('globalChannelService');
     if (!channel) {
         this.utils.invokeCallback(cb, Code.CHAT.FA_CHANNEL_NOT_EXIST);
         return;
     }
 
-    logger.error('ChatService.prototype.pushByRoomId 222222');
-
-    // var param = {
-    //     route: this.consts.Event.chat.chatMessage,
-    //     msg: msg.content,
-    //     from: msg.from,
-    //     target: msg.target
-    // };
-
-    // channel.pushMessage(this.consts.Event.chat.chatMessage, msg, null);
     var self  = this;
     channel.pushMessage('connector',this.consts.Event.chat.chatMessage, msg, roomId, {isPush:true}, function (err, fails) {
-        logger.error('ChatService.prototype.pushByRoomId 333333333');
         if(err) {
             console.error('send message to all users error: %j, fail ids: %j', err, fails);
             self.utils.invokeCallback(cb, Code.FAIL);
             return;
         }
+
+        self.recordChat(msg);
         self.utils.invokeCallback(cb, Code.OK);
-        logger.error('ChatService.prototype.pushByRoomId 444444');
     });
 
+};
+
+ChatService.prototype.getChatHistory = function (cb) {
+
+};
+
+ChatService.prototype.recordChat = function (msg) {
+    if(this.chatHistory.unshift(msg) > 20){
+        this.latestBets.pop();
+    }
 };
 
 ChatService.prototype.pushByUID = function (uid, msg, cb) {
@@ -189,6 +188,10 @@ ChatService.prototype.pushByUID = function (uid, msg, cb) {
         uid: record.uid,
         sid: record.sid
     }], cb);
+};
+
+ChatService.prototype.getChatHistory = function (roomId, cb) {
+    this.utils.invokeCallback(cb, this.recordChat);
 };
 
 var checkDuplicate = function (service, playerId, roomId) {
@@ -229,5 +232,8 @@ module.exports = {
     }, {
         name: "daoUser",
         ref: "daoUser"
+    }, {
+        name: "daoChat",
+        ref: "daoChat"
     }]
 }

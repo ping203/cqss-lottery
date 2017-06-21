@@ -11,7 +11,7 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
         var player = args.player;
         if (player) {
             var betItem = args.betItem.strip();
-            player.gameService.getChannel().pushMessage(self.consts.Event.area.playerBet,{
+            player.gameService.broadcastMessage(self.consts.Event.area.playerBet,{
                 entityId:player.entityId,
                 betItem: betItem
             });
@@ -22,7 +22,7 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
         var player = args.player;
         if (player) {
             var betItem = args.betItem.strip();
-            player.gameService.getChannel().pushMessage(self.consts.Event.area.playerUnBet,{
+            player.gameService.broadcastMessage(self.consts.Event.area.playerUnBet,{
                 entityId:player.entityId,
                 betItem: betItem
             });

@@ -17,6 +17,7 @@ const Configure = function () {
     app.set('name', 'lottery');
 
     app.loadConfig('mysql', app.getBase() + '/../shared/config/mysql.json');
+    app.loadConfig('redis', app.getBase() + '/../shared/config/redis.json');
 
     // configure for global
     app.configure('production|development', function () {
@@ -25,10 +26,14 @@ const Configure = function () {
         app.set('dbclient', dbclient);
         app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient,interval:500}});
 
+        let redis = require('./app/dao/redis/redis').init(app);
+        app.set('redis', redis);
+
         app.use(globalChannel, {globalChannel: {
             prefix: 'globalChannel',
             host: '127.0.0.1',
             port: 6379,
+            // db:'globalChannel',
             cleanOnStartUp: true
         }});
 
@@ -36,6 +41,7 @@ const Configure = function () {
             prefix: 'status',
             host: '127.0.0.1',
             port: 6379,
+            // db:'status',
             cleanOnStartUp: true
         }});
 

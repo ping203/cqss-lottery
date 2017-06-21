@@ -36,22 +36,6 @@ function gameMsgInit() {
         removeUser(user);
     });
 
-    // add entities
-    pomelo.on('onAddEntities', function (data) {
-        for (var i = 0; i < data.length; ++i) {
-            console.log('addEntity data:', data[i]);
-            players[data[i].entityId] = data[i];
-        }
-    });
-
-    //Handle remove entities message
-    pomelo.on('onRemoveEntities', function (data) {
-        for (var i = 0; i < data.length; ++i) {
-            console.log('removeEntity data:', data[i]);
-            players[data[i].entityId] = null;
-        }
-    });
-
     pomelo.on('onCountdown', function (data) {
         //  console.log('onCountdown data:', data);
         $('#countdown').html('period: ' + data.period + ' countdown: ' + Math.floor(data.tickCount/60)+':' + data.tickCount%60 +'s');
@@ -83,6 +67,11 @@ function gameMsgInit() {
 
     pomelo.on('onPlayerBet', function (data) {
         console.log('onPlayerBet data:', data.betItem.betTypeInfo,'entityid:', data.betItem.entityId);
+
+        addMessage('投注', '所以玩家', data.betItem.betInfo);
+        $("#chatHistory").show();
+        if(data.from !== rolename)
+            tip('message', data.from);
 
     });
 

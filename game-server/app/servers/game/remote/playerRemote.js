@@ -16,7 +16,7 @@ var PlayerRemote = function (app) {
 //     id: 'game-server-1',
 //     host: '127.0.0.1',
 //     port: 3250,
-//     areaId: 1,
+//     gameId: 1,
 //     args: '--inspect=10012',
 //     serverType: 'game' }
 

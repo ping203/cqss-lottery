@@ -8,6 +8,7 @@ The chat server currently runs on nodejs v7.10.0, and should run fine on the lat
 - cqss
     
 sudo apt install sysstat
+sudo apt install redis-server
 
 #工作日志
 
