@@ -13,10 +13,6 @@ var ChatService = function () {
     this.roomMap = new Map();
     this.uidMap = new Map();
     this.chatHistory = [];
-
-    // this.uidMap = {};
-    // this.nameMap = {};
-    // this.channelMap = {};
 };
 
 /**
@@ -24,6 +20,8 @@ var ChatService = function () {
  */
 ChatService.prototype.init = function () {
     this.loadForbidTalkUser();
+    let configs = this.app.get('redis');
+    this.daoChat.init(1, 20, configs);
 };
 
 ChatService.prototype.loadForbidTalkUser = function () {
@@ -172,6 +170,12 @@ ChatService.prototype.getChatHistory = function (cb) {
 };
 
 ChatService.prototype.recordChat = function (msg) {
+    this.daoChat.add(msg);
+
+    this.daoChat.gets(function (err, result) {
+       logger.error('recordChat:',err, result);
+    });
+
     if(this.chatHistory.unshift(msg) > 20){
         this.latestBets.pop();
     }

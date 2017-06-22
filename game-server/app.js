@@ -26,8 +26,8 @@ const Configure = function () {
         app.set('dbclient', dbclient);
         app.use(sync, {sync: {path:__dirname + '/app/dao/mapping', dbclient: dbclient,interval:500}});
 
-        let redis = require('./app/dao/redis/redis').init(app);
-        app.set('redis', redis);
+        // let redis = require('./app/dao/redis/redis').init(app);
+        // app.set('redis', redis);
 
         app.use(globalChannel, {globalChannel: {
             prefix: 'globalChannel',

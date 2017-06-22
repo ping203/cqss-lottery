@@ -12,13 +12,9 @@ function RedisApi() {
     this._redis = null;
 };
 
-let REDIS_DEFAULT_PREFIX = 'LOTTERY';
-
-RedisApi.prototype.init = function(app){
-    let configs = app.get('redis');
-    this.prefix = configs.prefix || REDIS_DEFAULT_PREFIX;
-    this.db = configs.db || '0';
-    this._redis = redis.createClient(configs.port, configs.host, configs.opts);
+RedisApi.prototype.init = function(db, configs){
+    this.db = db || '0';
+    this._redis = redis.createClient(configs.port, configs.host, {});
     if (configs.auth) {
         this._redis.auth(configs.auth);
     }
@@ -38,23 +34,36 @@ RedisApi.prototype.init = function(app){
     });
 };
 
-RedisApi.prototype.invokeCallback = function(cb) {
-    if (!!cb && typeof cb === 'function') {
-        cb.apply(null, Array.prototype.slice.call(arguments, 1));
-    }
-};
-
-RedisApi.prototype.cmd = function(cmd, key, value, cb){
+RedisApi.prototype.cmd = function(cmd, table, key, value, cb){
     if(!cmd) {
-        this.invokeCallback(cb);
+        this.utils.invokeCallback(cb);
         return;
     }
 
-    let cmds =[];
-    cmds.push([cmd, genKey(this, key, value)]);
+    let cmdItem =[];
+    cmdItem.push(cmd);
 
+    if(table){
+        cmdItem.push(table);
+    }
+
+    if(key){
+        cmdItem.push(key);
+    }
+
+    if(value){
+        cmdItem.push(value);
+    }
+   // cmds.push([cmd, genKey(this, key, value)]);
+
+    logger.error('!!!!!!!!!!!!', cmdItem, ':::', this._redis);
+
+    let cmds = [];
+    cmds.push(cmdItem);
+
+    let self = this;
     this._redis.multi(cmds).exec(function(err, reply) {
-        this.invokeCallback(cb, err, reply);
+        self.utils.invokeCallback(cb, err, reply);
     });
 };
 
@@ -65,33 +74,13 @@ RedisApi.shutdown = function(){
     }
 };
 
-var genKey = function(self, id) {
-    return self.prefix + ':' + id;
-};
-
-var genCleanKey = function(self) {
-    return self.prefix + '*';
-};
-
-const RedisClient = module.exports;
-
-RedisClient.init = function(app) {
-    if (!!RedisClient.redis){
-        return RedisClient;
-    } else {
-        RedisClient.redis = new RedisApi;
-        RedisClient.redis.init(app);
-        RedisClient.add = RedisClient.redis.add;
-        RedisClient.get = RedisClient.redis.get;
-        RedisClient.del = RedisClient.redis.del;
-        return RedisClient;
-    }
-};
-
-RedisClient.shutdown = function(app) {
-    RedisClient.redis.shutdown(app);
-};
-
+module.exports ={
+    id:'redisApi',
+    func:RedisApi,
+    props:[
+        {name:'utils', ref:'utils'}
+    ]
+}
 
 
 
