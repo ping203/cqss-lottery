@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `User` (
   `active` tinyint(3) unsigned DEFAULT '0' COMMENT '是否激活',
   `forbidTalk` tinyint(3) unsigned DEFAULT '0' COMMENT '玩家禁言',
   `friends` json DEFAULT NULL COMMENT '朋友列表',
-  `role` smallint(6) unsigned NOT NULL COMMENT '0:玩家,1:一级代理商,2:二级代理商',
+  `role` smallint(6) unsigned NOT NULL COMMENT '0:玩家,1:一级代理商,2:二级代理商,3:体验用户',
   `roleName` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '角色名称',
   `imageId` smallint(6) unsigned DEFAULT '1' COMMENT '头像id(1~6)',
   `rank` varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '荣誉称号',
@@ -43,9 +43,11 @@ CREATE TABLE IF NOT EXISTS `User` (
 CREATE TABLE IF NOT EXISTS `Bank`(
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
-  `address` varchar(128) COLLATE utf8_unicode_ci NOT NULL COMMENT '开户行地址',
-  `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '户名',
-  `cardNO` varchar(36) COLLATE utf8_unicode_ci NOT NULL COMMENT '卡号',
+  `address` varchar(128) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '开户行地址',
+  `username` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '户名',
+  `cardNO` varchar(36) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '银行卡号',
+  `weixin` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '微信',
+  `zhifubao` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '支付宝',
   `bindTime` bigint(20) unsigned NOT NULL COMMENT '绑卡时间',
   PRIMARY KEY (`id`),
   FOREIGN KEY(`uid`) REFERENCES User(`id`),
@@ -139,8 +141,24 @@ CREATE TABLE IF NOT EXISTS `Record`(
   `num` bigint(20) NOT NULL COMMENT '金额',
   `accountAmount` DECIMAL(20,2) NOT NULL COMMENT '用户余额',
   `type` smallint(6) unsigned NOT NULL COMMENT '类型1:充值，2：提现',
-  `operate` smallint(6) unsigned NOT NULL COMMENT '操作1:请求，2：确认，3：撤销',
+  `status` smallint(6) unsigned NOT NULL COMMENT '交易处理状态 1:请求，2：确认，3：撤销',
+  `operator` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '操作人账号',
+  `bankInfo` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '充值账号信息',
   `create_time` bigint(20) unsigned NOT NULL COMMENT '记录时间',
    PRIMARY KEY (`id`),
    FOREIGN KEY(`uid`) REFERENCES User(`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+# ------------------------------------------------------------
+# Dump of table reset(密码重置表)
+# ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `reset`(
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '登录名',
+  `code` smallint(6) unsigned NOT NULL COMMENT '重置码',
+  `type` smallint(6) unsigned NOT NULL COMMENT '1：登录密码，2：提款码',
+  `create_time` bigint(20) unsigned NOT NULL COMMENT'创建时间',
+  `used` tinyint(3) unsigned DEFAULT '0' COMMENT '是否已经使用',
+   PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+

@@ -67,9 +67,12 @@ adminClient.prototype.login = function (username, password, cb) {
 };
 
 // 充值
-adminClient.prototype.recharge = function (uid, money, cb) {
+// money 充值金额
+// status(2：确认，3：撤销)
+// operator 操作人
+adminClient.prototype.recharge = function (uid, money, operator, bankInfo, cb) {
     var self = this;
-    pomelo.request('connector.entryHandler.recharge', {uid: uid, money: money}, function (res) {
+    pomelo.request('connector.entryHandler.recharge', {uid: uid, money: money, operator:operator, bankInfo:bankInfo}, function (res) {
         if (!res.result || res.result.code != 200) {
             self.invokeCallback(cb, res.result,null);
         }
@@ -80,10 +83,13 @@ adminClient.prototype.recharge = function (uid, money, cb) {
 };
 
 // 提现确认
-// operate(2：确认，3：撤销)
-adminClient.prototype.cash = function (uid, orderId, operate, cb) {
+// orderId 重置订单
+// status(2：确认，3：撤销)
+// operator 操作人
+// 充值到的账号信息
+adminClient.prototype.cash = function (uid, orderId, status, operator, bankInfo, cb) {
     var self = this;
-    pomelo.request('connector.entryHandler.cashHandler', {uid: uid, orderId: orderId, operate:operate}, function (res) {
+    pomelo.request('connector.entryHandler.cashHandler', {uid: uid, orderId: orderId, status:status, operator:operator, bankInfo:bankInfo}, function (res) {
         if (!res.result || res.result.code != 200) {
             self.invokeCallback(cb, res.result);
         }
@@ -93,6 +99,8 @@ adminClient.prototype.cash = function (uid, orderId, operate, cb) {
     });
 };
 
+
+// 系统参数配置
 adminClient.prototype.setConfig = function (configs,cb) {
     var self = this;
     pomelo.request('connector.entryHandler.setConfig', {configs: configs}, function (res) {
@@ -120,6 +128,22 @@ adminClient.prototype.playerCtrl = function (uid, ctrl, cb) {
             self.invokeCallback(cb, null,null);
         }
     });
+};
+
+// 收动开奖
+// period 彩票期数20170620108
+// 开奖号码[1,3,5,1,8]
+adminClient.prototype.openLottery = function (period, numbers) {
+    var self = this;
+    pomelo.request('connector.entryHandler.backendOpenCode', {period: period, numbers:numbers}, function (res) {
+        if (!res.result || res.result.code != 200) {
+            self.invokeCallback(cb, res.result);
+        }
+        else {
+            self.invokeCallback(cb, null,null);
+        }
+    });
+
 };
 
 window.adminClient = adminClient;

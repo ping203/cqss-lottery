@@ -37,7 +37,7 @@ $(document).ready(function () {
     }
 
     function recharge() {
-        _adminClient.recharge(2, 10000, function (err, result) {
+        _adminClient.recharge(2, 10000, 'admin','alipay@126.com',function (err, result) {
             if (!!err) {
                 console.log('充值失败:', err);
                 return;
@@ -47,7 +47,7 @@ $(document).ready(function () {
     }
 
     function cash() {
-        _adminClient.cash(2, 3, 2, function (err, result) {
+        _adminClient.cash(2, 3, 2,'sys','wechat@163.com', function (err, result) {
             if (!!err) {
                 console.log('提现失败:', err);
                 return;
@@ -59,10 +59,10 @@ $(document).ready(function () {
     function playerCtrl() {
         _adminClient.playerCtrl(2, {code:1,operate:true}, function (err, result) {
             if (!!err) {
-                console.log('提现失败:', err);
+                console.log('玩家控制失败:', err);
                 return;
             }
-            console.log('提现成功');
+            console.log('玩家控制成功');
         })
     }
 
@@ -153,11 +153,22 @@ $(document).ready(function () {
         var phone = $('#roleName').val();
         pomelo.request("game.playerHandler.getRecords", {skip: 0,limit:10}, function (res) {
             if (res.result.code != 200) {
-                alert('获取记录失败' +  res.result.desc);
+             //   alert('获取记录失败' +  res.result.desc);
                 return;
             }
-            alert('获取记录成功');
+           // alert('获取记录成功');
         });
+
+        pomelo.request("game.playerHandler.getChatHistory", null, function (res) {
+            if (res.result.code != 200) {
+                alert('获取聊天记录失败' +  res.result.desc);
+                return;
+            }
+
+            console.log('getChatHistory'+res.data);
+            alert('获取聊天记录成功');
+        });
+
     }
 
     function setPinCode() {

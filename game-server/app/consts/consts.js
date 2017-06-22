@@ -43,7 +43,8 @@ var Consts = function () {
     this.RoleType ={
         PLAYER:0,
         AGENT1:1,
-        AGENT2:2
+        AGENT2:2,
+        TRIAL:3
     };
 
     this.PlayerCtrl = {

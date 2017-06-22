@@ -64,9 +64,9 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
                 self.gameService.updateLatestBets(betItem);
             });
         }
-    ],function (err) {
-        logger.error('$$$$$$$$$$$$$$$$$$$$$$$,err',err);
-        if(err){
+    ], function (err) {
+        logger.error('$$$$$$$$$$$$$$$$$$$$$$$,err', err);
+        if (err) {
             next(null, err);
             return;
         }
@@ -126,11 +126,21 @@ PlayerHandler.prototype.friendIncome = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.setRoleName = function (msg, session, next) {
-    var playerId = session.uid;
-    var player = this.gameService.getPlayer(playerId);
-    player.setRoleName(msg.roleName);
+    var self = this;
+    this.daoUser.checkRoleName(msg.roleName).then(used => {
+        if (used) {
+            next(null, new Answer.NoDataResponse(Code.USER.FA_USER_ROLENAME_AREADY_EXIST));
+            return;
+        }
+        var playerId = session.uid;
+        var player = self.gameService.getPlayer(playerId);
+        player.setRoleName(msg.roleName);
+        next(null, new Answer.NoDataResponse(Code.OK));
+    }).catch(err => {
+        next(null, new Answer.NoDataResponse(Code.DBFAIL));
+    });
 
-    next(null, new Answer.NoDataResponse(Code.OK));
+
 };
 
 PlayerHandler.prototype.setImageId = function (msg, session, next) {
@@ -148,20 +158,21 @@ PlayerHandler.prototype.setPhone = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
-    if (!msg.address || !msg.username || !msg.cardNO || !msg.pinCode) {
-        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
-        return;
+    if ((!!(msg.address && msg.username && msg.cardNO) || !!msg.wechat || !!msg.alipay) && !!msg.pinCode) {
+        var playerId = session.uid;
+        var player = this.gameService.getPlayer(playerId);
+        player.bindCard(msg.address, msg.username, msg.cardNO, msg.alipay, msg.wechat, msg.pinCode, function (err, result) {
+            if (!!err) {
+                next(null, new Answer.NoDataResponse(err));
+            }
+            else {
+                next(null, new Answer.DataResponse(Code.OK, result));
+            }
+        });
     }
-    var playerId = session.uid;
-    var player = this.gameService.getPlayer(playerId);
-    player.bindCard(msg.address, msg.username, msg.cardNO, msg.pinCode, function (err, result) {
-        if (!!err) {
-            next(null, new Answer.NoDataResponse(err));
-        }
-        else {
-            next(null, new Answer.DataResponse(Code.OK, result));
-        }
-    });
+    else {
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+    }
 };
 
 // 提现请求
@@ -180,7 +191,7 @@ PlayerHandler.prototype.cashRequest = function (msg, session, next) {
     var playerId = session.uid;
     var player = this.gameService.getPlayer(playerId);
     let ret = player.cash(this.utils.createSalt(msg.pinCode), money);
-    if(ret.code !== Code.OK.code){
+    if (ret.code !== Code.OK.code) {
         next(null, new Answer.NoDataResponse(ret));
         return;
     }
@@ -228,8 +239,8 @@ PlayerHandler.prototype.getLotterys = function (msg, session, next) {
     });
 };
 
-PlayerHandler.prototype.getPlayerBaseInfo = function(msg, session, next){
-    if(!msg.uid){
+PlayerHandler.prototype.getPlayerBaseInfo = function (msg, session, next) {
+    if (!msg.uid) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
@@ -254,8 +265,19 @@ PlayerHandler.prototype.sendChatMsg = function (msg, session, next) {
     this.app.rpc.chat.chatRemote.send(session, msg, session.uid, session.get('roomId'), function (result) {
         next(null, new Answer.NoDataResponse(result));
     });
-
 };
+
+PlayerHandler.prototype.getChatHistory = function (msg, session, next) {
+    logger.error()
+    this.app.rpc.chat.chatRemote.getChatHistory(session, session.get('roomId'), function (err, result) {
+        if (err) {
+            next(null, new Answer.NoDataResponse(err));
+            return;
+        }
+        next(null, new Answer.DataResponse(Code.OK, result));
+    });
+};
+
 
 module.exports = function (app) {
     return bearcat.getBean({

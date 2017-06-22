@@ -27,6 +27,23 @@ DaoUser.prototype.getPlayer = function (playerId, cb) {
     });
 };
 
+DaoUser.prototype.checkRoleName = function (roleName) {
+    return new Promise((resolve, reject) => {
+        var sql = 'select * from User where roleName = ?';
+        var args = [roleName];
+        var self = this;
+        pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+            if (err !== null) {
+                reject(err);
+            } else if (!res || res.length === 0) {
+                resolve(false);
+            } else {
+                resolve(true);
+            }
+        });
+    });
+};
+
 DaoUser.prototype.updateAllOfline = function () {
     var sql = 'update User set state = ?';
     var args = [0];
@@ -109,8 +126,8 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
 
 //获取玩家收益ID
 DaoUser.prototype.getPlayersIncomeId = function (cb) {
-    var sql = 'select id,level from User';
-    var args = [];
+    var sql = 'select id,level from User where role != ? and active =?';
+    var args = [this.consts.RoleType.TRIAL,1];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
@@ -125,8 +142,8 @@ DaoUser.prototype.getPlayersIncomeId = function (cb) {
 
 //获取玩家排行ID
 DaoUser.prototype.getPlayersRankId = function (cb) {
-    var sql = 'select id,roleName from User';
-    var args = [];
+    var sql = 'select id,roleName from User where role != ? and active = ?';
+    var args = [this.consts.RoleType.TRIAL,1];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
@@ -216,8 +233,8 @@ DaoUser.prototype.setPlayerCanTalk = function (playerId, bTalk, cb) {
 
 // 获取平台所有代理商
 DaoUser.prototype.getAgents = function (cb) {
-    var sql = 'select id, ext from User where role != ?';
-    var args = [this.consts.RoleType.PLAYER];
+    var sql = 'select id, ext from User where role in(?,?) and active =?';
+    var args = [this.consts.RoleType.AGENT1, this.consts.RoleType.AGENT2, 1];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
@@ -250,7 +267,8 @@ DaoUser.prototype.getUpperAgent = function (playerId, cb) {
                 },
                 function (player, callback) {
                     self.getPlayerByName(player.inviter, function (err, agent) {
-                        if(!!err || !agent){
+                        if(!!err || !agent || !agent.active || (agent.role != self.consts.RoleType.AGENT1 && agent.role
+                            != self.consts.RoleType.AGENT2)){
                             self.utils.invokeCallback(cb, '上级代理不存在', null);
                             return;
                         }

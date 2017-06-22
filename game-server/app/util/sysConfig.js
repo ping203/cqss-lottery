@@ -6,6 +6,8 @@ var defaultConfigs = require('../../../shared/config/sysParamConfig.json');
 
 var SysConfig = function () {
     this._configs = defaultConfigs;
+    let level = this._configs.update.length;
+    this._configs.update[level-1] = 0;
 };
 
 SysConfig.prototype.getConfigs = function () {
@@ -14,6 +16,8 @@ SysConfig.prototype.getConfigs = function () {
 
 SysConfig.prototype.setConfigs = function (configs) {
     this._configs = configs;
+    let level = this._configs.update.length;
+    this._configs.update[level-1] = 0;
     this.betLimitCfg.update(this._configs.norm);
     this.incomeCfg.update({betRates:this._configs.odds, defectionRates:this._configs.bw});
 }

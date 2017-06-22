@@ -8,6 +8,7 @@ const daoSysParam = require('../lib/dao/daoSysParam');
 const code = require('../../shared/code');
 const async = require('async');
 const crypto = require('crypto');
+const daoReset = require('../lib/dao/daoReset');
 
 function createSalt(pwd) {
     const hash = crypto.createHash('sha1');
@@ -239,5 +240,69 @@ router.post('/register', function (ctx, next) {
     });
 
 });
+
+//用户重置密码
+router.post('/reset', function (ctx, next) {
+    let msg = ctx.request.body;
+    if (!msg.username || !msg.identify || !msg.type || !msg.newPassword) {
+        ctx.body = code.PARAMERROR;
+        return;
+    }
+
+    let _resets;
+    let promise = new Promise((resolve, reject)=>{
+        async.waterfall([function (cb) {
+            daoReset.getReset(msg.username, cb);
+        },function (reset, cb) {
+            if(!reset){
+                ctx.body = code.USER.FA_USER_RESET_ERROR;
+                return;
+            }
+
+            if(reset.code != msg.identify){
+                ctx.body = code.USER.FA_USER_RESET_CODE_ERROR;
+                return;
+            }
+
+            if((Date.now() - reset.create_time)/1000/60/60 > 2){
+                ctx.body = code.USER.FA_USER_RESET_EXPIRE_ERROR;
+                return;
+            }
+
+            if(reset.type != msg.type){
+                ctx.body = code.USER.FA_USER_RESET_TYPE_ERROR;
+                return;
+            }
+
+            _resets = reset;
+            switch (type){
+                case 1:
+                    daoUser.resetPassword(msg.username, createSalt(msg.newPassword), cb);
+                    break;
+                case 2:
+                    daoUser.resetPinCode(msg.username, createSalt(msg.username + msg.newPassword), cb);
+                    break;
+                default:
+                    cb('重置类型不存在');
+                    break;
+            }
+        },function (cb) {
+            daoReset.setUsed(_resets.id, 1, cb);
+        }], function (err) {
+            if(err){
+                let _err = {};
+                _err.code = code.FAIL.code;
+                _err.desc = err;
+                ctx.body = _err;
+            }
+            else {
+                ctx.body = code.OK;
+            }
+        });
+    })
+
+    return promise;
+});
+
 
 module.exports = router

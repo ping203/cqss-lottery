@@ -32,7 +32,12 @@ module.exports = {
         FA_USER_LOGIN_ERROR:    {code:4004,desc:'用户或密码错误'},
         FA_INVITOR_NOT_EXIST:   {code:4005,desc:'推荐人不存在'},
         FA_USER_AREADY_LOGIN:   {code:4006,desc:'用户已经登录，请勿重复登录'},
-        FA_USER_SYS_CONFIG_ERR:   {code:4007,desc:'系统配置信息异常'}
+        FA_USER_SYS_CONFIG_ERR:   {code:4007,desc:'系统配置信息异常'},
+        FA_USER_ROLENAME_AREADY_EXIST:   {code:4008,desc:'用户昵称已经被使用'},
+        FA_USER_RESET_ERROR:   {code:4009,desc:'重置密码，请联系管理员'},
+        FA_USER_RESET_CODE_ERROR:   {code:4010,desc:'验证码错误'},
+        FA_USER_RESET_EXPIRE_ERROR:   {code:4011,desc:'验证码过期,请联系管理员'},
+        FA_USER_RESET_TYPE_ERROR:   {code:4011,desc:'重置类型不匹配'}
     },
     GAME:{
         FA_ADD_ENTITY_ERROR: {code:5001, desc:"加入对象失败"},

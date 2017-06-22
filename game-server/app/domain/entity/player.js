@@ -100,7 +100,7 @@ Player.prototype.setNextLevelExp = function () {
     if (!!_exp) {
         this.nextLevelExp = _exp;
     } else {
-        this.nextLevelExp = 999999999;
+        this.nextLevelExp = 9999999999;
     }
 }
 
@@ -161,14 +161,13 @@ Player.prototype.setPhone = function (phone) {
     return Code.OK;
 };
 
-Player.prototype.bindCard = function (address, username, cardNO, pinCode, cb) {
+Player.prototype.bindCard = function (address, username, cardNO, alipay, wechat, pinCode, cb) {
     if(this.ext.pinCode === 1){
         this.utils.invokeCallback(cb, Code.GAME.FA_CANNOT_REBIND_CARD, null);
         return;
     }
-
     var self = this;
-    this.daoBank.bind(this.id, address, username, cardNO, function (err, result) {
+    this.daoBank.bind(this.id, address, username, cardNO, alipay, wechat, function (err, result) {
         if(!err && !!result){
             self.pinCode = self.utils.createSalt(pinCode);
             self.ext.pinCode = 1;
@@ -242,6 +241,7 @@ Player.prototype.getBaseInfo = function () {
         level: this.level,
         accountAmount: this.accountAmount,
         winCount: this.betStatistics.winCount,
+        betMoney:this.betStatistics.betMoney,
         winRate: winRate
     }
 };
@@ -372,7 +372,8 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
-        this.addExperience(this.calcExp(calcResult));
+        // this.addExperience(this.calcExp(calcResult));
+        this.addExperience(calcResult.betMoney);
         this.save();
         this.changeNotify();
     }

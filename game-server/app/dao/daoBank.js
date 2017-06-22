@@ -10,9 +10,9 @@ function DaoBank() {
 };
 
 //绑定银行卡
-DaoBank.prototype.bind = function (playerId, address, username, cardNO, cb) {
-    var sql = 'insert into Bank (uid,address,username,cardNO, bindTime) values(?,?,?,?,?)';
-    var args = [playerId, address, username, cardNO, Date.now()];
+DaoBank.prototype.bind = function (playerId, address, username, cardNO,alipay,wechat, cb) {
+    var sql = 'insert into Bank (uid,address,username,cardNO, weixin, zhifubao, bindTime) values(?,?,?,?,?)';
+    var args = [playerId, address, username, cardNO, alipay,wechat,Date.now()];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
@@ -41,7 +41,9 @@ DaoBank.prototype.get = function (playerId, cb) {
                 self.utils.invokeCallback(cb, null, {
                     address:res[0].address,
                     username:res[0].username,
-                    cardNO:res[0].cardNO
+                    cardNO:res[0].cardNO,
+                    alipay:res[0].zhifubao,
+                    wechat:res[0].weixin
                 });
             } else {
                 self.utils.invokeCallback(cb, null, null);

@@ -49,6 +49,30 @@
       }
     },
     {
+      "reset": {
+        "method": "post",
+        "url": "/users/reset",
+        "body": {
+          "username": {
+            "type": "string",
+            "required": true
+          },
+          "identify": {
+            "type": "string",
+            "required": true
+          },
+          "type": {
+            "type": "1重置登录 2重置取款",
+            "required": true
+          },
+          "newPassword": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    {
       "checkPhone": {
         "method": "post",
         "url": "/users/checkPhone",
@@ -109,29 +133,8 @@
       }
     },
     {
-      "enterRoom": {
-        "router":"chat.chatHandler.enterRoom",
-        "msg":{
-          "roomId":{
-            "type":"string",
-            "required":true
-          }
-        }
-      }
-    }, {
-      "leaveRoom": {
-        "router":"chat.chatHandler.leaveRoom",
-        "msg":null
-      }
-    },{
-      "getRooms": {
-        "router":"chat.chatHandler.getRooms",
-        "msg":null
-      }
-    },
-    {
       "sendChatMsg": {
-        "router":"chat.chatHandler.sendChatMsg",
+        "router":"game.chatHandler.sendChatMsg",
         "msg":{
           "from":{
             "type":"string",
@@ -154,7 +157,7 @@
     },
     {
       "getPlayerBaseInfo": {
-        "router":"chat.chatHandler.getPlayerBaseInfo",
+        "router":"game.chatHandler.getPlayerBaseInfo",
         "msg":{
           "uid":1
         }
@@ -258,8 +261,10 @@
         "router":"game.playerHandler.bindBankCard",
         "msg":{
           "address":"中国农业银行成都分行高新区营业部",
-          "username":"张有钱",
+          "username":"张有钱",rer
           "cardNO":"622233432432000505035353",
+          "alipay":"linyngfly@126.com",
+          "wechat":"weixinhao",
           "pinCode":"afdfdafafjkf423432"
         }
       }
@@ -273,7 +278,11 @@
         "router":"rank.rankHandler.todayRichRankList",
         "msg":null
         }
+      },{
+      "getChatHistory": {
+        "router":"game.playerHandler.getChatHistory",
+        "msg":null
+        }
       }
-    }
   ]
 }

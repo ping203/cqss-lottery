@@ -1,11 +1,10 @@
-var mysql = require('./mysql/mysql');
-var User = require('../user');
-var random_name = require('node-random-name')
+const mysql = require('./mysql/mysql');
+const User = require('../user');
+// var random_name = require('node-random-name')
 
 var daoUser = module.exports;
 
 const default_role = 0;
-const default_rank = '江湖小虾';
 const default_ext = {
     phone:0,
     email:0,
@@ -22,7 +21,7 @@ const default_ext = {
 daoUser.createUser = function (username, password, phone, inviter, from, rank, accountAmount, active, cb){
     var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount,friends,ext, active) values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
     var regTime = Date.now(), roleName = random_name();
-    var args = [username, password, phone, from, regTime,inviter, default_role, roleName, rank, accountAmount, "[]", JSON.stringify(default_ext), active];
+    var args = [username, password, phone, from, regTime,inviter, default_role, username, rank, accountAmount, "[]", JSON.stringify(default_ext), active];
 
     mysql.insert(sql, args, function(err,res){
         if(err !== null){
@@ -79,6 +78,30 @@ daoUser.addUserToFriendList = function (source, target, cb) {
             !!cb && cb(err, null);
         } else {
             !!cb && cb(null, null);
+        }
+    });
+};
+
+daoUser.resetPinCode = function (username, pinCode, cb) {
+    var sql = 'UPDATE User SET pinCode= ? WHERE username = ?';
+    var args = [pinCode, username];
+    mysql.update(sql,args,function(err, res){
+        if(err !== null){
+            !!cb && cb(err, false);
+        } else {
+            !!cb && cb(null, true);
+        }
+    });
+};
+
+daoUser.resetPassword = function (username, password, cb) {
+    var sql = 'UPDATE User SET password= ? WHERE username = ?';
+    var args = [password, username];
+    mysql.update(sql,args,function(err, res){
+        if(err !== null){
+            !!cb && cb(err, false);
+        } else {
+            !!cb && cb(null, true);
         }
     });
 };

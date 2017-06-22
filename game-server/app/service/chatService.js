@@ -12,7 +12,6 @@ var ChatService = function () {
     this.app = pomelo.app;
     this.roomMap = new Map();
     this.uidMap = new Map();
-    this.chatHistory = [];
 };
 
 /**
@@ -165,20 +164,30 @@ ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
 
 };
 
-ChatService.prototype.getChatHistory = function (cb) {
+ChatService.prototype.getHistory = function (roomId, cb) {
+    var self = this;
+    this.daoChat.gets(function (err, result) {
+        if(err){
+            self.utils.invokeCallback(cb, Code.DBFAIL);
+            return;
+        }
 
+        let chats = [];
+        for(let item of result[0]){
+            chats.push(JSON.parse(item));
+        }
+
+        chats.sort(function (a,b) {
+            return a.time - b.time;
+        });
+
+        self.utils.invokeCallback(cb, null, chats);
+    });
 };
 
 ChatService.prototype.recordChat = function (msg) {
     this.daoChat.add(msg);
-
-    this.daoChat.gets(function (err, result) {
-       logger.error('recordChat:',err, result);
-    });
-
-    if(this.chatHistory.unshift(msg) > 20){
-        this.latestBets.pop();
-    }
+    this.getHistory();
 };
 
 ChatService.prototype.pushByUID = function (uid, msg, cb) {
@@ -192,10 +201,6 @@ ChatService.prototype.pushByUID = function (uid, msg, cb) {
         uid: record.uid,
         sid: record.sid
     }], cb);
-};
-
-ChatService.prototype.getChatHistory = function (roomId, cb) {
-    this.utils.invokeCallback(cb, this.recordChat);
 };
 
 var checkDuplicate = function (service, playerId, roomId) {

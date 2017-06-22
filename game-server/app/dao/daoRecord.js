@@ -10,9 +10,9 @@ var DaoRecord = function () {
 
 };
 
-DaoRecord.prototype.add = function (playerId, num, type, operate, freeMoney, cb) {
-    var sql = 'insert into Record (uid,num,type,create_time, operate, accountAmount) values(?,?,?,?,?,?)';
-    var args = [playerId,num,type, Date.now(), operate, freeMoney];
+DaoRecord.prototype.add = function (playerId, num, type, status, freeMoney, operator, bankInfo, cb) {
+    var sql = 'insert into Record (uid,num,type,create_time, status, accountAmount, operator, bankInfo) values(?,?,?,?,?,?)';
+    var args = [playerId,num,type, Date.now(), status, freeMoney, operator, bankInfo];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
@@ -50,10 +50,10 @@ DaoRecord.prototype.getRecord = function (orderId, cb) {
     });
 };
 
-DaoRecord.prototype.setOperate = function (orderId, operate, cb) {
-    var sql = 'update Record set operate =? where id= ?';
+DaoRecord.prototype.setOperate = function (orderId, status, operator, bankInfo, cb) {
+    var sql = 'update Record set status =?,operator = ?, bankInfo = ? where id= ?';
     var self = this;
-    pomelo.app.get('dbclient').insert(sql, [operate, orderId], function (err, res) {
+    pomelo.app.get('dbclient').insert(sql, [status, operator, bankInfo, orderId], function (err, res) {
         if (err !== null) {
             logger.error('设置流水记录状态失败,',err);
             self.utils.invokeCallback(cb, err);

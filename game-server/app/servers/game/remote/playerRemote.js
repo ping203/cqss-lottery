@@ -65,7 +65,7 @@ PlayerRemote.prototype.playerLeave = function (playerId, cb) {
 };
 
 // 后台管理员充值,事务回滚
-PlayerRemote.prototype.recharge = function (uid, money, cb) {
+PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) {
     var self = this;
     async.waterfall([
         function (callback) {
@@ -75,7 +75,7 @@ PlayerRemote.prototype.recharge = function (uid, money, cb) {
             self.daoUser.getAccountAmount(uid, callback);
         },
         function (freeMoney, callback) {
-            self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE, self.consts.RecordOperate.OPERATE_OK, freeMoney, callback);
+            self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE, self.consts.RecordOperate.OPERATE_OK, freeMoney, operator, bankInfo, callback);
             //在线用户及时到帐
             let player = self.gameService.getPlayer(uid);
             if (!!player) {
@@ -112,7 +112,7 @@ PlayerRemote.prototype.restoreMoney = function (uid, money, cb) {
 };
 
 // 后台管理员提现确认
-PlayerRemote.prototype.cashHandler = function (uid, orderId, operate, cb) {
+PlayerRemote.prototype.cashHandler = function (uid, orderId, status, operator, bankInfo, cb) {
     let self = this;
     let _money = 0;
     async.waterfall([
@@ -121,8 +121,8 @@ PlayerRemote.prototype.cashHandler = function (uid, orderId, operate, cb) {
         },
         function (record, scb) {
             _money = record.num;
-            if(operate === self.consts.RecordOperate.OPERATE_ABORT){
-                if(record.operate !== self.consts.RecordOperate.OPERATE_REQ){
+            if(status === self.consts.RecordOperate.OPERATE_ABORT){
+                if(record.status !== self.consts.RecordOperate.OPERATE_REQ){
                     scb('订单异常操作');
                 }
                 else {
@@ -140,7 +140,7 @@ PlayerRemote.prototype.cashHandler = function (uid, orderId, operate, cb) {
             }
         },
         function (scb) {
-            self.daoRecord.setOperate(orderId, operate, scb);
+            self.daoRecord.setOperate(orderId, status, operator, bankInfo, scb);
         }
     ], function (err) {
         logger.error('cashHandler 管理员充值 操作',uid, orderId, operate);

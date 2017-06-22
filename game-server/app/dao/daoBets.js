@@ -187,7 +187,8 @@ DaoBets.prototype.getPlayerBetsByTime = function (playerId, beginTime, endTime, 
     });
 };
 
-DaoBets.prototype.getBetStatistics = function (playerId, cb) {
+DaoBets.prototype.getBe
+tStatistics = function (playerId, cb) {
     var sql = 'select sum(betMoney) as betMoney, sum(betCount) as betCount, sum(winCount) as winCount from Bets where uid= ? and state in(?,?)';
     var args = [playerId, this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
     var self = this;
@@ -199,6 +200,7 @@ DaoBets.prototype.getBetStatistics = function (playerId, cb) {
                 var r = {};
                 r.betCount = res[0].betCount ? res[0].betCount : 0;
                 r.winCount = res[0].winCount ? res[0].winCount : 0;
+                r.betMoney = res[0].betMoney ? res[0].betMoney : 0;
 
                 self.utils.invokeCallback(cb, null, r);
             } else {

@@ -50,7 +50,7 @@ ChatRemote.prototype.send = function(msg, playerId, roomId, cb) {
 };
 
 ChatRemote.prototype.getChatHistory = function (roomId, cb) {
-    
+    this.chatService.getHistory(roomId, cb);
 };
 
 ChatRemote.prototype.get = function(name, flag) {

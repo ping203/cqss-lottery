@@ -97,9 +97,7 @@ GameService.prototype.winnerNotice = function () {
 
 GameService.prototype.openLottery = function (numbers, period) {
     this.winners = [];
-    logger.error('#####################GameService openLottery gameId:',this.gameId,'pid:', process.pid, 'title:',process.title);
     //numbers = [9,2,9,1,0];
-
     var openCodeResult = this.calcOpenLottery.calc(numbers);
     var parseResult = [];
     for (let item of openCodeResult) {

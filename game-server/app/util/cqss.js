@@ -6,6 +6,10 @@ const http = require('http');
 const urlencode = require('urlencode');
 const cheerio = require('cheerio');
 
+// POST
+//http://buy.cqcp.net/ajaxHTTP/gamedraw/GetOpenNumber.aspx
+//param:sPass=BEAB95B0BAA1242CF042D1659686F54B&idMode=8&iType=2&iCount=1
+
 var CQSS = function () {
     this.host = 'buy.cqcp.net';
     this.port = 80;

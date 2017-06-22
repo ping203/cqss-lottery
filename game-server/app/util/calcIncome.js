@@ -78,10 +78,6 @@ CalcIncome.prototype.getPlayerTodayIncome = function (playerId, callback) {
     })
 };
 
-CalcIncome.prototype.getUpperAgent = function (playerId) {
-
-};
-
 CalcIncome.prototype.agentRebate = function (agent, callback) {
     // id, userId, level
     var self = this;

@@ -45,9 +45,9 @@ EntryHandler.prototype.adminLogin = function (msg, session, next) {
     });
 };
 
-// 后台充值
+// 后台充值operator, bankInfo
 EntryHandler.prototype.recharge = function (msg, session, next) {
-    if(!msg.money || !msg.uid){
+    if(!msg.money || !msg.uid || msg.operator || msg.bankInfo){
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
@@ -58,20 +58,20 @@ EntryHandler.prototype.recharge = function (msg, session, next) {
         return;
     }
 
-    this.app.rpc.game.playerRemote.recharge(session, Number(msg.uid), money, function (err, result) {
+    this.app.rpc.game.playerRemote.recharge(session, Number(msg.uid), money, msg.operator, msg.bankInfo,function (err, result) {
         next(err, result);
     });
 };
 
 // 后台提现确认
 EntryHandler.prototype.cashHandler = function (msg, session, next) {
-    if(!msg.uid || !msg.orderId || !msg.operate || !(!!msg.operate && (msg.operate === this.consts.RecordOperate.OPERATE_OK ||
-        msg.operate === this.consts.RecordOperate.OPERATE_ABORT))){
+    if(!msg.uid || !msg.orderId || !msg.status || msg.operator || msg.bankInfo || !(!!msg.status && (msg.status === this.consts.RecordOperate.OPERATE_OK ||
+        msg.status === this.consts.RecordOperate.OPERATE_ABORT))){
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
 
-    this.app.rpc.game.playerRemote.cashHandler(session, Number(msg.uid), Number(msg.orderId), Number(msg.operate), function (err, result) {
+    this.app.rpc.game.playerRemote.cashHandler(session, Number(msg.uid), Number(msg.orderId), Number(msg.status), msg.operator, msg.bankInfo, function (err, result) {
         next(null, result);
     });
 };
@@ -107,6 +107,16 @@ EntryHandler.prototype.playerCtrl = function (msg, session, next) {
     }
 
     this.app.rpc.game.playerRemote.playerCtrl(session, Number(msg.uid), msg.ctrl, next);
+};
+
+// 后台手动开奖
+EntryHandler.prototype.backendOpenCode = function (msg, session, next) {
+    if(!msg.period || !msg.numbers){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    next(null, new Answer.NoDataResponse(Code.OK));
 };
 
 EntryHandler.prototype.login = function (msg, session, next) {
