@@ -4,7 +4,7 @@
 
 const mysql = require('./mysql/mysql');
 
-let daoReset = modules.exports;
+let daoReset = module.exports;
 
 daoReset.getReset = function (username, cb) {
     var sql = 'select * from  reset where username = ? and used = ? order by create_time DESC';

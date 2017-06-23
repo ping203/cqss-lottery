@@ -140,6 +140,7 @@ BetItem.prototype.strip = function () {
         winMoney:this.winMoney,
         betTime: this.betTime,
         betTypeInfo:this.betTypeInfo,
+        betItems:this.betItems,
         betFreeInfo:ext.betFreeInfoFormat,
         betPriFreeInfo:ext.priFreeInfoFormat,
         betDescInfo:ext.betDescInfoFormat

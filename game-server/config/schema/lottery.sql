@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS `Bets`(
   `winMoney` DECIMAL(20,2) unsigned NOT NULL COMMENT '收益金额',
   `betTime` bigint(20) unsigned NOT NULL COMMENT '投注时间',
   `betTypeInfo` json NOT NULL COMMENT '投注类型信息',
+  `betItems` json NOT NULL COMMENT '投注条目',
   PRIMARY KEY (`id`),
   FOREIGN KEY(`uid`) REFERENCES User(`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

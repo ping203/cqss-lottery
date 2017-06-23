@@ -5,9 +5,9 @@
 module.exports =  {
     updateBet:function(client, item, cb) {
         var sql = 'update Bets set uid = ? ,period = ? ,identify = ? ,betInfo = ?, state= ? ,betCount = ? ' +
-            ',winCount = ?, betMoney = ?, winMoney = ?, betTypeInfo =? where id = ?';
+            ',winCount = ?, betMoney = ?, winMoney = ?, betTypeInfo =?, betItems = ? where id = ?';
         var args = [item.playerId, item.period, item.identify, item.betInfo, item.state, item.betCount,
-            item.winCount, item.betMoney, item.winMoney, JSON.stringify(item.betTypeInfo), item.id];
+            item.winCount, item.betMoney, item.winMoney, JSON.stringify(item.betTypeInfo), JSON.stringify(item.betItems), item.id];
 
         client.query(sql, args, function(err, res) {
             if(err !== null) {

@@ -196,7 +196,9 @@ PlayerHandler.prototype.cashRequest = function (msg, session, next) {
         return;
     }
 
-    this.daoRecord.add(session.uid, money, this.consts.RecordType.CASH, this.consts.RecordOperate.OPERATE_REQ, player.accountAmount, function (err, result) {
+    player.defineNotify(this.consts.MsgNotifyType.CASHFAIL, {money:money});
+
+    this.daoRecord.add(session.uid, money, this.consts.RecordType.CASH, this.consts.RecordOperate.OPERATE_REQ, player.accountAmount, '', '', function (err, result) {
         if (err) {
             player.recharge(money);
             next(null, new Answer.NoDataResponse(Code.DBFAIL));

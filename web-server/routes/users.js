@@ -242,6 +242,8 @@ router.post('/register', function (ctx, next) {
 });
 
 //用户重置密码
+// /users/reset
+// /users/login
 router.post('/reset', function (ctx, next) {
     let msg = ctx.request.body;
     if (!msg.username || !msg.identify || !msg.type || !msg.newPassword) {
@@ -250,37 +252,41 @@ router.post('/reset', function (ctx, next) {
     }
 
     let _resets;
-    let promise = new Promise((resolve, reject)=>{
+    return  new Promise((resolve, reject)=>{
         async.waterfall([function (cb) {
             daoReset.getReset(msg.username, cb);
         },function (reset, cb) {
             if(!reset){
                 ctx.body = code.USER.FA_USER_RESET_ERROR;
+                resolve();
                 return;
             }
 
             if(reset.code != msg.identify){
                 ctx.body = code.USER.FA_USER_RESET_CODE_ERROR;
+                resolve();
                 return;
             }
 
             if((Date.now() - reset.create_time)/1000/60/60 > 2){
                 ctx.body = code.USER.FA_USER_RESET_EXPIRE_ERROR;
+                resolve();
                 return;
             }
 
             if(reset.type != msg.type){
                 ctx.body = code.USER.FA_USER_RESET_TYPE_ERROR;
+                resolve();
                 return;
             }
 
             _resets = reset;
-            switch (type){
+            switch (msg.type){
                 case 1:
-                    daoUser.resetPassword(msg.username, createSalt(msg.newPassword), cb);
+                    daoUser.resetPassword(msg.username, createSalt(msg.username + msg.newPassword), cb);
                     break;
                 case 2:
-                    daoUser.resetPinCode(msg.username, createSalt(msg.username + msg.newPassword), cb);
+                    daoUser.resetPinCode(msg.username, createSalt(msg.newPassword), cb);
                     break;
                 default:
                     cb('重置类型不存在');
@@ -298,11 +304,10 @@ router.post('/reset', function (ctx, next) {
             else {
                 ctx.body = code.OK;
             }
+            resolve();
         });
-    })
-
-    return promise;
+    });
 });
 
 
-module.exports = router
+module.exports = router;

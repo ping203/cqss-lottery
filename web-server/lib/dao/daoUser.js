@@ -1,6 +1,7 @@
 const mysql = require('./mysql/mysql');
 const User = require('../user');
 // var random_name = require('node-random-name')
+// roleName = random_name()
 
 var daoUser = module.exports;
 
@@ -20,7 +21,7 @@ const default_ext = {
  */
 daoUser.createUser = function (username, password, phone, inviter, from, rank, accountAmount, active, cb){
     var sql = 'insert into User (username,password,phone,`from`, regTime, inviter,role,roleName,rank, accountAmount,friends,ext, active) values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
-    var regTime = Date.now(), roleName = random_name();
+    var regTime = Date.now();
     var args = [username, password, phone, from, regTime,inviter, default_role, username, rank, accountAmount, "[]", JSON.stringify(default_ext), active];
 
     mysql.insert(sql, args, function(err,res){
@@ -87,9 +88,9 @@ daoUser.resetPinCode = function (username, pinCode, cb) {
     var args = [pinCode, username];
     mysql.update(sql,args,function(err, res){
         if(err !== null){
-            !!cb && cb(err, false);
+            !!cb && cb(err);
         } else {
-            !!cb && cb(null, true);
+            !!cb && cb(null);
         }
     });
 };
@@ -99,9 +100,9 @@ daoUser.resetPassword = function (username, password, cb) {
     var args = [password, username];
     mysql.update(sql,args,function(err, res){
         if(err !== null){
-            !!cb && cb(err, false);
+            !!cb && cb(err);
         } else {
-            !!cb && cb(null, true);
+            !!cb && cb(null);
         }
     });
 };

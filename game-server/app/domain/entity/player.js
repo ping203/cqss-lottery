@@ -378,6 +378,9 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
         this.changeNotify();
     }
 
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.prototype.openCode');
+
+
     var winMoney = Number((calcResult.winMoney - calcResult.betMoney).toFixed(2));
     if(calcResult.betCount  > 0){
         this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney,numbers:numbers, itemOK:calcResult.itemOK, uids: [{uid: this.id, sid: this.serverId}]});

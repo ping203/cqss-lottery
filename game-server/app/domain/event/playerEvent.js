@@ -71,13 +71,13 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
         var player = args.player;
         if (player) {
             if(args.uids){
-                pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.playerWinner,{
+                pomelo.app.get('channelService').pushMessageByUids(this.consts.Event.area.defineNotify,{
                     entityId:player.entityId,
                     type: args.type,
                     msg:args.msg
                 },args.uids);
             }else {
-                args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.playerWinner,{
+                args.lottery.gameService.getChannel().pushMessage(this.consts.Event.area.defineNotify,{
                     entityId:player.entityId,
                     type: args.type,
                     msg:args.msg

@@ -26,6 +26,7 @@ var GameService = function () {
     this.winners = [];
     this.intervalId = 0;
     this.gameId = -1;
+    this.openingPeriod = null;
 };
 
 /**
@@ -65,6 +66,11 @@ GameService.prototype.init = function () {
     this.redisApi.init(configs);
     this.redisApi.sub('openLottery', function (msg) {
         logger.error('~~~~~~~~~~openLottery~~~~~~~~~~~~~`', msg);
+        if(self.openingPeriod === msg.period){
+            logger.error('~~~~~~~~~~openLottery~开奖信息已经获取到~~~~~~~~~~~~`', self.openingPeriod);
+            return;
+        }
+        self.openingPeriod = msg.period;
         self.openLottery(msg.period, msg.numbers);
     });
 };
@@ -104,6 +110,7 @@ GameService.prototype.winnerNotice = function () {
 
 // 系统开奖
 GameService.prototype.openLottery = function (period, numbers) {
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GameService.prototype.openLottery');
     this.winners = [];
     //numbers = [9,2,9,1,0];
     var openCodeResult = this.calcOpenLottery.calc(numbers);

@@ -31,7 +31,6 @@ module.exports = function (app) {
             name: "app",
             value: app
         }],
-        init:"init",
         props: [{
             name: "rankService",
             ref: "rankService"

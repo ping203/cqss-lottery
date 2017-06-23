@@ -75,6 +75,43 @@ DaoBets.prototype.getBets = function (playerId, skip, limit, cb) {
         }
     });
 };
+
+DaoBets.prototype.getExceptBets = function (period, cb) {
+    var sql = 'select * from Bets where state = ? period < ? and order by betTime DESC';
+    var args = [0,period];
+    var self = this;
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            self.utils.invokeCallback(cb, err.message, null);
+        } else {
+            if (!!res && res.length >= 1) {
+                var items = [];
+                for (var i = 0; i < res.length; ++i) {
+                    var betItem = bearcat.getBean("betItem", {
+                        id: res[i].id,
+                        playerId: res[i].uid,
+                        period: res[i].period,
+                        identify: res[i].identify,
+                        betInfo: res[i].betInfo,
+                        state: res[i].state,
+                        betCount: res[i].betCount,
+                        winCount: res[i].winCount,
+                        betMoney: res[i].betMoney,
+                        winMoney: res[i].winMoney,
+                        betTime: res[i].betTime,
+                        betTypeInfo:JSON.parse(res[i].betTypeInfo),
+                        betItems:JSON.parse(res[i].betItems)
+                    });
+                    items.push(betItem);
+                }
+                self.utils.invokeCallback(cb, null, items);
+            } else {
+                self.utils.invokeCallback(cb, ' Bets not exist ', null);
+            }
+        }
+    });
+};
+
 //select * from Bets b left join User u on b.uid = u.id where uid=3 ORDER BY betTime DESC limit 0,10
 //select * from Bets b left join User u on b.uid = u.id ORDER BY betTime DESC limit 0,10
 DaoBets.prototype.getLatestBets = function (skip, limit, cb) {

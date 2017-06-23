@@ -7,81 +7,26 @@ const http = require('http');
 const async = require('async');
 const pomelo = require('pomelo');
 
-function LotteryService() {
-    this.syncTimeTickCount = 0;
-    this.latestPeriod = null;
-    this.latestOpenTime = 0;
-    this.latestOpenOriTime = 0;
-    this.autoLearServerOpenTime = {minute:1,second:20};
-    this.latestOpenInfo = null;
-    this.openResult = null;
+function RecoveryService() {
+
 };
 
-LotteryService.prototype.init = function () {
+RecoveryService.prototype.init = function () {
     setInterval(this.tick.bind(this), 2000);
     let configs = pomelo.app.get('redis');
     this.redisApi.init(configs);
 };
 
-LotteryService.prototype.pubMsg = function (event, msg) {
-    this.redisApi.pub(event, JSON.stringify(msg));
-};
+//服务器重启或关闭，重启后，继续开奖之前投注信息
+RecoveryService.prototype.restore = function () {
 
-LotteryService.prototype.manualOpen = function (period, numbers) {
-    // self.pubMsg('publishLottery', result);
-    // self.pubMsg('openLottery', {period:result.last.period, numbers:result.last.numbers.split(',')});
+// 获取异常投注
+//
 
-    // this.openResult = result.last;
-    // this.nextLottery = result.next;
-    // this.preLottery = result.pre;
-    // this.openResult.pre
-};
-
-LotteryService.prototype.tick = function () {
-    var self = this;
-    this.getOfficialLotteryInfo(function (err, result) {
-        if (err || !result) {
-            logger.error('获取彩票信息失败', err);
-            return;
-        }
-
-        if (!self.latestPeriod || (!!self.latestPeriod && self.latestPeriod != result.last.period)) {
-            self.pubMsg('publishLottery', result);
-            self.pubMsg('openLottery', {period:result.last.period, numbers:result.last.numbers.split(',')});
-            self.latestPeriod = result.last.period;
-            self.latestOpenTime = result.next.opentime.getTime();
-            self.latestOpenOriTime = result.next.oriTime.getTime();
-            self.timeSync(result.tickTime);
-        }
-
-        if(self.tickCount > 10){
-            self.timeSync(result.tickTime);
-        }
-
-        self.tickCount++;
-
-        this.openResult = result;
-    });
-};
-
-// 修正开奖倒计时
-LotteryService.prototype.timeSync = function (tickTime) {
-    var sysTickTime = new Date(tickTime);
-    var tick = (this.latestOpenTime - sysTickTime) / 1000;
-    this.pubMsg('tickTimeSync', {tick:tick});
-    this.tickCount = 0;
 
 };
 
-// 自动修正下次开奖时间
-LotteryService.prototype.collateTime = function (tick_time) {
-    var nextTime = new Date(tick_time);
-    nextTime.setMinutes(nextTime.getMinutes() + this.autoLearServerOpenTime.minute);
-    nextTime.setSeconds(nextTime.getSeconds() + this.autoLearServerOpenTime.second);
-    return nextTime;
-};
-
-LotteryService.prototype.getOfficialLotteryInfo = function (callback) {
+RecoveryService.prototype.getOfficialLotteryInfo = function (callback) {
     var self = this;
     async.parallel([
             function (cb) {
@@ -146,12 +91,13 @@ LotteryService.prototype.getOfficialLotteryInfo = function (callback) {
 };
 
 module.exports = {
-    id: "lotteryService",
-    func: LotteryService,
+    id: "recoveryService",
+    func: RecoveryService,
     props: [
         {name: "consts", ref: "consts"},
         {name: "utils", ref: "utils"},
         {name: "cqss", ref: "cqss"},
+        {name: "daoBets", ref: "daoBets"},
         {name:'redisApi', ref:'redisApi'}
     ]
 }

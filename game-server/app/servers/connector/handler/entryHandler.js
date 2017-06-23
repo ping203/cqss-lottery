@@ -116,6 +116,9 @@ EntryHandler.prototype.backendOpenCode = function (msg, session, next) {
         return;
     }
 
+    next(null, new Answer.NoDataResponse(Code.FAIL));
+    return;
+
     this.app.rpc.lottery.lotteryRemote.manualOpen(session, msg.period, msg.numbers, next);
 };
 
