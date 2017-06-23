@@ -24,7 +24,6 @@ LotteryService.prototype.init = function () {
 
 LotteryService.prototype.pubMsg = function (event, msg) {
     this.redisApi.pub(event, JSON.stringify(msg));
-    logger.error('~~~~~~~~~~~~~', event, ':', msg);
 };
 
 LotteryService.prototype.tick = function () {

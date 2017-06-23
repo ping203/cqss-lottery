@@ -10,19 +10,21 @@ function DaoBank() {
 };
 
 //绑定银行卡
-DaoBank.prototype.bind = function (playerId, address, username, cardNO,alipay,wechat, cb) {
-    var sql = 'insert into Bank (uid,address,username,cardNO, weixin, zhifubao, bindTime) values(?,?,?,?,?)';
+DaoBank.prototype.bind = function (playerId, address, username, cardNO, alipay,wechat, cb) {
+    var sql = 'insert into Bank (uid,address,username,cardNO, weixin, zhifubao, bindTime) values(?,?,?,?,?,?,?)';
     var args = [playerId, address, username, cardNO, alipay,wechat,Date.now()];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
+            logger.error(err);
             self.utils.invokeCallback(cb, err, false);
         } else {
-           // let bank = bearcat.getBean("bankItem",{id:res.insertId, playerId:playerId, address:address, username:username, cardNO:cardNO});
             self.utils.invokeCallback(cb, null, {
                 address:address,
                 username:username,
-                cardNO:cardNO
+                cardNO:cardNO,
+                alipay:alipay,
+                wechat:wechat
             });
         }
     });
