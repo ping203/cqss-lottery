@@ -10,10 +10,14 @@ const logger = require('pomelo-logger').getLogger(__filename);
 
 function RedisApi() {
     this._redis = null;
+    this._pub_redis = null;
+    this._sub_redis = null;
+    this._callbacks ={};
 };
 
-RedisApi.prototype.init = function(db, configs){
+RedisApi.prototype.init = function(configs, db){
     this.db = db || '0';
+    this.configs = configs;
     this._redis = redis.createClient(configs.port, configs.host, {});
     if (configs.auth) {
         this._redis.auth(configs.auth);
@@ -21,8 +25,9 @@ RedisApi.prototype.init = function(db, configs){
 
     var self = this;
     this._redis.on("error", function (err) {
-        console.error("[RedisSdk][redis]" + err.stack);
+        console.error('self.db:'+self.db+"[RedisSdk][_redis]" + err.stack);
     });
+
     this._redis.once('ready', function(err) {
         if (!!err) {
             cb(err);
@@ -67,10 +72,74 @@ RedisApi.prototype.cmd = function(cmd, table, key, value, cb){
     });
 };
 
+RedisApi.prototype.pub = function(event, msg){
+
+    if(!this._pub_redis)
+    {
+        this._pub_redis = redis.createClient(this.configs.port, this.configs.host, {});
+        if (this.configs.auth) {
+            this._pub_redis.auth(this.configs.auth);
+        }
+        this._pub_redis.on("error", function (err) {
+            console.error('self.db:'+self.db+"[RedisSdk][_pub_redis]" + err.stack);
+        });
+
+        this._pub_redis.once('ready', function(err) {
+            if (!!err) {
+                cb(err);
+                return;
+            }
+        });
+    }
+
+    if(this._pub_redis){
+        this._pub_redis.publish(event, msg);
+    }
+};
+
+RedisApi.prototype.sub = function (event, cb) {
+    if(!this._sub_redis){
+        this._sub_redis = redis.createClient(this.configs.port, this.configs.host, {});
+        if (this.configs.auth) {
+            this._sub_redis.auth(this.configs.auth);
+        }
+
+        this._sub_redis.on("error", function (err) {
+            console.error('self.db:'+self.db+"[RedisSdk][_sub_redis]" + err.stack);
+        });
+
+        let self = this;
+        this._sub_redis.once('ready', function(err) {
+            if (!!err) {
+                cb(err);
+            } else {
+                self._sub_redis.on('message', function (event, msg) {
+                    self._callbacks[event](JSON.parse(msg));
+                });
+            }
+        });
+    }
+
+    if(this._sub_redis){
+        this._sub_redis.subscribe(event);
+        this._callbacks[event] = cb;
+    }
+};
+
 RedisApi.shutdown = function(){
     if(this._redis) {
         this._redis.end();
         this._redis = null;
+    }
+
+    if(this._sub_redis) {
+        this._sub_redis.end();
+        this._sub_redis = null;
+    }
+
+    if(this._pub_redis) {
+        this._pub_redis.end();
+        this._pub_redis = null;
     }
 };
 

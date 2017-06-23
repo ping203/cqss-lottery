@@ -116,7 +116,7 @@ CQSS.prototype.getPreInfo = function (callback) {
                 _items.push(_item);
             });
 
-            console.info('------开奖历史-------------' + _items);
+    //        console.info('------开奖历史-------------' + _items);
             //toddo 校验数据是否有效
             self.utils.invokeCallback(callback, null, _items);
         });

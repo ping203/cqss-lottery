@@ -10,7 +10,7 @@ function DaoChat() {
 };
 
 DaoChat.prototype.init = function (db, max, configs) {
-    this.redisApi.init(db, configs);
+    this.redisApi.init(configs, db);
     this.max = max;
 };
 

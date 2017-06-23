@@ -38,7 +38,7 @@ GameService.prototype.init = function () {
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
     this.generateGlobalLottery();
-    this.lotteryManagerService.init(this);
+  //  this.lotteryManagerService.init(this);
     this.daoUser.updateAllOfline();
     //初始化系統參數配置
     var self = this;
@@ -59,6 +59,13 @@ GameService.prototype.init = function () {
             return;
         }
         self.latestBets = results;
+    });
+
+    let configs = pomelo.app.get('redis');
+    this.redisApi.init(configs);
+    this.redisApi.sub('openLottery', function (msg) {
+        logger.error('~~~~~~~~~~openLottery~~~~~~~~~~~~~`', msg);
+        self.openLottery(msg.period, msg.numbers);
     });
 };
 
@@ -95,7 +102,8 @@ GameService.prototype.winnerNotice = function () {
     }
 };
 
-GameService.prototype.openLottery = function (numbers, period) {
+// 系统开奖
+GameService.prototype.openLottery = function (period, numbers) {
     this.winners = [];
     //numbers = [9,2,9,1,0];
     var openCodeResult = this.calcOpenLottery.calc(numbers);
@@ -357,10 +365,7 @@ module.exports = {
     props: [{
         name: "actionManagerService",
         ref: "actionManagerService"
-    }, {
-        name: "lotteryManagerService",
-        ref: "lotteryManagerService"
-    }, {
+    },{
         name: "dataApiUtil",
         ref: "dataApiUtil"
     }, {
@@ -393,5 +398,8 @@ module.exports = {
     },{
         name: "daoUser",
         ref: "daoUser"
+    }, {
+        name:'redisApi',
+        ref:'redisApi'
     }]
 }

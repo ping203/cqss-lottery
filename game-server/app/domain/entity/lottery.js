@@ -1,5 +1,7 @@
-var bearcat = require('bearcat');
-var util = require('util');
+const bearcat = require('bearcat');
+const util = require('util');
+const pomelo = require('pomelo');
+const logger = require('pomelo-logger').getLogger(__filename);
 
 /**
  * Initialize a new 'Treasure' with the given 'opts'.
@@ -36,11 +38,22 @@ Lottery.prototype.init = function() {
             self.lotteryCaches = results;
         }
     });
+
+    let configs = pomelo.app.get('redis');
+    this.redisApi.init(configs);
+    this.redisApi.sub('tickTimeSync', function (msg) {
+        logger.error('~~~~~~~~~tickTimeSync~~~~~~~~~~~~~~',msg.tick);
+        self.setTickCount(msg.tick);
+    });
+
+    this.redisApi.sub('publishLottery', function (msg) {
+        logger.error('~~~~~~~~~~publishLottery~~~~~~~~~~~~~`', msg);
+        self.publishLottery(msg);
+    });
 };
 
 // proof tick timer
 Lottery.prototype.setTickCount = function(period, tick) {
- //   this.tickPeriod = period;
     this.tickCount = tick;
     this.lastTickTime = Date.now();
 };
@@ -55,6 +68,7 @@ Lottery.prototype.winnerNotice = function (msg) {
     this.emit(this.consts.Event.area.notice, {lottery: this, content:`恭喜${msg.name}中奖${msg.money}`});
 };
 
+//开奖信息
 Lottery.prototype.publishLottery = function (result) {
     this.lastLottery = result.last;
     this.nextLottery = result.next;
@@ -188,5 +202,8 @@ module.exports = {
     },{
 	    name:"sysConfig",
         ref:"sysConfig"
-    }]
+    }, {
+	    name:'redisApi',
+        ref:'redisApi'
+	}]
 };

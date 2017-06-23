@@ -2,37 +2,66 @@
  * Created by linyng on 2017/6/23.
  */
 
-var logger = require('pomelo-logger').getLogger(__filename);
-var http = require('http');
-var async = require('async');
-
+const logger = require('pomelo-logger').getLogger(__filename);
+const http = require('http');
+const async = require('async');
+const pomelo = require('pomelo');
 
 function LotteryService() {
     this.syncTimeTickCount = 0;
+    this.latestPeriod = null;
+    this.latestOpenTime = 0;
+    this.latestOpenOriTime = 0;
+    this.autoLearServerOpenTime = {minute:1,second:20};
+    this.latestOpenInfo = null;
 };
 
 LotteryService.prototype.init = function () {
-
+    setInterval(this.tick.bind(this), 2000);
+    let configs = pomelo.app.get('redis');
+    this.redisApi.init(configs);
 };
 
-LotteryService.prototype.timeSync = function (result) {
-    var lottery = this.gameService.getLottery();
-    if (!lottery) {
-        return;
-    }
-
-    var sysTickTime = new Date(result.tickTime);
-    //var nextOpenTime = new Date(result.next.opentime);
-
-    var tick = (this.latestOpenTime - sysTickTime) / 1000;
-    lottery.setTickCount(result.next.period, tick);
-    this.tickCount = 0;
+LotteryService.prototype.pubMsg = function (event, msg) {
+    this.redisApi.pub(event, JSON.stringify(msg));
+    logger.error('~~~~~~~~~~~~~', event, ':', msg);
 };
 
 LotteryService.prototype.tick = function () {
+    var self = this;
+    this.getOfficialLotteryInfo(function (err, result) {
+        if (err || !result) {
+            logger.error('获取彩票信息失败', err);
+            return;
+        }
+
+        if (!self.latestPeriod || (!!self.latestPeriod && self.latestPeriod != result.last.period)) {
+            self.pubMsg('publishLottery', result);
+            self.pubMsg('openLottery', {period:result.last.period, numbers:result.last.numbers.split(',')});
+            self.latestPeriod = result.last.period;
+            self.latestOpenTime = result.next.opentime.getTime();
+            self.latestOpenOriTime = result.next.oriTime.getTime();
+            self.timeSync(result.tickTime);
+        }
+
+        if(self.tickCount > 10){
+            self.timeSync(result.tickTime);
+        }
+
+        self.tickCount++;
+    });
+};
+
+// 修正开奖倒计时
+LotteryService.prototype.timeSync = function (tickTime) {
+    var sysTickTime = new Date(tickTime);
+    var tick = (this.latestOpenTime - sysTickTime) / 1000;
+    this.pubMsg('tickTimeSync', {tick:tick});
+    this.tickCount = 0;
 
 };
 
+// 自动修正下次开奖时间
 LotteryService.prototype.collateTime = function (tick_time) {
     var nextTime = new Date(tick_time);
     nextTime.setMinutes(nextTime.getMinutes() + this.autoLearServerOpenTime.minute);
@@ -70,6 +99,8 @@ LotteryService.prototype.getOfficialLotteryInfo = function (callback) {
                 return;
             }
 
+            self.latestOpenInfo = preInfos;
+
             var nextInfo = results[2];
             var next_ori_time = new Date(nextInfo.time);
             var col_time = self.collateTime(nextInfo.time);
@@ -88,7 +119,7 @@ LotteryService.prototype.getOfficialLotteryInfo = function (callback) {
                 if(sub_sec > 0){
                     self.autoLearServerOpenTime.minute = Math.floor(sub_sec/60);
                     self.autoLearServerOpenTime.second = (sub_sec%60 -3);
-                    console.log('---------------------------------------- auto learn open time:',self.autoLearServerOpenTime.minute+':'+self.autoLearServerOpenTime.second);
+                    logger.info('---------------------------------------- auto learn open time:',self.autoLearServerOpenTime.minute+':'+self.autoLearServerOpenTime.second);
                 }
             }
 
@@ -108,7 +139,8 @@ module.exports = {
     props: [
         {name: "consts", ref: "consts"},
         {name: "utils", ref: "utils"},
-        {name: "cqss", ref: "cqss"}
+        {name: "cqss", ref: "cqss"},
+        {name:'redisApi', ref:'redisApi'}
     ]
 }
 

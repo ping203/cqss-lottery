@@ -119,6 +119,12 @@ const Configure = function () {
         app.rankService.init();
     });
 
+    // Configure for lottery server
+    app.configure('production|development', 'lottery', function() {
+        app.lotteryService = bearcat.getBean('lotteryService');
+        app.lotteryService.init();
+    });
+
     app.configure('production|development', 'manager', function(){
         var events = pomelo.events;
         app.instanceManager = bearcat.getBean('instanceManager');
