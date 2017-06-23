@@ -2,10 +2,8 @@
  * Created by linyng on 17-5-17.
  */
 
-var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'lotteryManagerService');
-var bearcat = require('bearcat');
+var logger = require('pomelo-logger').getLogger(__filename);
 var http = require('http');
-var equal = require('assert').equal;
 var async = require('async');
 
 // 非常荣幸您选择我们作为您的开奖数据供应商！
@@ -328,7 +326,6 @@ LotteryManagerService.prototype.getOfficialLotteryInfo = function (callback) {
                     self.autoLearServerOpenTime.second = (sub_sec%60 -3);
                     console.log('---------------------------------------- auto learn open time:',self.autoLearServerOpenTime.minute+':'+self.autoLearServerOpenTime.second);
                 }
-
             }
 
             lotteryInfo.pre = {

@@ -13,7 +13,65 @@ function parseHtml() {
      let htmlSrc = "<ul class='openul bgF0F9FE'><li class='openli1'>170622074</li><li class='openli2'>3,2,3,2,7</li><li class='openli3'>06-22 18:20</li></ul><ul class='openul'><li class='openli1'>170622073</li><li class='openli2'>0,3,0,8,0</li><li class='openli3'>06-22 18:10</li></ul><ul class='openul bgF0F9FE'><li class='openli1'>170622072</li><li class='openli2'>8,4,8,0,6</li><li class='openli3'>06-22 18:00</li></ul><ul class='openul'><li class='openli1'>170622071</li><li class='openli2'>2,8,2,0,8</li><li class='openli3'>06-22 17:50</li></ul><ul class='openul bgF0F9FE'><li class='openli1'>170622070</li><li class='openli2'>9,2,5,9,4</li><li class='openli3'>06-22 17:40</li></ul><ul class='openul'><li class='openli1'>170622069</li><li class='openli2'>3,2,9,3,8</li><li class='openli3'>06-22 17:30</li></ul>";
 
 
+
      $ = cheerio.load(htmlSrc);
+    let src_listData = $.root().find('body');
+
+    let ulList = src_listData.find('ul');
+
+    var now = new Date();
+    let _items = [];
+    ulList.each(function () {
+        let liItem = $(this).children();
+        let _item = {};
+        liItem.each(function (i) {
+            switch (i){
+                case 0:
+                    //_item.push(now.getFullYear().toString().substring(0,2) + $(this).text());
+                    _item.period = now.getFullYear().toString().substring(0,2) + $(this).text();
+                    break;
+                case 1:
+                    //_item.push($(this).text());
+                    _item.numbers = $(this).text();
+                    break;
+                case 2:
+                    //_item.push(now.getFullYear() + '-' + $(this).text() + ':' + '00');
+                    _item.time = now.getFullYear() + '-' + $(this).text() + ':' + '00';
+                    break;
+            }
+        });
+        _items.push(_item)
+    });
+
+    console.info(_items);
+
+
+    return;
+     console.info(ulList.first().html());
+     console.info(ulList.next().html());
+     console.info(ulList.next().html());
+     console.info(ulList.next().html());
+return;
+
+
+     console.info(listData.html());
+
+    let child = $('ul').children().first();
+
+    console.info(child.find('li').html());
+
+    return;
+
+    listData.find('li').each(function (item) {
+         console.info($(this).text());
+      });
+
+    var items = [];
+    $('.openul').children().each(function (i, elem) {
+        items[i] = $(this).text();
+       // console.info(i+ ':'+ $(this).text(), elem);
+    });
+
     console.info($('ul').text());
 
    // let simple = '<ul id=“fruits”><li class=“apple”>Apple</li> <li class=“orange”>Orange</li> <li class=“pear”>Pear</li> </ul>';

@@ -62,6 +62,7 @@ CQSS.prototype.getServerTime = function (callback) {
     req.end();
 };
 
+// 获取开奖历史
 CQSS.prototype.getPreInfo = function (callback) {
     var now = new Date();
     var url = "/Game/GetNum.aspx?iType=3&time=" + urlencode(now);
@@ -90,32 +91,34 @@ CQSS.prototype.getPreInfo = function (callback) {
 
         res.on("end", function () {
             const $ = cheerio.load(preData);
-            // console.log($('.openul').children().length);
-            // console.log(typeof $('.openul').children());
+            let src_listData = $.root().find('body');
 
-            var items = [];
-            $('.openul').children().each(function (i, elem) {
-                items[i] = $(this).text();
-            });
-           // console.log(items);
+            let ulList = src_listData.find('ul');
 
             var now = new Date();
+            let _items = [];
+            ulList.each(function () {
+                let liItem = $(this).children();
+                let _item = {};
+                liItem.each(function (i) {
+                    switch (i){
+                        case 0:
+                            _item.period = now.getFullYear().toString().substring(0,2) + $(this).text();
+                            break;
+                        case 1:
+                            _item.numbers = $(this).text();
+                            break;
+                        case 2:
+                            _item.time = now.getFullYear() + '-' + $(this).text() + ':' + '00';
+                            break;
+                    }
+                });
+                _items.push(_item);
+            });
 
-            var info1 = {
-                period: now.getFullYear().toString().substring(0,2) + items[0],
-                numbers: items[1],
-                time: now.getFullYear() + '-' + items[2] + ':' + '00'
-            };
-            var info2 = {
-                period: now.getFullYear().toString().substring(0,2) + items[3],
-                numbers: items[4],
-                time: now.getFullYear() + '-' + items[5] + ':' + '00'
-            };
-           // console.log('------开奖历史-------------', [info1, info2]);
+            console.info('------开奖历史-------------' + _items);
             //toddo 校验数据是否有效
-            self.utils.invokeCallback(callback, null, [info1, info2]);
-
-
+            self.utils.invokeCallback(callback, null, _items);
         });
     });
 

@@ -82,6 +82,14 @@
         "port": 3550,
         "args":"--inspect=10015"
       }
+    ],
+    "lottery": [
+      {
+        "id": "lottery-server-1",
+        "host": "127.0.0.1",
+        "port": 3650,
+        "args":"--inspect=10016"
+      }
     ]
   },
   "production": {
@@ -144,6 +152,22 @@
         "id": "chat-server-3",
         "host": "127.0.0.1",
         "port": 3452
+      }
+    ],
+    "rank": [
+      {
+        "id": "rank-server-1",
+        "host": "127.0.0.1",
+        "port": 3550,
+        "args":"--inspect=10015"
+      }
+    ],
+    "lottery": [
+      {
+        "id": "lottery-server-1",
+        "host": "127.0.0.1",
+        "port": 3650,
+        "args":"--inspect=10016"
       }
     ]
   }

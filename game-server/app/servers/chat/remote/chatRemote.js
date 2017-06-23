@@ -2,10 +2,11 @@
  * Created by linyng on 17-4-20.
  */
 
-var bearcat = require("bearcat");
-var Code = require('../../../../../shared/code');
-var Answer = require('../../../../../shared/answer');
+const bearcat = require("bearcat");
+const Code = require('../../../../../shared/code');
+const Answer = require('../../../../../shared/answer');
 const logger = require('pomelo-logger').getLogger(__filename);
+
 var ChatRemote = function(app) {
     this.app = app;
     this.channelService = app.get('channelService');
