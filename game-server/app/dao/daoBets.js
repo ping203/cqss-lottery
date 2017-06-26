@@ -12,9 +12,10 @@ var DaoBets = function () {
 
 DaoBets.prototype.addBet = function (bet, cb) {
     var sql = 'insert into Bets (uid,period,identify,betInfo,state,betCount,' +
-        'winCount,betMoney,winMoney,betTime, betTypeInfo) values(?,?,?,?,?,?,?,?,?,?,?)';
+        'winCount,betMoney,winMoney,betTime, betTypeInfo, betItems) values(?,?,?,?,?,?,?,?,?,?,?,?)';
     var args = [bet.playerId, bet.period, bet.identify, bet.betInfo, bet.state,
-        bet.betCount, bet.winCount, bet.betMoney, bet.winMoney, bet.betTime, JSON.stringify(bet.betTypeInfo)];
+        bet.betCount, bet.winCount, bet.betMoney, bet.winMoney, bet.betTime, JSON.stringify(bet.betTypeInfo),
+        JSON.stringify(bet.betItems)];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
@@ -32,7 +33,8 @@ DaoBets.prototype.addBet = function (bet, cb) {
                 betMoney: bet.betMoney,
                 winMoney: bet.winMoney,
                 betTime: bet.betTime,
-                betTypeInfo:bet.betTypeInfo
+                betTypeInfo:bet.betTypeInfo,
+                betItems:bet.betItems
             });
 
             self.utils.invokeCallback(cb, null, betItem);
@@ -76,39 +78,79 @@ DaoBets.prototype.getBets = function (playerId, skip, limit, cb) {
     });
 };
 
-DaoBets.prototype.getExceptBets = function (period, cb) {
-    var sql = 'select * from Bets where state = ? period < ? and order by betTime DESC';
-    var args = [0,period];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length >= 1) {
-                var items = [];
-                for (var i = 0; i < res.length; ++i) {
-                    var betItem = bearcat.getBean("betItem", {
-                        id: res[i].id,
-                        playerId: res[i].uid,
-                        period: res[i].period,
-                        identify: res[i].identify,
-                        betInfo: res[i].betInfo,
-                        state: res[i].state,
-                        betCount: res[i].betCount,
-                        winCount: res[i].winCount,
-                        betMoney: res[i].betMoney,
-                        winMoney: res[i].winMoney,
-                        betTime: res[i].betTime,
-                        betTypeInfo:JSON.parse(res[i].betTypeInfo),
-                        betItems:JSON.parse(res[i].betItems)
-                    });
-                    items.push(betItem);
-                }
-                self.utils.invokeCallback(cb, null, items);
+DaoBets.prototype.getRevertBets = function (period) {
+    return new Promise((resolve)=>{
+        var sql = 'select * from Bets where state = ? and period = ? order by betTime DESC';
+        var args = [0,period];
+        var self = this;
+        pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+            if (err !== null) {
+                resolve(null);
             } else {
-                self.utils.invokeCallback(cb, ' Bets not exist ', null);
+                if (!!res && res.length >= 1) {
+                    var items = [];
+                    for (var i = 0; i < res.length; ++i) {
+                        var betItem = bearcat.getBean("betItem", {
+                            id: res[i].id,
+                            playerId: res[i].uid,
+                            period: res[i].period,
+                            identify: res[i].identify,
+                            betInfo: res[i].betInfo,
+                            state: res[i].state,
+                            betCount: res[i].betCount,
+                            winCount: res[i].winCount,
+                            betMoney: res[i].betMoney,
+                            winMoney: res[i].winMoney,
+                            betTime: res[i].betTime,
+                            betTypeInfo:JSON.parse(res[i].betTypeInfo),
+                            betItems:JSON.parse(res[i].betItems)
+                        });
+                        items.push(betItem);
+                    }
+                    resolve(items);
+                } else {
+                    resolve(null);
+                }
             }
-        }
+        });
+    });
+};
+
+DaoBets.prototype.getExceptBets = function (period) {
+    return new Promise((resolve)=>{
+        var sql = 'select * from Bets where state = ? and period < ? order by betTime DESC';
+        var args = [0,period];
+        var self = this;
+        pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+            if (err !== null) {
+                resolve(null);
+            } else {
+                if (!!res && res.length >= 1) {
+                    var items = [];
+                    for (var i = 0; i < res.length; ++i) {
+                        var betItem = bearcat.getBean("betItem", {
+                            id: res[i].id,
+                            playerId: res[i].uid,
+                            period: res[i].period,
+                            identify: res[i].identify,
+                            betInfo: res[i].betInfo,
+                            state: res[i].state,
+                            betCount: res[i].betCount,
+                            winCount: res[i].winCount,
+                            betMoney: res[i].betMoney,
+                            winMoney: res[i].winMoney,
+                            betTime: res[i].betTime,
+                            betTypeInfo:JSON.parse(res[i].betTypeInfo),
+                            betItems:JSON.parse(res[i].betItems)
+                        });
+                        items.push(betItem);
+                    }
+                    resolve(items);
+                } else {
+                    resolve(null);
+                }
+            }
+        });
     });
 };
 

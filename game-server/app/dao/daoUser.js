@@ -164,7 +164,7 @@ DaoUser.prototype.updateAccountAmount = function (playerId, add, cb) {
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
             logger.error('更新账户金额失败,', err);
-            self.utils.invokeCallback(cb, err.message, false);
+            self.utils.invokeCallback(cb, err, false);
         } else {
             if (!!res && res.affectedRows > 0) {
                 self.utils.invokeCallback(cb, null, true);

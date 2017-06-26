@@ -43,9 +43,6 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
         }
 
         self.utils.invokeCallback(cb, null, new Answer.DataResponse(Code.OK, {player:player.strip(), gameId:self.app.getCurServer().gameId}));
-
-        // 服务器异常，造成投注异常数据（未开奖数据）
-//        player.restoreExceptBet();
     });
 };
 

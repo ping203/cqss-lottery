@@ -20,9 +20,8 @@ var BetItem = function (opts) {
     this.winMoney = opts.winMoney;
     this.betTime = opts.betTime;
     this.betTypeInfo = opts.betTypeInfo
-
+    this.betItems = opts.betItems;
     this.roleName = null;
-    this.betItems = null;
 };
 
 BetItem.prototype.init = function () {

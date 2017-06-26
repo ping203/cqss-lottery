@@ -125,6 +125,12 @@ const Configure = function () {
         app.lotteryService.init();
     });
 
+    // Configure for restore server
+    app.configure('production|development', 'restore', function() {
+        app.restoreService = bearcat.getBean('restoreService');
+        app.restoreService.init();
+    });
+
     app.configure('production|development', 'manager', function(){
         var events = pomelo.events;
         app.instanceManager = bearcat.getBean('instanceManager');

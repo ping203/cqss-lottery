@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `AgentIncome`(
   `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
   `betMoney` bigint(20) unsigned NOT NULL COMMENT '投注金额',
   `incomeMoney` bigint(20) NOT NULL COMMENT '盈亏金额',
-  `rebateRate` FLOAT(6.2) NOT NULL COMMENT '分成比例',
+  `rebateRate` FLOAT(6,2) NOT NULL COMMENT '分成比例',
   `rebateMoney` DECIMAL(20,2) NOT NULL COMMENT '分成金额',
   `incomeTime` bigint(20) unsigned NOT NULL COMMENT '分成日期',
    PRIMARY KEY (`id`),

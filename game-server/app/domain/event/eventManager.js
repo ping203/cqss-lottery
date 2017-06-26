@@ -11,7 +11,7 @@ EventManager.prototype.addEvent = function (entity) {
             addPlayerSaveEvent(entity);
             break;
         case this.consts.EntityType.LOTTERY :
-            this.npcEvent.addEventForNPC(entity);
+            this.lotteryEvent.addEventForNPC(entity);
             break;
         case this.consts.EntityType.ITEM :
             this.betItemEvent.addEventForBetItem(entity);
@@ -48,7 +48,7 @@ module.exports = {
     props: [
         {name: "consts", ref: "consts"},
         {name: "playerEvent", ref: "playerEvent"},
-        {name: "npcEvent", ref: "npcEvent"},
+        {name: "lotteryEvent", ref: "lotteryEvent"},
         {name: "betItemEvent", ref: "betItemEvent"}
     ]
 }

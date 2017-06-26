@@ -17,8 +17,6 @@ var GameService = function () {
     this.entities = {};
     this.channel = null;
     this.globalChannel = null;
-    this.actionManagerService = null;
-    this.lotteryManagerService = null;
     this.consts = null;
     this.globalEntityId = 0;
     this.platformTypeBet = new Map();
@@ -39,7 +37,6 @@ GameService.prototype.init = function () {
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
     this.generateGlobalLottery();
-  //  this.lotteryManagerService.init(this);
     this.daoUser.updateAllOfline();
     //初始化系統參數配置
     var self = this;
@@ -51,7 +48,6 @@ GameService.prototype.init = function () {
             schedule.scheduleJob('0 0 2 * * *', self.incomeScheduleTask.bind(self));
             return;
         }
-
         logger.error('平台参数配置获取失败，系统无法工作');
     });
 
@@ -64,14 +60,27 @@ GameService.prototype.init = function () {
 
     let configs = pomelo.app.get('redis');
     this.redisApi.init(configs);
+
     this.redisApi.sub('openLottery', function (msg) {
         logger.error('~~~~~~~~~~openLottery~~~~~~~~~~~~~`', msg);
         if(self.openingPeriod === msg.period){
-            logger.error('~~~~~~~~~~openLottery~开奖信息已经获取到~~~~~~~~~~~~`', self.openingPeriod);
+            logger.error('~~~~~~~~~~openLottery~开奖信息已经获取到啦~~~~~~~~~~~~`', self.openingPeriod);
             return;
         }
         self.openingPeriod = msg.period;
         self.openLottery(msg.period, msg.numbers);
+    });
+
+    this.redisApi.sub('restoreBetMoney', function (msg) {
+        logger.error('~~~~~~~~~~restoreBetMoney~~~~~~~~~~~~~`', msg);
+        let player = self.getPlayer(msg.playerId);
+        if(player){
+            player.restoreBetWinMoney(msg.betWinMoney);
+        }
+        player = self.getTrusteePlayer(msg.playerId);
+        if(player){
+            player.restoreBetWinMoney(msg.betWinMoney);
+        }
     });
 };
 
@@ -86,8 +95,6 @@ GameService.prototype.run = function () {
 
 GameService.prototype.tick = function () {
     return;
-    //run all the action
-    this.actionManagerService.update();
     this.countdown();
     this.notice();
 };
@@ -170,7 +177,6 @@ GameService.prototype.getChannel = function () {
     if (this.channel) {
         return this.channel;
     }
-
     this.channel = pomelo.app.get('channelService').getChannel('game_' + this.gameId, true);
     return this.channel;
 };
@@ -270,8 +276,6 @@ GameService.prototype.removeEntity = function (entityId) {
         // this.getChannel().leave(e.id, e.serverId);
         this.getChannel().leave(e.id, e.serverId);
         this.getGlobalChannel().leave(this.gameId, e.id, e.serverId);
-        this.actionManagerService.abortAllAction(entityId);
-
         if(!e.isIdle()){
             this.trusteePlayers[e.id] = e;
         }
@@ -349,6 +353,10 @@ GameService.prototype.getPlayer = function (playerId) {
     return this.entities[entityId];
 };
 
+GameService.prototype.getTrusteePlayer = function (playerId) {
+    return this.trusteePlayers[playerId];
+};
+
 GameService.prototype.removePlayer = function (playerId) {
     var entityId = this.players[playerId];
 
@@ -362,17 +370,10 @@ GameService.prototype.entities = function () {
     return this.entities;
 };
 
-GameService.prototype.actionManager = function () {
-    return this.actionManagerService;
-};
-
 module.exports = {
     id: "gameService",
     func: GameService,
     props: [{
-        name: "actionManagerService",
-        ref: "actionManagerService"
-    },{
         name: "dataApiUtil",
         ref: "dataApiUtil"
     }, {

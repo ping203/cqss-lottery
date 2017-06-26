@@ -62,21 +62,9 @@ Player.prototype.setBank = function (bank) {
     this.bank = bank;
 };
 
-Player.prototype.restoreExceptBet = function () {
-    var self = this;
-    this.daoBets.restoreBets(this.id, function (err, betItems) {
-        if(!!err || betItems.length === 0){
-            return;
-        }
-        for(let i = 0; i< betItems.length;i++){
-            betItems[i].setState(self.consts.BetState.BET_CANCLE);
-            self.bets.addItem(betItems[i]);
-            self.accountAmount += betItems[i].getBetMoney();
-            betItems[i].save();
-            self.save();
-            self.changeNotify();
-        }
-    })
+Player.prototype.restoreBetWinMoney = function (money) {
+    this.accountAmount += money;
+    this.changeNotify();
 };
 
 Player.prototype.isIdle = function () {
@@ -298,7 +286,8 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         betMoney: betParseInfo.total,
         winMoney: 0,
         betTime: Date.now(),
-        betTypeInfo: betParseInfo.betTypeInfo
+        betTypeInfo: betParseInfo.betTypeInfo,
+        betItems:betParseInfo.betItems
     }, function (err, betItem) {
         if (err) {
             self.utils.invokeCallback(cb, err, null);
@@ -313,8 +302,6 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
             var freeBet = self.platformBet.addBet(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
             self.addBetValue(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
         }
-
-        betItem.setBetItems(betParseInfo.betItems);
         betItem.setRoleName(self.roleName);
 
         self.bets.addItem(betItem);

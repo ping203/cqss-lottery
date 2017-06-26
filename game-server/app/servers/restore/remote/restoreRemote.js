@@ -4,27 +4,27 @@
 
 const logger = require('pomelo-logger').getLogger(__filename);
 
-var RecoveryRemote = function (app) {
+var RestoreRemote = function (app) {
     this.app = app;
 };
 
 // 手动开奖
-RecoveryRemote.prototype.manualOpen = function (period, numbers, cb) {
-    this.app.recoveryService.manualOpen(period, numbers);
+RestoreRemote.prototype.manualOpen = function (period, numbers, cb) {
+    this.app.restoreService.manualOpen(period, numbers);
 };
 
 
 module.exports = function (app) {
     return bearcat.getBean({
-        id: "recoveryRemote",
-        func: RecoveryRemote,
+        id: "restoreRemote",
+        func: RestoreRemote,
         args: [{
             name: "app",
             value: app
         }],
         props: [{
-            name: "recoveryService",
-            ref: "recoveryService"
+            name: "restoreService",
+            ref: "restoreService"
         }]
     });
 }

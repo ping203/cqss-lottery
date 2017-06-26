@@ -3,6 +3,7 @@
  */
 
 const logger = require('pomelo-logger').getLogger(__filename);
+var bearcat = require('bearcat');
 
 var LotteryRemote = function (app) {
     this.app = app;

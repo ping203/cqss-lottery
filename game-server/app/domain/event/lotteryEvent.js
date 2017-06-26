@@ -1,10 +1,10 @@
 var pomelo = require('pomelo');
 var logger = require('pomelo-logger').getLogger(__filename);
-var NpcEvent = function () {
 
+var LotteryEvent = function () {
 };
 
-NpcEvent.prototype.addEventForNPC = function (lottery){
+LotteryEvent.prototype.addEventForNPC = function (lottery){
     var self = this;
     /**
      * Publish the lottery tick free seconds.
@@ -88,8 +88,8 @@ NpcEvent.prototype.addEventForNPC = function (lottery){
 };
 
 module.exports ={
-	id:"npcEvent",
-	func:NpcEvent,
+	id:"lotteryEvent",
+	func:LotteryEvent,
 	props:[
 		{name:"consts", ref:"consts"}
 	]

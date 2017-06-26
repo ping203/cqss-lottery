@@ -25,16 +25,34 @@ LotteryService.prototype.init = function () {
 
 LotteryService.prototype.pubMsg = function (event, msg) {
     this.redisApi.pub(event, JSON.stringify(msg));
+    this.redisApi.sub('manualOpen', function (msg) {
+        logger.error('~~~~~~~~~~manualOpen~~~~~~~~~~~~~`', msg);
+
+    });
 };
 
+LotteryService.prototype.manualOpenLottery = function (period, numbers) {
+    this.openResult.pre = this.openResult.last;
+    this.openResult.last.period = period;
+    this.openResult.last.numbers = numbers;
+    this.openResult.last.time = new Date();
+    this.openResult.next.period = Number(period) + 1;
+
+    if (!this.latestPeriod || (!!this.latestPeriod && this.latestPeriod != this.openResult.last.period)) {
+        this.pubMsg('publishLottery', this.openResult);
+        this.pubMsg('openLottery', {period:this.openResult.last.period, numbers:this.openResult.last.numbers.split(',')});
+        this.latestPeriod = this.openResult.last.period;
+        this.latestOpenTime = this.openResult.next.opentime.getTime();
+        this.latestOpenOriTime = this.openResult.next.oriTime.getTime();
+        this.timeSync(this.openResult.tickTime);
+    }
+
+};
+
+// 官方已经开奖，但是平台无法开奖，则采用手动开奖
 LotteryService.prototype.manualOpen = function (period, numbers) {
     // self.pubMsg('publishLottery', result);
     // self.pubMsg('openLottery', {period:result.last.period, numbers:result.last.numbers.split(',')});
-
-    // this.openResult = result.last;
-    // this.nextLottery = result.next;
-    // this.preLottery = result.pre;
-    // this.openResult.pre
 };
 
 LotteryService.prototype.tick = function () {
@@ -42,6 +60,11 @@ LotteryService.prototype.tick = function () {
     this.getOfficialLotteryInfo(function (err, result) {
         if (err || !result) {
             logger.error('获取彩票信息失败', err);
+            let now = Date.now();
+            if((now - result.next.opentime.getTime()/1000/60) >3){
+                self.pubMsg('revertBet', {period:result.next.period});
+            }
+
             return;
         }
 
