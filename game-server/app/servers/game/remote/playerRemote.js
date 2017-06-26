@@ -91,6 +91,7 @@ PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) 
 
 // 拒绝提现，恢复到账户
 PlayerRemote.prototype.restoreMoney = function (uid, money, cb) {
+    logger.error('~~~~~~~~~~订单异常操作restoreMoney~~~~~~~~~~~~~`', uid,':',money);
     var self = this;
     this.daoUser.updateAccountAmount(uid, money, function (err, success) {
         if (!!err || !success) {
@@ -98,6 +99,7 @@ PlayerRemote.prototype.restoreMoney = function (uid, money, cb) {
             return;
         }
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+        logger.error('~~~~~~~~~~订单异常操作restoreMoney~~~~~~~~11111~~~~~`', uid,':',money);
         self.gameService.pubMsg('restoreRechargeMoney',{uid:uid, money:money});
     })
 };
@@ -115,6 +117,7 @@ PlayerRemote.prototype.cashHandler = function (uid, orderId, status, operator, b
             if(status === self.consts.RecordOperate.OPERATE_ABORT){
                 if(record.status !== self.consts.RecordOperate.OPERATE_REQ){
                     scb('订单异常操作');
+                    logger.error('~~~~~~~~~~订单异常操作~~~~~~~~~~~~~`', uid,':',_money);
                 }
                 else {
                     self.restoreMoney(uid, record.num, function (err, resutl) {
