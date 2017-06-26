@@ -107,7 +107,7 @@ GameService.prototype.init = function () {
         logger.error('~~~~~~~~~~restoreRechargeMoney~~~~~~~~~~~~~`', msg);
         var player = self.getPlayer(msg.uid);
         if (!!player) {
-            player.recharge(money);
+            player.restoreBetWinMoney(msg.money);
             player.defineNotify(self.consts.MsgNotifyType.CASHFAIL, {money:msg.money});
         }
     });
