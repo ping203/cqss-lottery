@@ -74,14 +74,6 @@ PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) 
         },
         function (freeMoney, callback) {
             self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE, self.consts.RecordOperate.OPERATE_OK, freeMoney, operator, bankInfo, callback);
-            //在线用户及时到帐
-            let player = self.gameService.getPlayer(uid);
-            logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~222222~~~~~~~~~~`', uid);
-            if (!!player) {
-                logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~33333~~~~~~~~~~`', uid);
-                player.recharge(money);
-                player.defineNotify(self.consts.MsgNotifyType.RECHARGE, {money:money});
-            }
         }
     ],function (err) {
         logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~~~~~~~~~~~`', err);
@@ -89,6 +81,8 @@ PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) 
             self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_ERROR));
             return;
         }
+
+        self.gameService.pubMsg('recharge', {uid:uid, money:money});
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
         logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~44444~~~~~~~~~~`', uid);
     });
@@ -102,14 +96,8 @@ PlayerRemote.prototype.restoreMoney = function (uid, money, cb) {
             self.utils.invokeCallback(cb, '退款失败', new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_UID_ERROR));
             return;
         }
-
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
-        //在线用户及时到帐
-        var player = self.gameService.getPlayer(uid);
-        if (!!player) {
-            player.recharge(money);
-            player.defineNotify(self.consts.MsgNotifyType.CASHFAIL, {money:money});
-        }
+        self.gameService.pubMsg('restoreRechargeMoney',{uid:uid, money:money});
     })
 };
 
@@ -151,11 +139,7 @@ PlayerRemote.prototype.cashHandler = function (uid, orderId, status, operator, b
             return;
         }
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
-
-        var player = self.gameService.getPlayer(uid);
-        if (!!player) {
-            player.defineNotify(self.consts.MsgNotifyType.CASHOK, {money:_money});
-        }
+        self.gameService.pubMsg('cashHandler',{uid:uid, money:_money});
     });
 };
 

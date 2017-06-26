@@ -82,6 +82,36 @@ GameService.prototype.init = function () {
             player.restoreBetWinMoney(msg.betWinMoney);
         }
     });
+
+    this.redisApi.sub('recharge', function (msg) {
+        logger.error('~~~~~~~~~~recharge~~~~~~~~~~~~~`', msg);
+        //在线用户及时到帐
+        let player = self.getPlayer(msg.uid);
+        if (!!player) {
+            logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~33333~~~~~~~~~~`', uid);
+            player.restoreBetWinMoney(msg.money);
+            player.defineNotify(self.consts.MsgNotifyType.RECHARGE, {money:msg.money});
+        }
+    });
+
+
+    this.redisApi.sub('cashHandler', function (msg) {
+        logger.error('~~~~~~~~~~cashHandler~~~~~~~~~~~~~`', msg);
+        var player = self.getPlayer(msg.uid);
+        if (!!player) {
+            player.defineNotify(self.consts.MsgNotifyType.CASHOK, {money:msg.money});
+        }
+    });
+
+    this.redisApi.sub('restoreRechargeMoney', function (msg) {
+        //在线用户及时到帐
+        logger.error('~~~~~~~~~~restoreRechargeMoney~~~~~~~~~~~~~`', msg);
+        var player = self.gameService.getPlayer(msg.uid);
+        if (!!player) {
+            player.restoreBetWinMoney(money);
+            player.defineNotify(self.consts.MsgNotifyType.CASHFAIL, {money:msg.money});
+        }
+    });
 };
 
 // 玩家
@@ -159,6 +189,11 @@ GameService.prototype.canBetNow = function () {
 
     return true;
 };
+
+GameService.prototype.pubMsg = function (event, msg) {
+    this.redisApi.pub(event, JSON.stringify(msg));
+};
+
 
 GameService.prototype.addAction = function (action) {
     return this.actionManager().addAction(action);
