@@ -125,7 +125,7 @@ $(document).ready(function () {
         if (!util.isBlank(msg)) {
             pomelo.request(route, {
                 from: playerInfo.roleName,
-                target: target,
+                target: {id:playerInfo.id, level:playerInfo.level},
                 msgType: CHATMSGTYPE.CHARACTERS,
                 content: msg,
             }, function (data) {
