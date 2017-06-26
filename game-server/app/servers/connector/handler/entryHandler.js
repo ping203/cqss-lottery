@@ -47,11 +47,11 @@ EntryHandler.prototype.adminLogin = function (msg, session, next) {
 
 // 后台充值operator, bankInfo
 EntryHandler.prototype.recharge = function (msg, session, next) {
-    if(!msg.money || !msg.uid || !msg.operator || !msg.bankInfo){
+    if(!msg.money || !msg.uid || !msg.operator){
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
-
+    //uid":"3","money":"10000","operator":"admin","bankInfo":"
     var money = parseInt(msg.money, 10);
     if(isNaN(money)){
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
@@ -71,6 +71,7 @@ EntryHandler.prototype.cashHandler = function (msg, session, next) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
+   // "uid":"4","orderId":"1","status":"2","operator":"admin","bankInfo":"zhifubao"
     logger.error('@@@@@@@@@@@@@@@@@@@@@@@@ EntryHandler.cashHandler', msg);
     this.app.rpc.game.playerRemote.cashHandler(session, Number(msg.uid), Number(msg.orderId), Number(msg.status), msg.operator, msg.bankInfo, function (err, result) {
         next(null, result);
