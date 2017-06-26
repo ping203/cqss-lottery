@@ -17,8 +17,10 @@ RestoreService.prototype.init = function () {
     this.redisApi.init(configs);
     this.restore();
 
+    var self = this;
     this.redisApi.sub('revertBet', function (msg) {
         logger.error('~~~~~~~~~~revertBet~~~~~~~~~~~~~`', msg);
+        self.revert(period);
     });
 };
 
@@ -64,15 +66,19 @@ RestoreService.prototype.restore = async function () {
         return;
     }
 
+    let self = this;
     let lotteryMap = {};
     lotteryHistory.map(function (item) {
-        let openCodeResult = this.calcOpenLottery.calc(item.numbers.split(','));
+        let openCodeResult = self.calcOpenLottery.calc(item.numbers.split(','));
         item.openCodeResult = openCodeResult;
         lotteryMap[item.period] = item;
     });
 
     let playerWinMoneys = {};
     let except_bets = await this.daoBets.getExceptBets(lotteryHistory[0].period);
+    if(!except_bets){
+        return;
+    }
     except_bets.forEach(function (bet) {
         if(lotteryMap[bet.period] && bet.getState() === this.consts.BetState.BET_WAIT){
             this.eventManager.addEvent(item);
@@ -85,7 +91,6 @@ RestoreService.prototype.restore = async function () {
         }
     });
 
-    let self = this;
     for (let id in playerWinMoneys){
         this.daoUser.updateAccountAmount(Number(id), playerWinMoneys[id], function (err, result) {
             if(err || !result){

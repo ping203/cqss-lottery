@@ -21,14 +21,15 @@ LotteryService.prototype.init = function () {
     setInterval(this.tick.bind(this), 2000);
     let configs = pomelo.app.get('redis');
     this.redisApi.init(configs);
+    let self = this;
+    this.redisApi.sub('manualOpen', function (msg) {
+        logger.error('~~~~~~~~~~manualOpen~~~~~~~~~~~~~`', msg);
+        self.manualOpenLottery(msg.period, msg.numbers);
+    });
 };
 
 LotteryService.prototype.pubMsg = function (event, msg) {
     this.redisApi.pub(event, JSON.stringify(msg));
-    this.redisApi.sub('manualOpen', function (msg) {
-        logger.error('~~~~~~~~~~manualOpen~~~~~~~~~~~~~`', msg);
-
-    });
 };
 
 LotteryService.prototype.manualOpenLottery = function (period, numbers) {

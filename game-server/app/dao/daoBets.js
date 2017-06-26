@@ -117,7 +117,7 @@ DaoBets.prototype.getRevertBets = function (period) {
 };
 
 DaoBets.prototype.getExceptBets = function (period) {
-    return new Promise((resolve)=>{
+    return new Promise((resolve, reject)=>{
         var sql = 'select * from Bets where state = ? and period < ? order by betTime DESC';
         var args = [0,period];
         var self = this;

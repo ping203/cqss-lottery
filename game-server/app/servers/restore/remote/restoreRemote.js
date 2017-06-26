@@ -3,6 +3,7 @@
  */
 
 const logger = require('pomelo-logger').getLogger(__filename);
+const bearcat = require('bearcat');
 
 var RestoreRemote = function (app) {
     this.app = app;
@@ -12,7 +13,6 @@ var RestoreRemote = function (app) {
 RestoreRemote.prototype.manualOpen = function (period, numbers, cb) {
     this.app.restoreService.manualOpen(period, numbers);
 };
-
 
 module.exports = function (app) {
     return bearcat.getBean({
