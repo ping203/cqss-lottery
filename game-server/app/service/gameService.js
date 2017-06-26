@@ -105,7 +105,7 @@ GameService.prototype.init = function () {
     this.redisApi.sub('restoreRechargeMoney', function (msg) {
         //在线用户及时到帐
         logger.error('~~~~~~~~~~restoreRechargeMoney~~~~~~~~~~~~~`', msg);
-        var player = self.gameService.getPlayer(msg.uid);
+        var player = self.getPlayer(msg.uid);
         if (!!player) {
             player.recharge(money);
             player.defineNotify(self.consts.MsgNotifyType.CASHFAIL, {money:msg.money});
