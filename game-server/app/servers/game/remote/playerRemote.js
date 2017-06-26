@@ -179,6 +179,7 @@ PlayerRemote.prototype.setConfig = function (configs, cb) {
 //{"uid":"2","ctrl":{"code":1,"operate":false}}
 PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
     var player = this.gameService.getPlayer(uid);
+    let self = this;
     switch (Number(ctrl.code)) {
         case this.consts.PlayerCtrl.forbidTalk:
             if (!!player) {
@@ -187,9 +188,9 @@ PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
             else {
                 this.daoUser.setPlayerCanTalk(uid, ctrl.operate, function (err, result) {
                     if(result){
-                        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+                        self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
                     }else {
-                        this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.DBFAIL));
+                        self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.DBFAIL));
                     }
                 });
             }
@@ -197,10 +198,10 @@ PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
         case this.consts.PlayerCtrl.active:
             this.daoUser.setPlayerActive(uid, ctrl.operate, function (err, result) {
                 if(result){
-                    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+                    self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
                 }
                 else {
-                    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.DBFAIL));
+                    self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.DBFAIL));
                 }
             });
             return;
