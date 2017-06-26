@@ -15,12 +15,29 @@ var RankHandler = function (app) {
 
 //胜率排行
 RankHandler.prototype.winRateRankList = function (msg, session, next) {
-    next(null, new Answer.DataResponse(Code.OK, this.rankService.getWinRankList()));
+
+    let skip = Number(msg.skip);
+    let limit = Number(msg.limit);
+    if(isNaN(skip) || isNaN(limit)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    let list = this.rankService.getWinRankList();
+    next(null, new Answer.DataResponse(Code.OK, list.slice(skip, skip + limit)));
 };
 
 //今日土豪榜
 RankHandler.prototype.todayRichRankList = function (msg, session, next) {
-    next(null, new Answer.DataResponse(Code.OK, this.rankService.richRankList()));
+    let skip = Number(msg.skip);
+    let limit = Number(msg.limit);
+    if(isNaN(skip) || isNaN(limit)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+
+    let list = this.rankService.richRankList();
+    next(null, new Answer.DataResponse(Code.OK, list.slice(skip, skip + limit)));
 };
 
 module.exports = function (app) {

@@ -347,6 +347,10 @@ Player.prototype.unBet = function (entityId, cb) {
     }
 };
 
+Player.prototype.restoreBet = function (betItem) {
+    this.bets.addItem(betItem);
+};
+
 Player.prototype.calcExp = function (calcParam) {
     var exp_base = this.sysConfig.getExp();
     var exp = ((calcParam.betCount - calcParam.winCount)*exp_base.lose + calcParam.winCount* exp_base.win + calcParam.betMoney* exp_base.money);

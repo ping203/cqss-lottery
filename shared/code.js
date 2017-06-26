@@ -62,6 +62,7 @@ module.exports = {
         FA_CANNOT_REBIND_CARD: {code:5020, desc:"不能重复绑定银行卡"},
         FA_CAST_PINCODE_ERR: {code:5021, desc:"提款密码错误"},
         FA_BET_BALL_INVALID: {code:5022, desc:"投注球无效"},
-        FA_BET_INFO_INVALID: {code:5023, desc:"投注信息无效"}
+        FA_BET_INFO_INVALID: {code:5023, desc:"投注信息无效"},
+        FA_PERIOD_INVALID: {code:5024, desc:"开奖期数无效"}
     }
 };

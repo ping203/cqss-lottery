@@ -116,9 +116,48 @@ DaoBets.prototype.getRevertBets = function (period) {
     });
 };
 
+
+DaoBets.prototype.getPlayerRevertBets = function (playerId, period) {
+    return new Promise((resolve)=>{
+        var sql = 'select * from Bets where state = ? and period = ? and uid=? order by betTime DESC';
+        var args = [0, period, playerId];
+        var self = this;
+        pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+            if (err !== null) {
+                resolve(null);
+            } else {
+                if (!!res && res.length >= 1) {
+                    var items = [];
+                    for (var i = 0; i < res.length; ++i) {
+                        var betItem = bearcat.getBean("betItem", {
+                            id: res[i].id,
+                            playerId: res[i].uid,
+                            period: res[i].period,
+                            identify: res[i].identify,
+                            betInfo: res[i].betInfo,
+                            state: res[i].state,
+                            betCount: res[i].betCount,
+                            winCount: res[i].winCount,
+                            betMoney: res[i].betMoney,
+                            winMoney: res[i].winMoney,
+                            betTime: res[i].betTime,
+                            betTypeInfo:JSON.parse(res[i].betTypeInfo),
+                            betItems:JSON.parse(res[i].betItems)
+                        });
+                        items.push(betItem);
+                    }
+                    resolve(items);
+                } else {
+                    resolve(null);
+                }
+            }
+        });
+    });
+};
+
 DaoBets.prototype.getExceptBets = function (period) {
     return new Promise((resolve, reject)=>{
-        var sql = 'select * from Bets where state = ? and period < ? order by betTime DESC';
+        var sql = 'select * from Bets where state = ? and period <= ? order by betTime DESC';
         var args = [0,period];
         var self = this;
         pomelo.app.get('dbclient').query(sql, args, function (err, res) {

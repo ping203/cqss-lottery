@@ -197,7 +197,7 @@ GameService.prototype.broadcastMessage = function (route, msg) {
  * Add entity to game
  * @param {Object} e Entity to add to the game.
  */
-GameService.prototype.addEntity = function (e) {
+GameService.prototype.addEntity = async function (e) {
     if (!e || !e.entityId) {
         return false;
     }
@@ -227,6 +227,16 @@ GameService.prototype.addEntity = function (e) {
             this.trusteePlayers[e.id].transferTask(e);
             delete this.trusteePlayers[e.id];
         }
+
+        let period = this.getLottery().getNextPeriod();
+        let revertBets = await this.daoBets.getPlayerRevertBets(e.id, period);
+        if(revertBets){
+            revertBets.forEach(function (item) {
+                logger.error('~~~~~~~~~~~~~~~~~~~~~period:',item.period, ':',item.betInfo);
+                e.restoreBet(item);
+            });
+        }
+
 
         this.getLottery().publishCurLottery([{uid: e.id, sid: e.serverId}]);
         this.getLottery().initPublishParseResult([{uid: e.id, sid: e.serverId}]);

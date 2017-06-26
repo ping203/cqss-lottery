@@ -9,9 +9,8 @@ var LotteryRemote = function (app) {
     this.app = app;
 };
 
-// 手动开奖
-LotteryRemote.prototype.manualOpen = function (period, numbers, cb) {
-    this.app.lotteryService.manualOpen(period, numbers);
+LotteryRemote.prototype.checkPeriodValid = function (period, cb) {
+    this.utils.invokeCallback(cb, null, this.app.lotteryService.checkPeriod(period));
 };
 
 module.exports = function (app) {
@@ -26,6 +25,9 @@ module.exports = function (app) {
         props: [{
             name: "rankService",
             ref: "rankService"
+        },{
+            name: "utils",
+            ref: "utils"
         }]
     });
 }

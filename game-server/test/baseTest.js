@@ -3,6 +3,12 @@
  */
 
 function test() {
+    let list = [1,2,3,4,5,6];
+    let skip = 6;
+    let limit = 3;
+    console.log(list.slice(skip, skip + limit));
+
+    return;
     this.aaaa = 100;
     let arr = [1,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6];
     arr.map(function (item) {

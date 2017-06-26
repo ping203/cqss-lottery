@@ -116,10 +116,15 @@ EntryHandler.prototype.backendOpenCode = function (msg, session, next) {
         return;
     }
 
-    next(null, new Answer.NoDataResponse(Code.FAIL));
-    return;
+    let self = this;
+    this.app.rpc.lottery.lotteryRemote.checkPeriodValid(session, msg.period, function (err, result) {
+        if(!result){
+            next(null, new Answer.NoDataResponse(Code.GAME.FA_PERIOD_INVALID));
+            return;
+        }
 
-    this.app.rpc.restore.restoreRemote.manualOpen(session, msg.period, msg.numbers, next);
+        self.app.rpc.restore.restoreRemote.manualOpen(session, msg.period, msg.numbers, next);
+    });
 };
 
 EntryHandler.prototype.login = function (msg, session, next) {

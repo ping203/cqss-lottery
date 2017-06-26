@@ -133,7 +133,7 @@ adminClient.prototype.playerCtrl = function (uid, ctrl, cb) {
 // 收动开奖
 // period 彩票期数20170620108
 // 开奖号码[1,3,5,1,8]
-adminClient.prototype.openLottery = function (period, numbers) {
+adminClient.prototype.openLottery = function (period, numbers, cb) {
     var self = this;
     pomelo.request('connector.entryHandler.backendOpenCode', {period: period, numbers:numbers}, function (res) {
         if (!res.result || res.result.code != 200) {

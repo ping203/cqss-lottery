@@ -23,7 +23,7 @@ LotteryService.prototype.init = function () {
     this.redisApi.init(configs);
     let self = this;
     this.redisApi.sub('manualOpen', function (msg) {
-        logger.error('~~~~~~~~~~manualOpen~~~~~~~~~~~~~`', msg);
+        logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~manualOpen~~~~~~~~~~~~~`', msg);
         self.manualOpenLottery(msg.period, msg.numbers);
     });
 };
@@ -32,14 +32,31 @@ LotteryService.prototype.pubMsg = function (event, msg) {
     this.redisApi.pub(event, JSON.stringify(msg));
 };
 
+
+LotteryService.prototype.checkPeriod = function (period) {
+
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~period:', Number(period) ,':', Number(this.latestPeriod) + 1 )
+    return Number(period) === Number(this.latestPeriod) + 1 ? true:false;
+};
+
 LotteryService.prototype.manualOpenLottery = function (period, numbers) {
-    this.openResult.pre = this.openResult.last;
+
+    logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~manualOpenLottery~~~~~~~1111~~~~~~`');
+    if(this.openResult){
+        this.openResult.pre = this.openResult.last;
+    }
+    else {
+        this.openResult ={};
+    }
+
     this.openResult.last.period = period;
     this.openResult.last.numbers = numbers;
     this.openResult.last.time = new Date();
     this.openResult.next.period = Number(period) + 1;
 
+
     if (!this.latestPeriod || (!!this.latestPeriod && this.latestPeriod != this.openResult.last.period)) {
+        logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~manualOpenLottery~~~~~~~2222~~~~~~`');
         this.pubMsg('publishLottery', this.openResult);
         this.pubMsg('openLottery', {period:this.openResult.last.period, numbers:this.openResult.last.numbers.split(',')});
         this.latestPeriod = this.openResult.last.period;
@@ -47,13 +64,8 @@ LotteryService.prototype.manualOpenLottery = function (period, numbers) {
         this.latestOpenOriTime = this.openResult.next.oriTime.getTime();
         this.timeSync(this.openResult.tickTime);
     }
+    logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~manualOpenLottery~~~~~3333~~~~~~~~`');
 
-};
-
-// 官方已经开奖，但是平台无法开奖，则采用手动开奖
-LotteryService.prototype.manualOpen = function (period, numbers) {
-    // self.pubMsg('publishLottery', result);
-    // self.pubMsg('openLottery', {period:result.last.period, numbers:result.last.numbers.split(',')});
 };
 
 LotteryService.prototype.tick = function () {
@@ -84,7 +96,7 @@ LotteryService.prototype.tick = function () {
 
         self.tickCount++;
 
-        this.openResult = result;
+        self.openResult = result;
     });
 };
 

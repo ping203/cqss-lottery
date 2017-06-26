@@ -27,9 +27,9 @@ DaoChat.prototype.add = function (msg, cb) {
 DaoChat.prototype.gets = function (cb) {
     let self = this;
     this.redisApi.cmd('keys', null, 'chat*',null, function (err, msgIds) {
-        logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@ DaoChat keys ', err, msgIds);
+        // logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@ DaoChat keys ', err, msgIds);
         self.redisApi.cmd('mget', null, msgIds[0], null, function (err, result) {
-           logger.error('DaoChat gets ', err, result);
+           // logger.error('DaoChat gets ', err, result);
             self.utils.invokeCallback(cb, err, result);
        })
     });

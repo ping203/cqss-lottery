@@ -187,7 +187,6 @@ ChatService.prototype.getHistory = function (roomId, cb) {
 
 ChatService.prototype.recordChat = function (msg) {
     this.daoChat.add(msg);
-    this.getHistory();
 };
 
 ChatService.prototype.pushByUID = function (uid, msg, cb) {

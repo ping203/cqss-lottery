@@ -4,6 +4,8 @@
 
 const logger = require('pomelo-logger').getLogger(__filename);
 const bearcat = require('bearcat');
+const Code = require('../../../../../shared/code');
+const Answer = require('../../../../../shared/answer');
 
 var RestoreRemote = function (app) {
     this.app = app;
@@ -12,6 +14,7 @@ var RestoreRemote = function (app) {
 // 手动开奖
 RestoreRemote.prototype.manualOpen = function (period, numbers, cb) {
     this.app.restoreService.manualOpen(period, numbers);
+    this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
 };
 
 module.exports = function (app) {
@@ -25,6 +28,9 @@ module.exports = function (app) {
         props: [{
             name: "restoreService",
             ref: "restoreService"
+        }, {
+            name: "utils",
+            ref: "utils"
         }]
     });
 }

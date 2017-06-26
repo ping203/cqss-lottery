@@ -22,6 +22,7 @@ $(document).ready(function () {
     $('#cash').on('click', cash);
     $('#setConfig').on('click', setConfig);
     $('#playerCtrl').on('click', playerCtrl);
+    $('#backendOpenCode').on('click', backendOpenCode);
     $('#getPlayerBaseInfo').on('click', getPlayerBaseInfo);
 
     var _adminClient =  new window.adminClient();
@@ -63,6 +64,16 @@ $(document).ready(function () {
                 return;
             }
             console.log('玩家控制成功');
+        })
+    }
+
+    function backendOpenCode() {
+        _adminClient.openLottery("20170626043", "8,0,0,0,8", function (err, result) {
+            if (!!err) {
+                console.log('后台开奖失败:', err.desc);
+                return;
+            }
+            console.log('后台开奖成功');
         })
     }
 

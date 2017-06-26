@@ -65,7 +65,6 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
             });
         }
     ], function (err) {
-        logger.error('$$$$$$$$$$$$$$$$$$$$$$$,err', err);
         if (err) {
             next(null, err);
             return;

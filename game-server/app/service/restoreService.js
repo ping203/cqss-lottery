@@ -79,10 +79,20 @@ RestoreService.prototype.restore = async function () {
     if(!except_bets){
         return;
     }
+
+    logger.error('~~~~~~~~~~except_bets~~~~~~~~~~~~~`', except_bets.length, ':',except_bets);
     except_bets.forEach(function (bet) {
-        if(lotteryMap[bet.period] && bet.getState() === this.consts.BetState.BET_WAIT){
-            this.eventManager.addEvent(item);
+        if(lotteryMap[bet.period] && bet.getState() === self.consts.BetState.BET_WAIT){
+            self.eventManager.addEvent(bet);
             bet.calcHarvest(lotteryMap[bet.period].openCodeResult);
+            var subMoney = Number((bet.getWinMoney() - bet.getBetMoney()).toFixed(2));
+            if(subMoney > 0){
+                bet.setState(self.consts.BetState.BET_WIN);
+            }
+            else {
+                bet.setState(self.consts.BetState.BET_LOSE);
+            }
+
             bet.save();
             if(!playerWinMoneys[bet.playerId]){
                 playerWinMoneys[bet.playerId] = 0;
@@ -92,6 +102,7 @@ RestoreService.prototype.restore = async function () {
     });
 
     for (let id in playerWinMoneys){
+        if(playerWinMoneys[id] === 0) continue;
         this.daoUser.updateAccountAmount(Number(id), playerWinMoneys[id], function (err, result) {
             if(err || !result){
                 return;

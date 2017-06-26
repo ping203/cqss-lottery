@@ -131,13 +131,6 @@ const Configure = function () {
         app.restoreService.init();
     });
 
-    app.configure('production|development', 'manager', function(){
-        var events = pomelo.events;
-        app.instanceManager = bearcat.getBean('instanceManager');
-        app.event.on(events.ADD_SERVERS, app.instanceManager.addServers);
-        app.event.on(events.REMOVE_SERVERS, app.instanceManager.removeServers);
-    });
-
 }
 
 const contextPath = require.resolve('./context.json');
