@@ -63,6 +63,7 @@ PlayerRemote.prototype.playerLeave = function (playerId, cb) {
 
 // 后台管理员充值,事务回滚
 PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) {
+    logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~~~11111~~~~~~~~`', uid);
     var self = this;
     async.waterfall([
         function (callback) {
@@ -75,7 +76,9 @@ PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) 
             self.daoRecord.add(uid, money, self.consts.RecordType.RECHARGE, self.consts.RecordOperate.OPERATE_OK, freeMoney, operator, bankInfo, callback);
             //在线用户及时到帐
             let player = self.gameService.getPlayer(uid);
+            logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~222222~~~~~~~~~~`', uid);
             if (!!player) {
+                logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~33333~~~~~~~~~~`', uid);
                 player.recharge(money);
                 player.defineNotify(self.consts.MsgNotifyType.RECHARGE, {money:money});
             }
@@ -87,6 +90,7 @@ PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) 
             return;
         }
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
+        logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~44444~~~~~~~~~~`', uid);
     });
 };
 
