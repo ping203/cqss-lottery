@@ -74,10 +74,11 @@ LotteryService.prototype.tick = function () {
         if (err || !result) {
             logger.error('获取彩票信息失败', err);
             let now = Date.now();
-            if((now - result.next.opentime.getTime()/1000/60) >3){
-                self.pubMsg('revertBet', {period:result.next.period});
+            if(self.openResult){
+                if((now - self.openResult.next.opentime.getTime()/1000/60) >3){
+                    self.pubMsg('revertBet', {period:result.next.period});
+                }
             }
-
             return;
         }
 
