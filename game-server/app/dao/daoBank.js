@@ -11,7 +11,7 @@ function DaoBank() {
 
 //绑定银行卡
 DaoBank.prototype.bind = function (playerId, address, username, cardNO, alipay,wechat, cb) {
-    var sql = 'insert into Bank (uid,address,username,cardNO, weixin, zhifubao, bindTime) values(?,?,?,?,?,?,?)';
+    var sql = 'insert into Bank (uid,address,username,cardNO, zhifubao, weixin, bindTime) values(?,?,?,?,?,?,?)';
     var args = [playerId, address, username, cardNO, alipay,wechat,Date.now()];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {

@@ -173,7 +173,7 @@ PlayerHandler.prototype.setPhone = function (msg, session, next) {
     var ret = player.setPhone(msg.phone);
     next(null, new Answer.NoDataResponse(ret));
 };
-
+// body":{"cardNO":"","address":"","username":"","pinCode":"123456","wechat":"wechat","alipay":"zhifubao"
 PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
     if ((!!(msg.address && msg.username && msg.cardNO) || !!msg.wechat || !!msg.alipay) && !!msg.pinCode) {
         var playerId = session.uid;
