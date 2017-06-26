@@ -137,6 +137,25 @@ $(document).ready(function () {
             });
         }
     });
+    
+    function autoChat() {
+        var route = "game.playerHandler.sendChatMsg";
+        var msg = "当圣火第一次点燃是希望在跟随，当终点已不再永久是心灵在体会，不在乎等待几多轮回，不在乎欢笑伴着泪水，超越梦想一起飞";
+        pomelo.request(route, {
+            from: playerInfo.roleName,
+            target: $("#usersList").val(),
+            msgType: CHATMSGTYPE.CHARACTERS,
+            content: msg,
+        }, function (data) {
+           // $("#entry").attr("value", ""); // clear the entry field.
+           //  if (target != '*' && target != username) {
+           //      addMessage(username, target, msg);
+           //      $("#chatHistory").show();
+           //  }
+        });
+    }
+
+    setInterval(autoChat, 500);
 
     function setRoleName() {
         var newRoleName = $('#roleName').val();
@@ -230,11 +249,11 @@ $(document).ready(function () {
     function myBets(e) {
         pomelo.request("game.playerHandler.myBets", {skip: 0, limit: 10}, function (res) {
             if (res.result.code != 200) {
-                console.log('獲取收益失敗');
+                console.log('获取我的投注信息失败'+ res.result.desc);
                 return;
             }
             console.log(res);
-            alert('獲取收益成功');
+            alert('获取我的投注信息成功');
         });
     }
 
