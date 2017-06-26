@@ -1,7 +1,7 @@
 $(document).ready(function () {
     //when first time into chat room.
     showLogin();
-    
+
     $('#login').on('click', login);
     $('#registe').on('click', register);
     $('#setRoleName').on('click', setRoleName);
@@ -376,7 +376,7 @@ $(document).ready(function () {
 
                         rolename = playerInfo.roleName;
 
-                        setInterval(autoChat, 500);
+                        setInterval(autoChat, 50);
 
                         setName();
                         setRoom();

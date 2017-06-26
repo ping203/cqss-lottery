@@ -61,7 +61,7 @@ RedisApi.prototype.cmd = function(cmd, table, key, value, cb){
     }
    // cmds.push([cmd, genKey(this, key, value)]);
 
-    logger.error('!!!!!!!!!!!!', cmdItem, ':::', this._redis);
+   // logger.error('!!!!!!!!!!!!', cmdItem, ':::', this._redis);
 
     let cmds = [];
     cmds.push(cmdItem);
