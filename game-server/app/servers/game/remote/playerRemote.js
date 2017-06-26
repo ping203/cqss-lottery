@@ -81,6 +81,7 @@ PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) 
             }
         }
     ],function (err) {
+        logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~~~~~~~~~~~`', err);
         if(err){
             self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.GAME.FA_RECHARGE_ERROR));
             return;
