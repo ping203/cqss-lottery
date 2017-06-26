@@ -43,7 +43,7 @@ Lottery.prototype.init = function() {
     this.redisApi.init(configs);
     this.redisApi.sub('tickTimeSync', function (msg) {
         logger.error('~~~~~~~~~tickTimeSync~~~~~~~~~~~~~~',msg.tick);
-        self.setTickCount(msg.tick);
+        self.setTickCount(Number(msg.tick));
     });
 
     this.redisApi.sub('publishLottery', function (msg) {
@@ -53,7 +53,7 @@ Lottery.prototype.init = function() {
 };
 
 // proof tick timer
-Lottery.prototype.setTickCount = function(period, tick) {
+Lottery.prototype.setTickCount = function(tick) {
     this.tickCount = tick;
     this.lastTickTime = Date.now();
 };
