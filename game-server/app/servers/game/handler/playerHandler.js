@@ -93,7 +93,13 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
 
 PlayerHandler.prototype.myBets = function (msg, session, next) {
     var player = this.gameService.getPlayer(session.uid);
-    player.getMyBets(msg.skip, msg.limit, function (err, result) {
+    let skip = Number(msg.skip);
+    let limit = Number(msg.limit);
+    if(isNaN(skip) || isNaN(limit)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+    player.getMyBets(skip, limit, function (err, result) {
         if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
             return;
@@ -104,7 +110,13 @@ PlayerHandler.prototype.myBets = function (msg, session, next) {
 
 PlayerHandler.prototype.myIncome = function (msg, session, next) {
     var player = this.gameService.getPlayer(session.uid);
-    player.getMyIncomes(msg.skip, msg.limit, function (err, result) {
+    let skip = Number(msg.skip);
+    let limit = Number(msg.limit);
+    if(isNaN(skip) || isNaN(limit)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+    player.getMyIncomes(skip, limit, function (err, result) {
         if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
             return;
@@ -115,7 +127,13 @@ PlayerHandler.prototype.myIncome = function (msg, session, next) {
 
 PlayerHandler.prototype.friendIncome = function (msg, session, next) {
     var player = this.gameService.getPlayer(session.uid);
-    player.getFriendIncomes(msg.skip, msg.limit, function (err, result) {
+    let skip = Number(msg.skip);
+    let limit = Number(msg.limit);
+    if(isNaN(skip) || isNaN(limit)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+    player.getFriendIncomes(skip, limit, function (err, result) {
         if (err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
             return;
@@ -220,7 +238,13 @@ PlayerHandler.prototype.getGMWeiXin = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.getRecords = function (msg, session, next) {
-    this.daoRecord.getRecords(session.uid, msg.skip, msg.limit, function (err, results) {
+    let skip = Number(msg.skip);
+    let limit = Number(msg.limit);
+    if(isNaN(skip) || isNaN(limit)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+    this.daoRecord.getRecords(session.uid, skip, limit, function (err, results) {
         if (!!err) {
             next(null, new Answer.NoDataResponse(Code.DBFAIL));
             return;
@@ -231,7 +255,13 @@ PlayerHandler.prototype.getRecords = function (msg, session, next) {
 
 PlayerHandler.prototype.getLotterys = function (msg, session, next) {
     var lottery = this.gameService.getLottery();
-    lottery.getLotterys(msg.skip, msg.limit, function (err, result) {
+    let skip = Number(msg.skip);
+    let limit = Number(msg.limit);
+    if(isNaN(skip) || isNaN(limit)){
+        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+        return;
+    }
+    lottery.getLotterys(skip, limit, function (err, result) {
         if (!!err) {
             next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_LOTTERY_INFO_ERROR));
         } else {

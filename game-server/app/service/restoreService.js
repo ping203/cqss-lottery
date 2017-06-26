@@ -80,7 +80,7 @@ RestoreService.prototype.restore = async function () {
         return;
     }
 
-    logger.error('~~~~~~~~~~except_bets~~~~~~~~~~~~~`', except_bets.length, ':',except_bets);
+    //logger.error('~~~~~~~~~~except_bets~~~~~~~~~~~~~`', except_bets.length, ':',except_bets);
     except_bets.forEach(function (bet) {
         if(lotteryMap[bet.period] && bet.getState() === self.consts.BetState.BET_WAIT){
             self.eventManager.addEvent(bet);

@@ -42,7 +42,6 @@ Lottery.prototype.init = function() {
     let configs = pomelo.app.get('redis');
     this.redisApi.init(configs);
     this.redisApi.sub('tickTimeSync', function (msg) {
-        logger.error('~~~~~~~~~tickTimeSync~~~~~~~~~~~~~~',msg.tick);
         self.setTickCount(Number(msg.tick));
     });
 
