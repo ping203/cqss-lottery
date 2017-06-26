@@ -63,11 +63,12 @@ PlayerRemote.prototype.playerLeave = function (playerId, cb) {
 
 // 后台管理员充值,事务回滚
 PlayerRemote.prototype.recharge = function (uid, money, operator, bankInfo, cb) {
-    logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~~~11111~~~~~~~~`', uid);
+    logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~~~11111~~~~~~~~`', uid, 'money:',money);
     var self = this;
     async.waterfall([
         function (callback) {
             self.daoUser.updateAccountAmount(uid, money,callback);
+            logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~~~22222~~~~~~~~`', uid, 'money:',money);
         },
         function (ret, callback) {
             self.daoUser.getAccountAmount(uid, callback);

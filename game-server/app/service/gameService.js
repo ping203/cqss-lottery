@@ -88,7 +88,6 @@ GameService.prototype.init = function () {
         //在线用户及时到帐
         let player = self.getPlayer(msg.uid);
         if (!!player) {
-            logger.error('~~~~~~~~~~~~~~~~PlayerRemote.prototype.recharge~~~~~~~~~~~~~~33333~~~~~~~~~~`', uid);
             player.restoreBetWinMoney(msg.money);
             player.defineNotify(self.consts.MsgNotifyType.RECHARGE, {money:msg.money});
         }
