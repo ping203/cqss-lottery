@@ -2,6 +2,8 @@ $(document).ready(function () {
     //when first time into chat room.
     showLogin();
 
+    var playerInfo;
+
     $('#login').on('click', login);
     $('#registe').on('click', register);
     $('#setRoleName').on('click', setRoleName);
@@ -143,7 +145,7 @@ $(document).ready(function () {
         var msg = "当圣火第一次点燃是希望在跟随，当终点已不再永久是心灵在体会，不在乎等待几多轮回，不在乎欢笑伴着泪水，超越梦想一起飞";
         pomelo.request(route, {
             from: playerInfo.roleName,
-            target: $("#usersList").val(),
+            target: {id:playerInfo.id, level:playerInfo.level},
             msgType: CHATMSGTYPE.CHARACTERS,
             content: msg,
         }, function (data) {
