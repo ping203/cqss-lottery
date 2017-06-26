@@ -12,7 +12,7 @@
     "connector": [
       {
         "id": "connector-server-1",
-        "host": "192.168.0.130",
+        "host": "116.31.99.217",
         "port": 3150,
         "clientPort": 3010,
         "frontend": true,
@@ -21,14 +21,14 @@
       },
       {
         "id": "connector-server-2",
-        "host": "192.168.0.130",
+        "host": "116.31.99.217",
         "port": 3151,
         "clientPort": 3011,
         "frontend": true
       },
       {
         "id": "connector-server-3",
-        "host": "192.168.0.130",
+        "host": "116.31.99.217",
         "port": 3152,
         "clientPort": 3012,
         "frontend": true
