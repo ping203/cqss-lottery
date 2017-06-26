@@ -66,12 +66,13 @@ EntryHandler.prototype.recharge = function (msg, session, next) {
 
 // 后台提现确认
 EntryHandler.prototype.cashHandler = function (msg, session, next) {
-    if(!msg.uid || !msg.orderId || !msg.status || !msg.operator || !msg.bankInfo || !(!!msg.status && (msg.status === this.consts.RecordOperate.OPERATE_OK ||
-        msg.status === this.consts.RecordOperate.OPERATE_ABORT))){
+    if(!msg.uid || !msg.orderId || !msg.status || !msg.operator || !msg.bankInfo || !(!!msg.status && (msg.status == this.consts.RecordOperate.OPERATE_OK ||
+        msg.status == this.consts.RecordOperate.OPERATE_ABORT))){
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
         return;
     }
    // "uid":"4","orderId":"1","status":"2","operator":"admin","bankInfo":"zhifubao"
+   // {"uid":"4","orderId":"1","status":"2","operator":"admin","bankInfo":"test"}
     logger.error('@@@@@@@@@@@@@@@@@@@@@@@@ EntryHandler.cashHandler', msg);
     this.app.rpc.game.playerRemote.cashHandler(session, Number(msg.uid), Number(msg.orderId), Number(msg.status), msg.operator, msg.bankInfo, function (err, result) {
         next(null, result);
