@@ -33,7 +33,6 @@ GameService.prototype.init = function () {
     this.gameId = 1001;//pomelo.app.getCurServer().gameId+1000;
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
-    this.betMax = 20;
     this.generateGlobalLottery();
     this.daoUser.updateAllOfline();
     //初始化系統參數配置
@@ -46,15 +45,6 @@ GameService.prototype.init = function () {
             return;
         }
         logger.error('平台参数配置获取失败，系统无法工作');
-    });
-
-    this.daoBets.getLatestBets(0,self.betMax, function (err, results) {
-        if(err){
-            return;
-        }
-        results.forEach(function (item) {
-            self.updateLatestBets(item.strip());
-        });
     });
 
     let configs = pomelo.app.get('redis');
@@ -119,44 +109,40 @@ GameService.prototype.run = function () {
 }
 
 GameService.prototype.tick = function () {
+    return;
     this.countdown();
     this.notice();
 };
 
 GameService.prototype.updateLatestBets = function (item) {
     let self = this;
-    this.redisApi.cmd('incr', null, 'touzhuId', null, function (err, betId) {
+    this.redisApi.cmd('incr', null, this.consts.BET_ID, null, function (err, betId) {
         let index = betId[0];
-
-        // logger.error('~~~~~~~~~~~~~~~~updateLatestBets~~~~~~~~~~~~~~~~~~~~~~~~', JSON.stringify(item));
-        self.redisApi.cmd('set', 'bet' + (index%self.betMax), JSON.stringify(item), function (err, result) {
-            logger.error('bet add ', err, result, betId);
+        self.redisApi.cmd('hset', self.consts.BET_TABLE, index%self.consts.BET_MAX, JSON.stringify(item), function (err, result) {
+            logger.error('bet hset ', err, result);
         });
     });
 };
 
 GameService.prototype.getLatestBets = function (cb) {
     let self = this;
-    this.redisApi.cmd('keys', null, 'bet*',null, function (err, betIds) {
-        // logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@ DaoChat keys ', err, msgIds);
-        self.redisApi.cmd('mget', null, betIds[0], null, function (err, result) {
-            // logger.error('DaoChat gets ', err, result);
-            if(err){
-                self.utils.invokeCallback(cb, Code.DBFAIL);
-                return;
-            }
+    this.redisApi.cmd('hvals', this.consts.BET_TABLE, null, null, function (err, result) {
+        logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@ getLatestBets ', err, result);
+        if(err){
+            self.utils.invokeCallback(cb, Code.DBFAIL);
+            return;
+        }
 
-            let betItems = [];
-            for(let item of result[0]){
-                betItems.push(JSON.parse(item));
-            }
+        let betItems = [];
+        for(let item of result[0]){
+            betItems.push(JSON.parse(item));
+        }
 
-            betItems.sort(function (a,b) {
-                return b.betTime - a.betTime;
-            });
+        betItems.sort(function (a,b) {
+            return b.betTime - a.betTime;
+        });
 
-            self.utils.invokeCallback(cb, null, betItems);
-        })
+        self.utils.invokeCallback(cb, null, betItems);
     });
 };
 
@@ -304,7 +290,6 @@ GameService.prototype.addEntity = async function (e) {
 
         let self = this;
         this.getLatestBets(function (err, bets) {
-
             logger.error('~~~~~~~~~~~~~~~~~~~getLatestBets~~~~~~~~~~~~~~~~~~', bets)
             self.getLottery().initPublishLatestBets(bets, [{uid: e.id, sid: e.serverId}]);
         });

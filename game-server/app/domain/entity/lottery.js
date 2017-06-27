@@ -23,7 +23,6 @@ function Lottery(opts) {
     this.nextLottery = null; //下期彩票
     this.preLottery = null; //上期开奖
     this.identify = null; //彩票标志
-    this.lotteryMax = 20;
 }
 
 Lottery.prototype.init = function () {
@@ -43,15 +42,10 @@ Lottery.prototype.init = function () {
         logger.error('~~~~~~~~~~publishLottery~~~~~~~~~~~~~`', msg);
         self.publishLottery(msg);
     });
+};
 
-    this.daoLottery.getLotterys(0, this.lotteryMax, function (err, results) {
-        if (!err && results.length >= 1) {
-            results.forEach(function (item) {
-                logger.error('~~~~~~~~~~getLotterys~~~~~~~~~~~~~`', item);
-                self.updateLatestLottery(item.strip());
-            });
-        }
-    });
+Lottery.prototype.pubMsg = function (event, msg) {
+    this.redisApi.pub(event, JSON.stringify(msg));
 };
 
 // proof tick timer
@@ -104,45 +98,33 @@ Lottery.prototype.publishParseResult = function (parseResult) {
         Date.parse(this.lastLottery.opentime), JSON.stringify(parseResult),
         function (err, result) {
             if (!err && !!result) {
-                self.updateLatestLottery(result.strip());
-                self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [result], uids: null});
+                //self.updateLatestLottery(result);
+                self.pubMsg('updateLatestLottery', result.strip());
+                self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [result.strip()], uids: null});
             }
         });
-};
-
-Lottery.prototype.updateLatestLottery = function (item) {
-    // logger.error('~~~~~~~~~~updateLatestLottery~~~~~~~~~~~~~`', item);
-    let self = this;
-    this.redisApi.cmd('incr', null, 'caipiaoId', null, function (err, lotteryId) {
-        let index = lotteryId[0];
-        self.redisApi.cmd('set', 'lottery' + (index % self.lotteryMax), JSON.stringify(item), function (err, result) {
-            logger.error('lottery add ', err, result, lotteryId);
-        });
-    });
 };
 
 Lottery.prototype.getLatestLotterys = function (cb) {
     let self = this;
-    this.redisApi.cmd('keys', null, 'lottery*', null, function (err, lotteryIds) {
-        // logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@ DaoChat keys ', err, msgIds);
-        self.redisApi.cmd('mget', null, lotteryIds[0], null, function (err, result) {
-            // logger.error('DaoChat gets ', err, result);
-            if (err) {
-                self.utils.invokeCallback(cb, Code.DBFAIL);
-                return;
-            }
+    self.redisApi.cmd('hvals', this.consts.LOTTERY_TABLE, null, null, function (err, result) {
+        // logger.error('DaoChat gets ', err, result);
+        if (err) {
+            self.utils.invokeCallback(cb, Code.DBFAIL);
+            return;
+        }
 
-            let lotteryItems = [];
-            for (let item of result[0]) {
-                lotteryItems.push(JSON.parse(item));
-            }
+        let lotteryItems = [];
+        for (let item of result[0]) {
+            lotteryItems.push(JSON.parse(item));
+        }
 
-            lotteryItems.sort(function (a, b) {
-                return b.openTime - a.openTime;
-            });
-            self.utils.invokeCallback(cb, null, lotteryItems);
-        })
-    });
+        lotteryItems.sort(function (a, b) {
+            return b.openTime - a.openTime;
+        });
+
+        self.utils.invokeCallback(cb, null, lotteryItems);
+    })
 };
 
 //发布最近10期开奖分析结果
