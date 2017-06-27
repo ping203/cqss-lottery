@@ -33,7 +33,7 @@ GameService.prototype.init = function () {
     this.gameId = 1001;//pomelo.app.getCurServer().gameId+1000;
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
-    this.betMax = 10;
+    this.betMax = 20;
     this.generateGlobalLottery();
     this.daoUser.updateAllOfline();
     //初始化系統參數配置
@@ -119,7 +119,6 @@ GameService.prototype.run = function () {
 }
 
 GameService.prototype.tick = function () {
-   return;
     this.countdown();
     this.notice();
 };

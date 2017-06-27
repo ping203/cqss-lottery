@@ -23,7 +23,7 @@ function Lottery(opts) {
     this.nextLottery = null; //下期彩票
     this.preLottery = null; //上期开奖
     this.identify = null; //彩票标志
-    this.lotteryMax = 10;
+    this.lotteryMax = 20;
 }
 
 Lottery.prototype.init = function () {
