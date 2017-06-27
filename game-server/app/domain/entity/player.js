@@ -1,8 +1,9 @@
-var logger = require('pomelo-logger').getLogger('bearcat-lottery');
-var bearcat = require('bearcat');
-var util = require('util');
-var Code = require('../../../../shared/code');
-var Answer = require('../../../../shared/answer');
+const logger = require('pomelo-logger').getLogger('bearcat-lottery');
+const bearcat = require('bearcat');
+const util = require('util');
+const Code = require('../../../../shared/code');
+const Answer = require('../../../../shared/answer');
+const async = require('async');
 
 function Player(opts) {
     this.opts = opts;
@@ -299,7 +300,7 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         self.changeNotify();
 
         for (var type in betParseInfo.betTypeInfo) {
-            var freeBet = self.platformBet.addBet(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
+            self.platformBet.addBet(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
             self.addBetValue(betParseInfo.betTypeInfo[type].type.code, betParseInfo.betTypeInfo[type].money);
         }
         betItem.setRoleName(self.roleName);
@@ -327,20 +328,44 @@ Player.prototype.unBet = function (entityId, cb) {
         this.betStatistics.betCount -= betItem.getBetCount();
 
         var betTypeInfo = betItem.getBetTypeInfo();
-        for (var type in betTypeInfo) {
-            var freeValue = this.platformBet.reduceBet(betTypeInfo[type].type.code, betTypeInfo[type].money);
-            betItem.setFreeBetValue(betTypeInfo[type].type.code, freeValue);
 
-            var priFreeValue = this.reduceBetValue(betTypeInfo[type].type.code, betTypeInfo[type].money);
-            betItem.setPriFreeBetValue(betTypeInfo[type].type.code, priFreeValue);
+        let betTypeInfoArr = [];
+        for (let type in betTypeInfo) {
+            betTypeInfoArr.push(betTypeInfo[type]);
         }
 
-        betItem.save();
+        let self = this;
+        async.map(betTypeInfoArr, function (item, callback) {
+            self.platformBet.reduceBet(item.type.code, item.money, function (freeValue) {
+                logger.error('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^freeValue:', freeValue,callback );
+                betItem.setFreeBetValue(item.type.code, freeValue);
+                let priFreeValue = self.reduceBetValue(item.type.code, item.money);
+                betItem.setPriFreeBetValue(item.type.code, priFreeValue);
+                callback(null, item);
+            });
+        },function(err, result) {
 
-        this.utils.invokeCallback(cb, null, betItem);
-        this.save();
-        this.changeNotify();
-        this.emit(this.consts.Event.area.playerUnBet, {player: this, betItem: betItem});
+            logger.error('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^result', result);
+            logger.error('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^betItem', betItem);
+            betItem.save();
+            self.utils.invokeCallback(cb, null, betItem);
+            self.save();
+            self.changeNotify();
+            self.emit(self.consts.Event.area.playerUnBet, {player: self, betItem: betItem});
+        });
+        // for (var type in betTypeInfo) {
+        //     var freeValue = this.platformBet.reduceBet(betTypeInfo[type].type.code, betTypeInfo[type].money);
+        //     betItem.setFreeBetValue(betTypeInfo[type].type.code, freeValue);
+        //
+        //     var priFreeValue = this.reduceBetValue(betTypeInfo[type].type.code, betTypeInfo[type].money);
+        //     betItem.setPriFreeBetValue(betTypeInfo[type].type.code, priFreeValue);
+        // }
+
+        // betItem.save();
+        // this.utils.invokeCallback(cb, null, betItem);
+        // this.save();
+        // this.changeNotify();
+        // this.emit(this.consts.Event.area.playerUnBet, {player: this, betItem: betItem});
     }
     else {
         this.utils.invokeCallback(cb, Code.GAME.FA_ENTITY_NOT_EXIST, null);

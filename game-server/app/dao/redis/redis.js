@@ -7,6 +7,7 @@
  */
 const redis = require('redis');
 const logger = require('pomelo-logger').getLogger(__filename);
+const Code = require('../../../../shared/code');
 
 function RedisApi() {
     this._redis = null;
@@ -40,36 +41,45 @@ RedisApi.prototype.init = function(configs, db){
 };
 
 RedisApi.prototype.cmd = function(cmd, table, key, value, cb){
-    if(!cmd) {
-        this.utils.invokeCallback(cb);
-        return;
-    }
+    let promise = new Promise((resolve, reject)=>{
+        if(!cmd) {
+            this.utils.invokeCallback(cb, Code.PARAMERROR);
+            reject(Code.PARAMERROR);
+            return;
+        }
 
-    let cmdItem =[];
-    cmdItem.push(cmd);
+        let cmdItem =[];
+        cmdItem.push(cmd);
 
-    if(table){
-        cmdItem.push(table);
-    }
+        if(table){
+            cmdItem.push(table);
+        }
 
-    if(key){
-        cmdItem.push(key);
-    }
+        if(key){
+            cmdItem.push(key);
+        }
 
-    if(value){
-        cmdItem.push(value);
-    }
-   // cmds.push([cmd, genKey(this, key, value)]);
+        if(value){
+            cmdItem.push(value);
+        }
 
-   // logger.error('!!!!!!!!!!!!', cmdItem, ':::', this._redis);
+        let cmds = [];
+        cmds.push(cmdItem);
 
-    let cmds = [];
-    cmds.push(cmdItem);
-
-    let self = this;
-    this._redis.multi(cmds).exec(function(err, reply) {
-        self.utils.invokeCallback(cb, err, reply);
+        let self = this;
+        this._redis.multi(cmds).exec(function(err, reply) {
+            if(err){
+                reject(Code.DBFAIL);
+            }
+            else {
+                resolve(reply);
+            }
+            self.utils.invokeCallback(cb, err, reply);
+        });
     });
+
+    return promise;
+
 };
 
 RedisApi.prototype.pub = function(event, msg){

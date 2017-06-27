@@ -58,8 +58,10 @@ GameService.prototype.init = function () {
     let configs = pomelo.app.get('redis');
     this.redisApi.init(configs);
 
+    this.platformBet.init(this.redisApi);
+
     this.redisApi.sub('openLottery', function (msg) {
-        logger.error('~~~~~~~~~~openLottery~~~~~~~~~~~~~`', msg);
+   //     logger.error('~~~~~~~~~~openLottery~~~~~~~~~~~~~`', msg);
         if(self.openingPeriod === msg.period){
             logger.error('~~~~~~~~~~openLottery~开奖信息已经获取到啦~~~~~~~~~~~~`', self.openingPeriod);
             return;
@@ -69,7 +71,7 @@ GameService.prototype.init = function () {
     });
 
     this.redisApi.sub('restoreBetMoney', function (msg) {
-        logger.error('~~~~~~~~~~restoreBetMoney~~~~~~~~~~~~~`', msg);
+     //   logger.error('~~~~~~~~~~restoreBetMoney~~~~~~~~~~~~~`', msg);
         let player = self.getPlayer(msg.playerId);
         if(player){
             player.restoreBetWinMoney(msg.betWinMoney);
@@ -81,7 +83,7 @@ GameService.prototype.init = function () {
     });
 
     this.redisApi.sub('recharge', function (msg) {
-        logger.error('~~~~~~~~~~recharge~~~~~~~~~~~~~`', msg);
+     //   logger.error('~~~~~~~~~~recharge~~~~~~~~~~~~~`', msg);
         //在线用户及时到帐
         let player = self.getPlayer(msg.uid);
         if (!!player) {
@@ -92,7 +94,7 @@ GameService.prototype.init = function () {
 
 
     this.redisApi.sub('cashHandler', function (msg) {
-        logger.error('~~~~~~~~~~cashHandler~~~~~~~~~~~~~`', msg);
+      //  logger.error('~~~~~~~~~~cashHandler~~~~~~~~~~~~~`', msg);
         var player = self.getPlayer(msg.uid);
         if (!!player) {
             player.defineNotify(self.consts.MsgNotifyType.CASHOK, {money:msg.money});
@@ -101,7 +103,7 @@ GameService.prototype.init = function () {
 
     this.redisApi.sub('restoreRechargeMoney', function (msg) {
         //在线用户及时到帐
-        logger.error('~~~~~~~~~~restoreRechargeMoney~~~~~~~~~~~~~`', msg);
+      //  logger.error('~~~~~~~~~~restoreRechargeMoney~~~~~~~~~~~~~`', msg);
         var player = self.getPlayer(msg.uid);
         if (!!player) {
             player.restoreBetWinMoney(msg.money);
@@ -115,7 +117,7 @@ GameService.prototype.run = function () {
 }
 
 GameService.prototype.tick = function () {
-    return;
+   // return;
     this.countdown();
     this.notice();
 };

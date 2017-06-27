@@ -378,7 +378,7 @@ $(document).ready(function () {
 
                         rolename = playerInfo.roleName;
 
-                        setInterval(autoChat, 50);
+              //          setInterval(autoChat, 50);
 
                         setName();
                         setRoom();

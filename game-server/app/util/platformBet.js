@@ -2,52 +2,78 @@
  * Created by linyng on 2017/6/2.
  */
 
-var Answer = require('../../../shared/answer');
-var Code = require('../../../shared/code');
+const logger = require('pomelo-logger').getLogger(__filename);
+const Answer = require('../../../shared/answer');
+const Code = require('../../../shared/code');
+const async = require('async');
 
-var PlatformBet = function () {
+    let PlatformBet = function () {
     this.platformTypeBet = new Map();
+    this._redisApi = null;
+    this._table_name = 'platformBet';
 };
 
-PlatformBet.prototype.canBet = function (type, value) {
-    var num = this.platformTypeBet.get(type);
-    var newNum = (!!num ? num : 0) + value;
+PlatformBet.prototype.init = function (redis) {
+   this._redisApi = redis;
+};
 
-    var err = {};
-    var freeBetValue = 0;
-    if (this.betLimitCfg.platformLimit(type, newNum)) {
-        freeBetValue = this.betLimitCfg.getPlatformValue(type) - num;
-        err = Code.GAME.FA_BET_PLATFORM_LIMIT;
-    }
-    else {
-        freeBetValue = this.betLimitCfg.getPlatformValue(type) - newNum;
-        err = Code.OK;
-    }
-
-    return new Answer.DataResponse(err, {freeBetValue: freeBetValue});
+PlatformBet.prototype.canBet = function (type, value, cb) {
+    let self = this;
+    this._redisApi.cmd('hget', this._table_name, type, null, function (err, num) {
+        let newNum = (!!num ? Number(num) : 0) + value;
+        var err = {};
+        var freeBetValue = 0;
+        if (self.betLimitCfg.platformLimit(type, newNum)) {
+            freeBetValue = this.betLimitCfg.getPlatformValue(type) - num;
+            err = Code.GAME.FA_BET_PLATFORM_LIMIT;
+        }
+        else {
+            freeBetValue = self.betLimitCfg.getPlatformValue(type) - newNum;
+            err = Code.OK;
+        }
+        self.utils.invokeCallback(cb, new Answer.DataResponse(err, {freeBetValue: freeBetValue}));
+    });
 };
 
 PlatformBet.prototype.addBet = function (type, value) {
-    var num = this.platformTypeBet.get(type);
-    var newNum = (!!num ? num : 0) + value;
-    this.platformTypeBet.set(type, newNum);
-    var freeBetValue = this.betLimitCfg.getPlatformValue(type) - newNum;
-    return freeBetValue;
+    let self = this;
+    async.waterfall([
+        function (cb) {
+            self._redisApi.cmd('hget', self._table_name, type, null,cb);
+        },
+        function (num, cb) {
+            let newNum = (!!num ? Number(num) : 0) + value;
+            self._redisApi.cmd('hset', self._table_name, type, newNum === 0?'0':newNum, cb);
+        }
+    ],function (err) {
+        logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@addBet:', err);
+    });
 };
 
-PlatformBet.prototype.reduceBet = function (type, value) {
-    var num = this.platformTypeBet.get(type);
-    var newNum = (!!num ? num : 0) - value;
-    if (newNum < 0) {
-        logger.error('reducePlatfromBet < 0');
-        return;
-    }
-    this.platformTypeBet.set(type, newNum);
-    var freeBetValue = this.betLimitCfg.getPlatformValue(type) - newNum;
-    return freeBetValue;
+PlatformBet.prototype.reduceBet = function (type, value, cb) {
+    let self = this;
+    let newNum = 0;
+    async.waterfall([
+        function (callback) {
+            self._redisApi.cmd('hget', self._table_name, type, null,callback);
+        },
+        function (num, callback) {
+            newNum = (!!num ? Number(num) : 0) - value;
+            self._redisApi.cmd('hset', self._table_name, type, newNum === 0?'0':newNum, callback);
+        }
+    ],function (err) {
+        if(err){
+            logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@reduceBet:', err);
+        }
+        let freeBetValue = self.betLimitCfg.getPlatformValue(type) - newNum;
+        self.utils.invokeCallback(cb, freeBetValue);
+    });
 };
 
 PlatformBet.prototype.resetBet = function () {
+    this._redisApi.cmd('del', this._table_name, null, null, function (err, result) {
+        logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@@@ canBet:', err, result);
+    });
     this.platformTypeBet.clear();
 };
 
@@ -55,6 +81,7 @@ module.exports = {
     id:"platformBet",
     func:PlatformBet,
     props:[
-        {name:"betLimitCfg",ref:"betLimitCfg"}
+        {name:"betLimitCfg",ref:"betLimitCfg"},
+        {name:"utils",ref:"utils"}
     ]
 }

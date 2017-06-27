@@ -22,7 +22,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
         return;
     }
 
-    var self = this;
+    let self = this;
     async.waterfall([
         function (cb) {
             self.betParser.parse(msg.betData, function (err, result) {
@@ -33,35 +33,55 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
                 cb(null, result);
             });
         }, function (result, cb) {
-            var period = self.gameService.getLottery().getNextPeriod();
-            var identify = self.gameService.getLottery().getIdentify();
-            var player = self.gameService.getPlayer(session.uid);
-            var parseBetInfo = result;
+            let period = self.gameService.getLottery().getNextPeriod();
+            let identify = self.gameService.getLottery().getIdentify();
+            let player = self.gameService.getPlayer(session.uid);
+            let parseBetInfo = result;
 
-            for (var type in parseBetInfo.betTypeInfo) {
-                // 平台限额检查
-                var answer = self.platformBet.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money);
-                if (answer.result.code != Code.OK.code) {
-                    cb(answer);
-                    return;
-                }
-                parseBetInfo.betTypeInfo[type].freeBetValue = answer.data.freeBetValue;
-
-                //玩家限额检查
-                var pri = player.canBet(parseBetInfo.betTypeInfo[type].type.code, parseBetInfo.betTypeInfo[type].money)
-                if (pri.result.code != Code.OK.code) {
-                    cb(pri);
-                    return;
-                }
-                parseBetInfo.betTypeInfo[type].priFreeBetValue = pri.data.freeBetValue;
+            let betTypeInfoArr = [];
+            for (let type in parseBetInfo.betTypeInfo) {
+                betTypeInfoArr.push(parseBetInfo.betTypeInfo[type]);
             }
-            player.bet(period, identify, msg.betData, parseBetInfo, function (err, betItem) {
-                if (err) {
+
+            async.map(betTypeInfoArr, function (item, callback) {
+
+                //平台限额检查
+                self.platformBet.canBet(item.type.code, item.money, function (ret) {
+                    if(ret.result.code != Code.OK.code){
+                        callback(ret.result);
+                        return;
+                    }
+                    item.freeBetValue = ret.data.freeBetValue;
+
+                    //玩家限额检查
+                    let pri = player.canBet(item.type.code, item.money)
+                    if (pri.result.code != Code.OK.code) {
+                        callback(pri.result);
+                        return;
+                    }
+                    item.priFreeBetValue = pri.data.freeBetValue;
+                    callback(null, item);
+                });
+            },function(err, result) {
+                if(err){
                     cb(new Answer.NoDataResponse(err));
+                    logger.error('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^3333333', err);
                     return;
                 }
-                cb();
-                self.gameService.updateLatestBets(betItem);
+
+                for (let type in parseBetInfo.betTypeInfo) {
+                    logger.error('^^^^^^^^result:', parseBetInfo.betTypeInfo[type]);
+                }
+
+                player.bet(period, identify, msg.betData, parseBetInfo, function (err, betItem) {
+                    if (err) {
+                        cb(new Answer.NoDataResponse(err));
+                        return;
+                    }
+                    cb();
+                    self.gameService.updateLatestBets(betItem);
+                });
+
             });
         }
     ], function (err) {
