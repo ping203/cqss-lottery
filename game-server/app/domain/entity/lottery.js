@@ -100,6 +100,7 @@ Lottery.prototype.publishParseResult = function (parseResult) {
             if (!err && !!result) {
                 //self.updateLatestLottery(result);
                 self.pubMsg('updateLatestLottery', result.strip());
+                logger.error('@@@@@@@@@@@@@@@@@@@@@@@publishParseResult:', result.strip());
                 self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [result.strip()], uids: null});
             }
         });

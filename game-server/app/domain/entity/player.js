@@ -228,7 +228,7 @@ Player.prototype.getBaseInfo = function () {
         roleName: this.roleName,
         imageId: this.imageId,
         level: this.level,
-        accountAmount: this.accountAmount,
+        accountAmount: Number(this.accountAmount.toFixed(2)),
         winCount: this.betStatistics.winCount,
         betMoney:this.betStatistics.betMoney,
         winRate: winRate
