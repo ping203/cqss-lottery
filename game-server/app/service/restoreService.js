@@ -6,6 +6,7 @@ const logger = require('pomelo-logger').getLogger(__filename);
 const http = require('http');
 const async = require('async');
 const pomelo = require('pomelo');
+const schedule = require('node-schedule');
 
 function RestoreService() {
 
@@ -22,6 +23,12 @@ RestoreService.prototype.init = function () {
         logger.error('~~~~~~~~~~revertBet~~~~~~~~~~~~~`', msg);
         self.revert(period);
     });
+
+    schedule.scheduleJob('0 0 2 * * *', this.incomeScheduleTask.bind(this));
+};
+
+RestoreService.prototype.incomeScheduleTask = function () {
+    this.calcIncome.calc();
 };
 
 RestoreService.prototype.pubMsg = function (event, msg) {
@@ -138,7 +145,8 @@ module.exports = {
         {name: "daoUser", ref: "daoUser"},
         {name: "calcOpenLottery", ref: "calcOpenLottery"},
         {name: "eventManager", ref: "eventManager"},
-        {name:'redisApi', ref:'redisApi'}
+        {name:'redisApi', ref:'redisApi'},
+        {name: "calcIncome",ref: "calcIncome"}
     ]
 }
 

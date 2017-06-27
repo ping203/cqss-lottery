@@ -5,8 +5,6 @@ var pomelo = require('pomelo');
 var Answer = require('../../../shared/answer');
 var Code = require('../../../shared/code');
 var defaultConfigs = require('../../../shared/config/sysParamConfig.json');
-var schedule = require('node-schedule');
-
 
 var GameService = function () {
     this.id = 0;
@@ -45,7 +43,6 @@ GameService.prototype.init = function () {
             self.sysConfig.setConfigs(result);
             self.run();
             logger.info('平台参数配置成功');
-            schedule.scheduleJob('0 0 2 * * *', self.incomeScheduleTask.bind(self));
             return;
         }
         logger.error('平台参数配置获取失败，系统无法工作');
@@ -113,16 +110,12 @@ GameService.prototype.init = function () {
     });
 };
 
-// 玩家
-GameService.prototype.incomeScheduleTask = function () {
-    this.calcIncome.calc();
-};
-
 GameService.prototype.run = function () {
     setInterval(this.tick.bind(this), 100);
 }
 
 GameService.prototype.tick = function () {
+    return;
     this.countdown();
     this.notice();
 };
