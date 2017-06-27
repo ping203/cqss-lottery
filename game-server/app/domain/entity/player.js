@@ -353,19 +353,6 @@ Player.prototype.unBet = function (entityId, cb) {
             self.changeNotify();
             self.emit(self.consts.Event.area.playerUnBet, {player: self, betItem: betItem});
         });
-        // for (var type in betTypeInfo) {
-        //     var freeValue = this.platformBet.reduceBet(betTypeInfo[type].type.code, betTypeInfo[type].money);
-        //     betItem.setFreeBetValue(betTypeInfo[type].type.code, freeValue);
-        //
-        //     var priFreeValue = this.reduceBetValue(betTypeInfo[type].type.code, betTypeInfo[type].money);
-        //     betItem.setPriFreeBetValue(betTypeInfo[type].type.code, priFreeValue);
-        // }
-
-        // betItem.save();
-        // this.utils.invokeCallback(cb, null, betItem);
-        // this.save();
-        // this.changeNotify();
-        // this.emit(this.consts.Event.area.playerUnBet, {player: this, betItem: betItem});
     }
     else {
         this.utils.invokeCallback(cb, Code.GAME.FA_ENTITY_NOT_EXIST, null);

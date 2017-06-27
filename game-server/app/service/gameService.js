@@ -256,14 +256,15 @@ GameService.prototype.addEntity = async function (e) {
             delete this.trusteePlayers[e.id];
         }
 
-        let period = this.getLottery().getNextPeriod();
-        let revertBets = await this.daoBets.getPlayerRevertBets(e.id, period);
-        if(revertBets){
-            revertBets.forEach(function (item) {
-                logger.error('~~~~~~~~~~~~~~~~~~~~~period:',item.period, ':',item.betInfo);
-                e.restoreBet(item);
-            });
-        }
+        // todo 暫時不處理
+        // let period = this.getLottery().getNextPeriod();
+        // let revertBets = await this.daoBets.getPlayerRevertBets(e.id, period);
+        // if(revertBets){
+        //     revertBets.forEach(function (item) {
+        //         logger.error('~~~~~~~~~~~~~~~~~~~~~period:',item.period, ':',item.betInfo);
+        //         e.restoreBet(item);
+        //     });
+        // }
 
 
         this.getLottery().publishCurLottery([{uid: e.id, sid: e.serverId}]);
