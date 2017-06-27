@@ -2,6 +2,8 @@
  * Created by linyng on 2017/6/24.
  */
 
+
+
 function test() {
     let list = [1,2,3,4,5,6];
     let skip = 6;

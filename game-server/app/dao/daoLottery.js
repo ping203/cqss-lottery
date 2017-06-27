@@ -18,14 +18,15 @@ DaoLottery.prototype.addLottery = function (identify, period, numbers, openTime,
         if(err !== null){
             self.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
         } else {
-            self.utils.invokeCallback(cb, null, {
+            var item = bearcat.getBean("lotteryItem", {
                 id: res.insertId,
                 period:period,
                 identify:identify,
-                numbers:numbers,
+                numbers: numbers,
                 openTime:openTime,
                 parseResult:parseResult
             });
+            self.utils.invokeCallback(cb, null, item);
         }
     });
 };
@@ -56,7 +57,20 @@ DaoLottery.prototype.getLotterys = function (skip, limit, cb) {
             self.utils.invokeCallback(cb, err.message, null);
         } else {
             if (!!res && res.length >= 1) {
-                self.utils.invokeCallback(cb, null, res);
+
+                var items = [];
+                for (var i = 0; i < res.length; ++i) {
+                    var item = bearcat.getBean("lotteryItem", {
+                        id: res[i].id,
+                        period:res[i].period,
+                        identify:res[i].identify,
+                        numbers: res[i].numbers,
+                        openTime:res[i].openTime,
+                        parseResult: JSON.parse(res[i].parseResult)
+                    });
+                    items.push(item);
+                }
+                self.utils.invokeCallback(cb, null, items);
             } else {
                 self.utils.invokeCallback(cb, ' user not exist ', null);
             }

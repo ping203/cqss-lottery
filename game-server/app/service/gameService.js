@@ -18,7 +18,6 @@ var GameService = function () {
     this.consts = null;
     this.globalEntityId = 0;
     this.platformTypeBet = new Map();
-    this.latestBets = [];
     this.winners = [];
     this.intervalId = 0;
     this.gameId = -1;
@@ -34,6 +33,7 @@ GameService.prototype.init = function () {
     this.gameId = 1001;//pomelo.app.getCurServer().gameId+1000;
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
+    this.betMax = 10;
     this.generateGlobalLottery();
     this.daoUser.updateAllOfline();
     //初始化系統參數配置
@@ -48,11 +48,13 @@ GameService.prototype.init = function () {
         logger.error('平台参数配置获取失败，系统无法工作');
     });
 
-    this.daoBets.getLatestBets(0,10, function (err, results) {
+    this.daoBets.getLatestBets(0,self.betMax, function (err, results) {
         if(err){
             return;
         }
-        self.latestBets = results;
+        results.forEach(function (item) {
+            self.updateLatestBets(item.strip());
+        });
     });
 
     let configs = pomelo.app.get('redis');
@@ -117,15 +119,46 @@ GameService.prototype.run = function () {
 }
 
 GameService.prototype.tick = function () {
-   // return;
+   return;
     this.countdown();
     this.notice();
 };
 
 GameService.prototype.updateLatestBets = function (item) {
-    if(this.latestBets.unshift(item) > 20){
-        this.latestBets.pop();
-    }
+    let self = this;
+    this.redisApi.cmd('incr', null, 'touzhuId', null, function (err, betId) {
+        let index = betId[0];
+
+        // logger.error('~~~~~~~~~~~~~~~~updateLatestBets~~~~~~~~~~~~~~~~~~~~~~~~', JSON.stringify(item));
+        self.redisApi.cmd('set', 'bet' + (index%self.betMax), JSON.stringify(item), function (err, result) {
+            logger.error('bet add ', err, result, betId);
+        });
+    });
+};
+
+GameService.prototype.getLatestBets = function (cb) {
+    let self = this;
+    this.redisApi.cmd('keys', null, 'bet*',null, function (err, betIds) {
+        // logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@ DaoChat keys ', err, msgIds);
+        self.redisApi.cmd('mget', null, betIds[0], null, function (err, result) {
+            // logger.error('DaoChat gets ', err, result);
+            if(err){
+                self.utils.invokeCallback(cb, Code.DBFAIL);
+                return;
+            }
+
+            let betItems = [];
+            for(let item of result[0]){
+                betItems.push(JSON.parse(item));
+            }
+
+            betItems.sort(function (a,b) {
+                return b.betTime - a.betTime;
+            });
+
+            self.utils.invokeCallback(cb, null, betItems);
+        })
+    });
 };
 
 GameService.prototype.winnerNotice = function () {
@@ -269,7 +302,14 @@ GameService.prototype.addEntity = async function (e) {
 
         this.getLottery().publishCurLottery([{uid: e.id, sid: e.serverId}]);
         this.getLottery().initPublishParseResult([{uid: e.id, sid: e.serverId}]);
-        this.getLottery().initPublishLatestBets(this.latestBets,[{uid: e.id, sid: e.serverId}]);
+
+        let self = this;
+        this.getLatestBets(function (err, bets) {
+
+            logger.error('~~~~~~~~~~~~~~~~~~~getLatestBets~~~~~~~~~~~~~~~~~~', bets)
+            self.getLottery().initPublishLatestBets(bets, [{uid: e.id, sid: e.serverId}]);
+        });
+
     }
     return true;
 };
@@ -448,5 +488,8 @@ module.exports = {
     }, {
         name:'redisApi',
         ref:'redisApi'
+    }, {
+        name:'utils',
+        ref:'utils'
     }]
 }

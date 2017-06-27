@@ -69,7 +69,7 @@ LotteryEvent.prototype.addEventForNPC = function (lottery){
     lottery.on(this.consts.Event.area.playerBets, function(args) {
         var betItems = [];
         for(var i = 0; i<args.betItems.length;i++){
-            betItems.push(args.betItems[i].strip());
+            betItems.push(args.betItems[i]);
         }
         if (args.lottery) {
             if(args.uids){

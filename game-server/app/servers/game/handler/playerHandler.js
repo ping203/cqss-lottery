@@ -273,23 +273,6 @@ PlayerHandler.prototype.getRecords = function (msg, session, next) {
     });
 };
 
-PlayerHandler.prototype.getLotterys = function (msg, session, next) {
-    var lottery = this.gameService.getLottery();
-    let skip = Number(msg.skip);
-    let limit = Number(msg.limit);
-    if(isNaN(skip) || isNaN(limit)){
-        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
-        return;
-    }
-    lottery.getLotterys(skip, limit, function (err, result) {
-        if (!!err) {
-            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_LOTTERY_INFO_ERROR));
-        } else {
-            next(null, new Answer.DataResponse(Code.OK, result));
-        }
-    });
-};
-
 PlayerHandler.prototype.getPlayerBaseInfo = function (msg, session, next) {
     if (!msg.uid) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));
