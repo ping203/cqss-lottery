@@ -82,7 +82,7 @@ IncomeCfg.prototype.getBetRate = function (type) {
 // 获取玩家反水倍率
 IncomeCfg.prototype.getDefectionRate = function (level) {
     var val = this.defectionRate.get(level);
-    if(!val) val = 10.0;
+    if(!val) val = 1.0;
     return val;
 };
 
