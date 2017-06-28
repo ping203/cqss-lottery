@@ -114,6 +114,8 @@ GameService.prototype.init = function () {
     });
 };
 
+
+
 GameService.prototype.run = function () {
     setInterval(this.tick.bind(this), 100);
 }
