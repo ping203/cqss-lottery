@@ -31,6 +31,9 @@ var GameService = function () {
  */
 GameService.prototype.init = function () {
     this.gameId = 1001;//pomelo.app.getCurServer().gameId+1000;
+
+    logger.error('!!!!!!!!!!!!init!!!!!!!!!!!!!!',pomelo.app.getCurServer().gameId);
+
     var opts = this.dataApiUtil.area().findById(1);
     this.id = opts.id;
     this.generateGlobalLottery();
@@ -41,6 +44,8 @@ GameService.prototype.init = function () {
         if(!err && !!result){
             self.sysConfig.setConfigs(result);
             self.run();
+
+            logger.error('!!!!!!!!!!!!initPlatformParam!!!!!!!!!!!!!!',pomelo.app.getCurServer().gameId);
             logger.info('平台参数配置成功');
             return;
         }
@@ -109,7 +114,6 @@ GameService.prototype.run = function () {
 }
 
 GameService.prototype.tick = function () {
-     // return;
     this.countdown();
     this.notice();
 };

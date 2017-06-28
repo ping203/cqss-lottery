@@ -2,6 +2,7 @@ const bearcat = require('bearcat');
 const util = require('util');
 const pomelo = require('pomelo');
 const logger = require('pomelo-logger').getLogger(__filename);
+const async = require('async');
 
 /**
  * Initialize a new 'Treasure' with the given 'opts'.
@@ -74,8 +75,7 @@ Lottery.prototype.publishLottery = function (result) {
     this.emit(this.consts.Event.area.lottery, {
         lottery: this,
         lotteryResult: this.lastLottery,
-        preLottery: this.preLottery,
-        uids: null
+        preLottery: this.preLottery
     });
 };
 
@@ -93,17 +93,37 @@ Lottery.prototype.publishCurLottery = function (uids) {
 
 //发布开奖分析结果
 Lottery.prototype.publishParseResult = function (parseResult) {
-    var self = this;
-    this.daoLottery.addLottery(this.identify, this.lastLottery.period, this.lastLottery.numbers,
-        Date.parse(this.lastLottery.opentime), JSON.stringify(parseResult),
-        function (err, result) {
-            if (!err && !!result) {
-                //self.updateLatestLottery(result);
-                self.pubMsg('updateLatestLottery', result.strip());
-                logger.error('@@@@@@@@@@@@@@@@@@@@@@@publishParseResult:', result.strip());
-                self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [result.strip()], uids: null});
+    let self = this, _lotteryItem;
+    async.waterfall([
+        function (cb) {
+            self.daoLottery.getLottery(self.lastLottery.period, cb);
+        },
+        function (lotteryItem, cb) {
+            if(lotteryItem){
+                _lotteryItem = lotteryItem;
+                cb();
             }
-        });
+            else {
+                self.daoLottery.addLottery(self.identify, self.lastLottery.period, self.lastLottery.numbers,
+                    Date.parse(self.lastLottery.opentime), JSON.stringify(parseResult),
+                    function (err, result) {
+                        if (!err && !!result) {
+                            _lotteryItem = result;
+                            cb();
+                        }
+                        else {
+                            cb(err);
+                        }
+                    });
+            }
+        }
+    ],function (err) {
+        if(!err){
+            self.pubMsg('updateLatestLottery', _lotteryItem.strip());
+            logger.error('@@@@@@@@@@@@@@@@@@@@@@@publishParseResult:', _lotteryItem.strip());
+            self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [_lotteryItem.strip()]});
+        }
+    });
 };
 
 Lottery.prototype.getLatestLotterys = function (cb) {
