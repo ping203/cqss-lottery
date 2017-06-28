@@ -163,12 +163,10 @@ Player.prototype.updateBankBindState = function (address, username, cardNO, alip
 
     if(!!alipay && this.ext.alipay === 0){
         this.ext.alipay = 1;
-
     }
 
     if(!!wechat && this.ext.wechat === 0){
         this.ext.wechat = 1;
-
     }
 
     if(!!pinCode && this.ext.pinCode === 0){
@@ -178,86 +176,89 @@ Player.prototype.updateBankBindState = function (address, username, cardNO, alip
 
 Player.prototype.updateBankInfo = function (address, username, cardNO, alipay, wechat, pinCode, cb) {
     let self = this;
-    let ok = true;
-    if(!!address && !!username && !!cardNO){
-        if(this.ext.card === 0){
-            self.daoBank.setBankCard(this.id, address, username, cardNO, function (err, result) {
-               if(result){
-                   self.ext.card = 1;
-                   self.bank.cardNO = cardNO;
-                   self.bank.address = address;
-                   self.bank.username = username;
-               }
-               else {
-                   ok = false;
-                   cb(Code.DBFAIL);
-               }
-            });
-        }
-        else {
-            ok = false;
-            cb(Code.GAME.FA_CANNOT_REBIND_CARD);
-        }
-    }
-
-    if(!ok) return;
-
-    if(!!alipay){
-        if(this.ext.alipay === 0){
-            self.daoBank.setAlipay(this.id, alipay, function (err, result) {
-                if(result){
-                    self.ext.alipay = 1;
-                    self.bank.alipay = alipay;
+    async.waterfall([
+        function (callback) {
+            if(!!address && !!username && !!cardNO){
+                if(self.ext.card === 0){
+                    self.daoBank.setBankCard(self.id, address, username, cardNO, function (err, result) {
+                        if(result){
+                            self.ext.card = 1;
+                            self.bank.cardNO = cardNO;
+                            self.bank.address = address;
+                            self.bank.username = username;
+                            callback();
+                        }
+                        else {
+                            callback(Code.DBFAIL);
+                        }
+                    });
                 }
                 else {
-                    cb(Code.DBFAIL);
-                    ok = false;
+                    callback(Code.GAME.FA_CANNOT_REBIND_CARD);
                 }
-            });
-        }
-        else {
-            cb(Code.GAME.FA_CANNOT_REBIND_ALIPAY);
-            ok = false;
-        }
-    }
-
-    if(!ok) return;
-
-    if(!!wechat){
-        if(this.ext.wechat === 0){
-            self.daoBank.setWechat(this.id, wechat, function (err, result) {
-                if(result){
-                    self.bank.wechat = wechat;
-                    self.ext.wechat = 1;
+            }else {
+                callback();
+            }
+        },
+        function (callback) {
+            if(!!alipay){
+                if(self.ext.alipay === 0){
+                    self.daoBank.setAlipay(self.id, alipay, function (err, result) {
+                        if(result){
+                            self.ext.alipay = 1;
+                            self.bank.alipay = alipay;
+                            callback();
+                        }
+                        else {
+                            callback(Code.DBFAIL);
+                        }
+                    });
                 }
                 else {
-                    cb(Code.DBFAIL);
-                    ok = false;
+                    callback(Code.GAME.FA_CANNOT_REBIND_ALIPAY);
                 }
-            });
+            }else {
+                callback();
+            }
+        },
+        function (callback) {
+            if(!!wechat){
+                if(self.ext.wechat === 0){
+                    self.daoBank.setWechat(self.id, wechat, function (err, result) {
+                        if(result){
+                            self.bank.wechat = wechat;
+                            self.ext.wechat = 1;
+                            callback();
+                        }
+                        else {
+                            callback(Code.DBFAIL);
+                        }
+                    });
+                }
+                else {
+                    callback(Code.GAME.FA_CANNOT_REBIND_WECHAT);
+                }
+            }else {
+                callback();
+            }
+        },
+        function (callback) {
+            if(!!pinCode){
+                if(self.ext.pinCode === 0){
+                    self.pinCode = self.utils.createSalt(pinCode);
+                    self.ext.pinCode = 1;
+                    callback();
+
+                }else {
+                    callback();(Code.GAME.FA_MODIFY_LIMIT);
+                }
+            }else {
+                callback();
+            }
         }
-        else {
-            cb(Code.GAME.FA_CANNOT_REBIND_WECHAT);
-            ok = false;
-        }
-    }
-
-    if(!ok) return;
-
-    if(!!pinCode){
-        if(this.ext.pinCode === 0){
-            this.pinCode = self.utils.createSalt(pinCode);
-            this.ext.pinCode = 1;
-
-        }else {
-            cb(Code.GAME.FA_MODIFY_LIMIT);
-            ok = false;
-        }
-    }
-
-    if(!ok) return;
-
-    cb();
+    ],function (err) {
+        cb(err);
+    });
 };
 
 Player.prototype.bindCard = function (address, username, cardNO, alipay, wechat, pinCode, cb) {
@@ -291,8 +292,6 @@ Player.prototype.bindCard = function (address, username, cardNO, alipay, wechat,
             self.save();
             self.changeNotify();
         }
-        logger.error('~~~~~~~~~~~~~~~~~~~~bindCard', err);
-
     });
 };
 

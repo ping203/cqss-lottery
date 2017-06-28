@@ -12,7 +12,7 @@ function LotteryService() {
     this.latestPeriod = null;
     this.latestOpenTime = 0;
     this.latestOpenOriTime = 0;
-    this.autoLearServerOpenTime = {minute:1,second:20};
+    this.autoLearServerOpenTime = {minute: 1, second: 20};
     this.latestOpenInfo = null;
     this.openResult = null;
 };
@@ -35,18 +35,18 @@ LotteryService.prototype.pubMsg = function (event, msg) {
 
 LotteryService.prototype.checkPeriod = function (period) {
 
-    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~period:', Number(period) ,':', Number(this.latestPeriod) + 1 )
-    return Number(period) === Number(this.latestPeriod) + 1 ? true:false;
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~period:', Number(period), ':', Number(this.latestPeriod) + 1)
+    return Number(period) === Number(this.latestPeriod) + 1 ? true : false;
 };
 
 LotteryService.prototype.manualOpenLottery = function (period, numbers) {
 
     logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~manualOpenLottery~~~~~~~1111~~~~~~`');
-    if(this.openResult){
+    if (this.openResult) {
         this.openResult.pre = this.openResult.last;
     }
     else {
-        this.openResult ={};
+        this.openResult = {};
     }
 
     this.openResult.last.period = period;
@@ -58,7 +58,10 @@ LotteryService.prototype.manualOpenLottery = function (period, numbers) {
     if (!this.latestPeriod || (!!this.latestPeriod && this.latestPeriod != this.openResult.last.period)) {
         logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~manualOpenLottery~~~~~~~2222~~~~~~`');
         this.pubMsg('publishLottery', this.openResult);
-        this.pubMsg('openLottery', {period:this.openResult.last.period, numbers:this.openResult.last.numbers.split(',')});
+        this.pubMsg('openLottery', {
+            period: this.openResult.last.period,
+            numbers: this.openResult.last.numbers.split(',')
+        });
         this.latestPeriod = this.openResult.last.period;
         this.latestOpenTime = this.openResult.next.opentime.getTime();
         this.latestOpenOriTime = this.openResult.next.oriTime.getTime();
@@ -74,9 +77,9 @@ LotteryService.prototype.tick = function () {
         if (err || !result) {
             logger.error('获取彩票信息失败', err);
             let now = Date.now();
-            if(self.openResult){
-                if((now - self.openResult.next.opentime.getTime()/1000/60) >3){
-                    self.pubMsg('revertBet', {period:result.next.period});
+            if (self.openResult) {
+                if ((now - self.openResult.next.opentime.getTime() / 1000 / 60) > 3) {
+                    self.pubMsg('revertBet', {period: result.next.period});
                 }
             }
             return;
@@ -84,14 +87,14 @@ LotteryService.prototype.tick = function () {
 
         if (!self.latestPeriod || (!!self.latestPeriod && self.latestPeriod != result.last.period)) {
             self.pubMsg('publishLottery', result);
-            self.pubMsg('openLottery', {period:result.last.period, numbers:result.last.numbers.split(',')});
+            self.pubMsg('openLottery', {period: result.last.period, numbers: result.last.numbers.split(',')});
             self.latestPeriod = result.last.period;
             self.latestOpenTime = result.next.opentime.getTime();
             self.latestOpenOriTime = result.next.oriTime.getTime();
             self.timeSync(result.tickTime);
         }
 
-        if(self.tickCount > 10){
+        if (self.tickCount > 10) {
             self.timeSync(result.tickTime);
         }
 
@@ -105,7 +108,7 @@ LotteryService.prototype.tick = function () {
 LotteryService.prototype.timeSync = function (tickTime) {
     var sysTickTime = new Date(tickTime);
     var tick = (this.latestOpenTime - sysTickTime) / 1000;
-    this.pubMsg('tickTimeSync', {tick:tick});
+    this.pubMsg('tickTimeSync', {tick: tick});
     this.tickCount = 0;
 
 };
@@ -132,7 +135,7 @@ LotteryService.prototype.getOfficialLotteryInfo = function (callback) {
             }
         ],
         function (err, results) {
-            if(!!err){
+            if (!!err) {
                 self.utils.invokeCallback(callback, err, null);
                 return;
             }
@@ -144,7 +147,7 @@ LotteryService.prototype.getOfficialLotteryInfo = function (callback) {
             lotteryInfo.tickTime = serverTime;
 
             var preInfos = results[1];
-            if(Number(preInfos[0].period) < Number(self.latestPeriod)){
+            if (Number(preInfos[0].period) < Number(self.latestPeriod)) {
                 return;
             }
 
@@ -162,13 +165,13 @@ LotteryService.prototype.getOfficialLotteryInfo = function (callback) {
                 numbers: preInfos[0].numbers
             };
 
-            if(self.latestPeriod != preInfos[0].period && self.latestOpenOriTime != 0){
+            if (self.latestPeriod != preInfos[0].period && self.latestOpenOriTime != 0) {
                 var open_time = new Date(serverTime);
-                var sub_sec = (open_time.getTime() - self.latestOpenOriTime)/1000;
-                if(sub_sec > 0){
-                    self.autoLearServerOpenTime.minute = Math.floor(sub_sec/60);
-                    self.autoLearServerOpenTime.second = (sub_sec%60 -3);
-                    logger.info('---------------------------------------- auto learn open time:',self.autoLearServerOpenTime.minute+':'+self.autoLearServerOpenTime.second);
+                var sub_sec = (open_time.getTime() - self.latestOpenOriTime) / 1000;
+                if (sub_sec > 0) {
+                    self.autoLearServerOpenTime.minute = Math.floor(sub_sec / 60);
+                    self.autoLearServerOpenTime.second = (sub_sec % 60 - 3);
+                    logger.info('---------------------------------------- auto learn open time:', self.autoLearServerOpenTime.minute + ':' + self.autoLearServerOpenTime.second);
                 }
             }
 
@@ -189,7 +192,7 @@ module.exports = {
         {name: "consts", ref: "consts"},
         {name: "utils", ref: "utils"},
         {name: "cqss", ref: "cqss"},
-        {name:'redisApi', ref:'redisApi'}
+        {name: 'redisApi', ref: 'redisApi'}
     ]
 }
 
