@@ -2,7 +2,12 @@ var Consts = function () {
 
     this.DES_SEPARATOR = '/';
     this.BET_SEPARATOR = '/';
-
+    this.BET_TABLE = 'BET';
+    this.BET_ID = 'BetId';
+    this.BET_MAX = 20;
+    this.LOTTERY_TABLE = 'LOTTERY';
+    this.LOTTERY_ID = 'LotteryId';
+    this.LOTTERY_MAX = 20;
     this.MsgNotifyType = {
         RECHARGE:1, //充值成功msg{money:100}
         CASHOK:2, //提现到账msg{money:150}

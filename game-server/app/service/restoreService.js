@@ -9,7 +9,7 @@ const pomelo = require('pomelo');
 const schedule = require('node-schedule');
 
 function RestoreService() {
-
+    this.updatePeriod = null;
 };
 
 RestoreService.prototype.init = function () {
@@ -24,7 +24,53 @@ RestoreService.prototype.init = function () {
         self.revert(period);
     });
 
+    this.redisApi.sub('updateLatestLottery', function (msg) {
+        logger.error('~~~~~~~~~~updateLatestLottery~~~~1111111~~~~~~~~~`', msg);
+        if(self.updatePeriod === msg.period){
+            return;
+        }
+        self.updatePeriod = msg.period;
+       self.updateLatestLottery(msg);
+    });
+
     schedule.scheduleJob('0 0 2 * * *', this.incomeScheduleTask.bind(this));
+
+    this.daoBets.getLatestBets(0, this.consts.BET_MAX, function (err, results) {
+        if(err){
+            return;
+        }
+        results.forEach(function (item) {
+            self.redisApi.cmd('incr', null, self.consts.BET_ID, null, function (err, betId) {
+                let index = betId[0]%self.consts.BET_MAX;
+                //logger.error('~~~~~~@@@@@@@@@@@@@@@@@@~~~~getLatestBets~~~~~~~~~~~~~index:`', index,'item:',JSON.stringify(item.strip()));
+
+                self.redisApi.cmd('hset', self.consts.BET_TABLE, index ===0?'0':index, JSON.stringify(item.strip()), function (err, result) {
+                    logger.error('bet hset ', err, result);
+                });
+            });
+        });
+    });
+
+    this.daoLottery.getLotterys(0, this.consts.LOTTERY_MAX, function (err, results) {
+        if (!err && results.length >= 1) {
+            results.forEach(function (item) {
+                self.updateLatestLottery(item.strip());
+            });
+        }
+    });
+};
+
+RestoreService.prototype.updateLatestLottery = function (item) {
+     //logger.error('~~~~~~@@@@@@@@@@@@@@@@@@~~~~updateLatestLottery~~~~~~~~~~~~~`', item);
+    let self = this;
+    this.redisApi.cmd('incr', null, this.consts.LOTTERY_ID, null, function (err, lotteryId) {
+        let index = lotteryId[0] % self.consts.LOTTERY_MAX;
+
+     //   logger.error('~~~~~~@@@@@@@@@@@@@@@@@@~~~~updateLatestLottery~~~~~~~~~~~~~`', self.consts.LOTTERY_TABLE, 'index:',index,'item:',JSON.stringify(item.strip()));
+        self.redisApi.cmd('hset', self.consts.LOTTERY_TABLE, index === 0 ? '0' : index,  JSON.stringify(item), function (err, result) {
+            logger.error('lottery hset ', err, result);
+        });
+    });
 };
 
 RestoreService.prototype.incomeScheduleTask = function () {
@@ -142,6 +188,7 @@ module.exports = {
         {name: "utils", ref: "utils"},
         {name: "cqss", ref: "cqss"},
         {name: "daoBets", ref: "daoBets"},
+        {name: "daoLottery", ref: "daoLottery"},
         {name: "daoUser", ref: "daoUser"},
         {name: "calcOpenLottery", ref: "calcOpenLottery"},
         {name: "eventManager", ref: "eventManager"},

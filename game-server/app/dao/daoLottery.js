@@ -40,9 +40,17 @@ DaoLottery.prototype.getLottery = function (period, cb) {
             self.utils.invokeCallback(cb, err.message, null);
         } else {
             if (!!res && res.length === 1) {
-                self.utils.invokeCallback(cb, null, res[0]);
+                var item = bearcat.getBean("lotteryItem", {
+                    id: res[0].id,
+                    period:res[0].period,
+                    identify:res[0].identify,
+                    numbers: res[0].numbers,
+                    openTime:res[0].openTime,
+                    parseResult: JSON.parse(res[0].parseResult)
+                });
+                self.utils.invokeCallback(cb, null, item);
             } else {
-                self.utils.invokeCallback(cb, ' user not exist ', null);
+                self.utils.invokeCallback(cb, null, null);
             }
         }
     });

@@ -2,6 +2,7 @@ const bearcat = require('bearcat');
 const util = require('util');
 const pomelo = require('pomelo');
 const logger = require('pomelo-logger').getLogger(__filename);
+const async = require('async');
 
 /**
  * Initialize a new 'Treasure' with the given 'opts'.
@@ -23,7 +24,6 @@ function Lottery(opts) {
     this.nextLottery = null; //下期彩票
     this.preLottery = null; //上期开奖
     this.identify = null; //彩票标志
-    this.lotteryMax = 20;
 }
 
 Lottery.prototype.init = function () {
@@ -43,15 +43,10 @@ Lottery.prototype.init = function () {
         logger.error('~~~~~~~~~~publishLottery~~~~~~~~~~~~~`', msg);
         self.publishLottery(msg);
     });
+};
 
-    this.daoLottery.getLotterys(0, this.lotteryMax, function (err, results) {
-        if (!err && results.length >= 1) {
-            results.forEach(function (item) {
-                logger.error('~~~~~~~~~~getLotterys~~~~~~~~~~~~~`', item);
-                self.updateLatestLottery(item.strip());
-            });
-        }
-    });
+Lottery.prototype.pubMsg = function (event, msg) {
+    this.redisApi.pub(event, JSON.stringify(msg));
 };
 
 // proof tick timer
@@ -80,8 +75,7 @@ Lottery.prototype.publishLottery = function (result) {
     this.emit(this.consts.Event.area.lottery, {
         lottery: this,
         lotteryResult: this.lastLottery,
-        preLottery: this.preLottery,
-        uids: null
+        preLottery: this.preLottery
     });
 };
 
@@ -99,50 +93,59 @@ Lottery.prototype.publishCurLottery = function (uids) {
 
 //发布开奖分析结果
 Lottery.prototype.publishParseResult = function (parseResult) {
-    var self = this;
-    this.daoLottery.addLottery(this.identify, this.lastLottery.period, this.lastLottery.numbers,
-        Date.parse(this.lastLottery.opentime), JSON.stringify(parseResult),
-        function (err, result) {
-            if (!err && !!result) {
-                self.updateLatestLottery(result.strip());
-                self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [result], uids: null});
+    let self = this, _lotteryItem;
+    async.waterfall([
+        function (cb) {
+            self.daoLottery.getLottery(self.lastLottery.period, cb);
+        },
+        function (lotteryItem, cb) {
+            if(lotteryItem){
+                _lotteryItem = lotteryItem;
+                cb();
             }
-        });
-};
-
-Lottery.prototype.updateLatestLottery = function (item) {
-    // logger.error('~~~~~~~~~~updateLatestLottery~~~~~~~~~~~~~`', item);
-    let self = this;
-    this.redisApi.cmd('incr', null, 'caipiaoId', null, function (err, lotteryId) {
-        let index = lotteryId[0];
-        self.redisApi.cmd('set', 'lottery' + (index % self.lotteryMax), JSON.stringify(item), function (err, result) {
-            logger.error('lottery add ', err, result, lotteryId);
-        });
+            else {
+                self.daoLottery.addLottery(self.identify, self.lastLottery.period, self.lastLottery.numbers,
+                    Date.parse(self.lastLottery.opentime), JSON.stringify(parseResult),
+                    function (err, result) {
+                        if (!err && !!result) {
+                            _lotteryItem = result;
+                            cb();
+                        }
+                        else {
+                            cb(err);
+                        }
+                    });
+            }
+        }
+    ],function (err) {
+        if(!err){
+            self.pubMsg('updateLatestLottery', _lotteryItem.strip());
+            logger.error('@@@@@@@@@@@@@@@@@@@@@@@publishParseResult:', _lotteryItem.strip());
+            self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [_lotteryItem.strip()]});
+        }
     });
 };
 
 Lottery.prototype.getLatestLotterys = function (cb) {
     let self = this;
-    this.redisApi.cmd('keys', null, 'lottery*', null, function (err, lotteryIds) {
-        // logger.error('@@@@@@@@@@@@@@@@@@@@@@@@@ DaoChat keys ', err, msgIds);
-        self.redisApi.cmd('mget', null, lotteryIds[0], null, function (err, result) {
-            // logger.error('DaoChat gets ', err, result);
-            if (err) {
-                self.utils.invokeCallback(cb, Code.DBFAIL);
-                return;
-            }
+    self.redisApi.cmd('hvals', this.consts.LOTTERY_TABLE, null, null, function (err, result) {
+        // logger.error('DaoChat gets ', err, result);
+        if (err) {
+            self.utils.invokeCallback(cb, Code.DBFAIL);
+            return;
+        }
 
-            let lotteryItems = [];
-            for (let item of result[0]) {
-                lotteryItems.push(JSON.parse(item));
-            }
+        let lotteryItems = [];
+        for (let item of result[0]) {
+            lotteryItems.push(JSON.parse(item));
+        }
 
-            lotteryItems.sort(function (a, b) {
-                return b.openTime - a.openTime;
-            });
-            self.utils.invokeCallback(cb, null, lotteryItems);
-        })
-    });
+        lotteryItems.sort(function (a, b) {
+            return b.openTime - a.openTime;
+        });
+
+        self.utils.invokeCallback(cb, null, lotteryItems);
+    })
 };
 
 //发布最近10期开奖分析结果

@@ -79,7 +79,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
                         return;
                     }
                     cb();
-                    self.gameService.updateLatestBets(betItem);
+                    self.gameService.updateLatestBets(betItem.strip());
                 });
 
             });
