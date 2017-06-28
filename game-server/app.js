@@ -5,6 +5,7 @@ const sync = require('pomelo-sync-plugin');
 const RouteUtil = require('./app/util/routeUtil');
 const globalChannel = require('pomelo-globalchannel-plugin');
 const status = require('pomelo-status-plugin');
+const scale = require('pomelo-scale-plugin');
 const logger = require('pomelo-logger').getLogger(__filename);
 
 // Cannot enqueue Query after fatal error
@@ -75,6 +76,25 @@ const Configure = function () {
         app.route('area', RouteUtil.area);
         app.route('chat', RouteUtil.chat);
     });
+
+    // app.configure('production|development', 'master', function() {
+    //     app.use(scale, {
+    //         scale: {
+    //             cpu: {
+    //                 connector: 2,
+    //                 interval: 10 * 1000,
+    //                 increasement: 1
+    //             },
+    //             memory: {
+    //                 lottery: 1,
+    //                 interval: 15 * 1000,
+    //                 increasement: 1
+    //             },
+    //             backup: 'config/backupServers.json'
+    //         }
+    //     });
+    // });
+
 
     // configure for gate
     app.configure('production|development', 'gate', function () {

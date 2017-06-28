@@ -16,6 +16,7 @@
     "pomelo-collection": "^0.1.0",
     "pomelo-globalchannel-plugin": "0.0.7",
     "pomelo-logger": "^0.1.7",
+    "pomelo-scale-plugin": "0.0.1",
     "pomelo-status-plugin": "0.0.6",
     "pomelo-sync-plugin": "0.0.2",
     "urlencode": "^1.1.0"
