@@ -1,12 +1,9 @@
 /**
  * Created by linyng on 17-5-23.
  */
-var logger = require('pomelo-logger').getLogger('bearcat-lottery', 'IncomeCfg');
+var logger = require('pomelo-logger').getLogger(__filename);
 
 function IncomeCfg() {
-};
-
-IncomeCfg.prototype.init = function () {
     //投注赔率
     this.betRate = new Map();
     //玩家反水
@@ -67,6 +64,7 @@ IncomeCfg.prototype.update = function (configs) {
 
     for (var index = 0; index < configs.defectionRates.length; ++index){
         this.defectionRate.set(index+1,Number(configs.defectionRates[index]));
+        logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~level:',index+1,'rate:',Number(configs.defectionRates[index]));
     }
 };
 
@@ -81,7 +79,8 @@ IncomeCfg.prototype.getBetRate = function (type) {
 
 // 获取玩家反水倍率
 IncomeCfg.prototype.getDefectionRate = function (level) {
-    var val = this.defectionRate.get(level);
+    var val = this.defectionRate.get(Number(level));
+    logger.error('~~~~~~~~~~~~~getDefectionRate~~~~~~~~~~~~~~~~level:',level,'rate:',val);
     if(!val) val = 1.0;
     return val;
 };
@@ -90,7 +89,6 @@ IncomeCfg.prototype.getDefectionRate = function (level) {
 module.exports = {
     id:"incomeCfg",
     func:IncomeCfg,
-    init:"init",
     props:[
         {name:"betType", ref:"betType"}
     ]

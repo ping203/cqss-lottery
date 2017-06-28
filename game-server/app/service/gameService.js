@@ -44,8 +44,6 @@ GameService.prototype.init = function () {
         if(!err && !!result){
             self.sysConfig.setConfigs(result);
             self.run();
-
-            logger.error('!!!!!!!!!!!!initPlatformParam!!!!!!!!!!!!!!',pomelo.app.getCurServer().gameId);
             logger.info('平台参数配置成功');
             return;
         }
@@ -107,6 +105,11 @@ GameService.prototype.init = function () {
             player.restoreBetWinMoney(msg.money);
             player.defineNotify(self.consts.MsgNotifyType.CASHFAIL, {money:msg.money});
         }
+    });
+
+    this.redisApi.sub('setConfigs', function (msg) {
+        self.sysConfig.setConfigs(msg.configs);
+        logger.info('GameService平台参数配置更新');
     });
 };
 

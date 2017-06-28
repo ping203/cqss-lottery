@@ -7,6 +7,7 @@ const http = require('http');
 const async = require('async');
 const pomelo = require('pomelo');
 const schedule = require('node-schedule');
+const defaultConfigs = require('../../../shared/config/sysParamConfig.json');
 
 function RestoreService() {
     this.updatePeriod = null;
@@ -33,7 +34,12 @@ RestoreService.prototype.init = function () {
        self.updateLatestLottery(msg);
     });
 
-    schedule.scheduleJob('0 0 2 * * *', this.incomeScheduleTask.bind(this));
+    this.redisApi.sub('setConfigs', function (msg) {
+        self.sysConfig.setConfigs(msg.configs);
+        logger.info('RestoreService平台参数配置更新');
+    });
+
+    schedule.scheduleJob('0 * * * * *', this.incomeScheduleTask.bind(this));
 
     this.daoBets.getLatestBets(0, this.consts.BET_MAX, function (err, results) {
         if(err){
@@ -59,6 +65,15 @@ RestoreService.prototype.init = function () {
                 self.updateLatestLottery(item.strip());
             });
         }
+    });
+
+    this.daoConfig.initPlatformParam(defaultConfigs, function (err, result) {
+        if(!err && !!result){
+            self.sysConfig.setConfigs(result);
+            logger.info('RestoreService平台参数配置成功');
+            return;
+        }
+        logger.error('RestoreService平台参数配置获取失败');
     });
 };
 
@@ -192,6 +207,8 @@ module.exports = {
         {name: "utils", ref: "utils"},
         {name: "cqss", ref: "cqss"},
         {name: "daoBets", ref: "daoBets"},
+        {name: "sysConfig", ref: "sysConfig"},
+        {name: "daoConfig", ref: "daoConfig"},
         {name: "daoLottery", ref: "daoLottery"},
         {name: "daoUser", ref: "daoUser"},
         {name: "calcOpenLottery", ref: "calcOpenLottery"},

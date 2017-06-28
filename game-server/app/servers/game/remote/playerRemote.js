@@ -165,7 +165,8 @@ PlayerRemote.prototype.setConfig = function (configs, cb) {
             return;
         }
         self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.OK));
-        self.sysConfig.setConfigs(confs);
+        self.gameService.pubMsg('setConfigs', {configs:confs});
+        //self.sysConfig.setConfigs(confs);
     });
 };
 
