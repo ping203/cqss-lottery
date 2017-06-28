@@ -6,7 +6,7 @@ The chat server currently runs on nodejs v7.10.0, and should run fine on the lat
 - crc
 - koa2
 - cqss
-    
+ ssh root@116.31.99.217
 sudo apt install sysstat
 sudo apt install redis-server
 

@@ -109,7 +109,7 @@ BetItem.prototype.getBetExternalInfo = function () {
     }
 
     if(multiCount > 1){
-        betDescInfoFormat+="各1注";
+        betDescInfoFormat+= "各1注";
     }
     betTypeFormat = betTypeFormat.substring(0, betTypeFormat.lastIndexOf(`${this.consts.DES_SEPARATOR}`));
     priFreeInfo = priFreeInfo.substring(0, priFreeInfo.lastIndexOf(`${this.consts.DES_SEPARATOR}`));
