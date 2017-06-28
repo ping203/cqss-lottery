@@ -297,7 +297,13 @@ PlayerHandler.prototype.sendChatMsg = function (msg, session, next) {
 };
 
 PlayerHandler.prototype.getChatHistory = function (msg, session, next) {
-    logger.error()
+    // let skip = Number(msg.skip);
+    // let limit = Number(msg.limit);
+    // if(isNaN(skip) || isNaN(limit)){
+    //     next(null, new Answer.NoDataResponse(Code.PARAMERROR));
+    //     return;
+    // }
+
     this.app.rpc.chat.chatRemote.getChatHistory(session, session.get('roomId'), function (err, result) {
         if (err) {
             next(null, new Answer.NoDataResponse(err));

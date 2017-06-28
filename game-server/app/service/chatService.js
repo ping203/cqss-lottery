@@ -20,7 +20,7 @@ var ChatService = function () {
 ChatService.prototype.init = function () {
     this.loadForbidTalkUser();
     let configs = this.app.get('redis');
-    this.daoChat.init(1, 20, configs);
+    this.daoChat.init(1, 100, configs);
 };
 
 ChatService.prototype.loadForbidTalkUser = function () {
