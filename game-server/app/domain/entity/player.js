@@ -225,7 +225,7 @@ Player.prototype.updateBankInfo = function (address, username, cardNO, alipay, w
 
     if(!!wechat){
         if(this.ext.wechat === 0){
-            self.daoBank.setAlipay(this.id, wechat, function (err, result) {
+            self.daoBank.setWechat(this.id, wechat, function (err, result) {
                 if(result){
                     self.bank.wechat = wechat;
                     self.ext.wechat = 1;

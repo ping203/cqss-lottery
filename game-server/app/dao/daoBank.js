@@ -37,7 +37,7 @@ DaoBank.prototype.setBankCard = function (playerId, address, username, cardNO, c
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
             logger.error(err);
-            self.utils.invokeCallback(cb, err, false);
+            self.utils.invokeCallback(cb, err, null);
         } else {
             self.utils.invokeCallback(cb, null, true);
         }
@@ -51,7 +51,7 @@ DaoBank.prototype.setAlipay = function (playerId, alipay, cb) {
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
             logger.error(err);
-            self.utils.invokeCallback(cb, err, false);
+            self.utils.invokeCallback(cb, err, null);
         } else {
             self.utils.invokeCallback(cb, null, true);
         }
@@ -65,7 +65,7 @@ DaoBank.prototype.setWechat = function (playerId, wechat, cb) {
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {
         if (err !== null) {
             logger.error(err);
-            self.utils.invokeCallback(cb, err, false);
+            self.utils.invokeCallback(cb, err, null);
         } else {
             self.utils.invokeCallback(cb, null, true);
         }
