@@ -222,7 +222,7 @@ router.post('/register', function (ctx, next) {
                 resolve();
             }else {
 
-                daoUser.createUser(msg.username, createSalt(msg.username + msg.password), msg.phone, msg.inviter, from, _sysConfig.rank[0], _sysConfig.initial, 0, function (err, uid) {
+                daoUser.createUser(msg.username, createSalt(msg.username + msg.password), msg.phone, msg.inviter, from, _sysConfig.rank[0], _sysConfig.initial, 1, function (err, uid) {
                     if (err) {
                         console.error(err);
                         ctx.body = code.DBFAIL;

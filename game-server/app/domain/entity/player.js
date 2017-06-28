@@ -20,7 +20,7 @@ function Player(opts) {
     this.forbidTalk = opts.forbidTalk;
     this.role = opts.role;
     this.rank = opts.rank;
-    this.accountAmount = opts.accountAmount || 3000; //todo:test
+    this.accountAmount = opts.accountAmount;
     this.level = opts.level;
     this.experience = opts.experience;
     this.loginCount = opts.loginCount;
@@ -34,7 +34,10 @@ function Player(opts) {
         this.ext = {
             phone:0,
             email:0,
-            pinCode:0
+            pinCode:0,
+            alipay:0,
+            wechat:0,
+            card:0
         }
     }
 
@@ -149,25 +152,132 @@ Player.prototype.setPhone = function (phone) {
     this.changeNotify();
     return Code.OK;
 };
+// alipay:0,
+// wechat:0,
+// card:0
 
-Player.prototype.bindCard = function (address, username, cardNO, alipay, wechat, pinCode, cb) {
-    if(this.ext.pinCode === 1){
-        this.utils.invokeCallback(cb, Code.GAME.FA_CANNOT_REBIND_CARD, null);
-        return;
+Player.prototype.updateBankBindState = function (address, username, cardNO, alipay, wechat, pinCode) {
+    if(!!address && !!username && !!cardNO && this.ext.card === 0){
+        this.ext.card = 1;
     }
-    var self = this;
-    this.daoBank.bind(this.id, address, username, cardNO, alipay, wechat, function (err, result) {
-        if(!err && !!result){
-            self.pinCode = self.utils.createSalt(pinCode);
-            self.ext.pinCode = 1;
-            self.bank = result;
-            self.save();
-            self.changeNotify();
-            self.utils.invokeCallback(cb, null, result);
+
+    if(!!alipay && this.ext.alipay === 0){
+        this.ext.alipay = 1;
+
+    }
+
+    if(!!wechat && this.ext.wechat === 0){
+        this.ext.wechat = 1;
+
+    }
+
+    if(!!pinCode && this.ext.pinCode === 0){
+        this.ext.pinCode = 1;
+    }
+};
+
+Player.prototype.updateBankInfo = function (address, username, cardNO, alipay, wechat, pinCode, cb) {
+    let self = this;
+    if(!!address && !!username && !!cardNO){
+        if(this.ext.card === 0){
+            self.daoBank.setBankCard(this.id, address, username, cardNO, function (err, result) {
+               if(result){
+                   self.ext.card = 1;
+                   cb();
+               }
+               else {
+                   cb(Code.DBFAIL);
+               }
+            });
         }
         else {
-            self.utils.invokeCallback(cb, Code.DBFAIL, null);
+            cb(Code.GAME.FA_CANNOT_REBIND_CARD);
         }
+
+    }
+
+    if(!!alipay){
+        if(this.ext.alipay === 0){
+            self.daoBank.setAlipay(this.id, alipay, function (err, result) {
+                if(result){
+                    self.ext.alipay = 1;
+                    cb();
+                }
+                else {
+                    cb(Code.DBFAIL);
+                }
+            });
+        }
+        else {
+            cb(Code.GAME.FA_CANNOT_REBIND_ALIPAY);
+        }
+    }
+
+    if(!!wechat){
+        if(this.ext.wechat === 0){
+            self.daoBank.setAlipay(this.id, alipay, function (err, result) {
+                if(result){
+                    self.ext.wechat = 1;
+                    cb();
+                }
+                else {
+                    cb(Code.DBFAIL);
+                }
+            });
+        }
+        else {
+            cb(Code.GAME.FA_CANNOT_REBIND_WECHAT);
+        }
+
+
+    }
+
+    if(!!pinCode){
+        if(this.ext.pinCode === 0){
+            this.pinCode = self.utils.createSalt(pinCode);
+            this.ext.pinCode = 1;
+            cb();
+
+        }else {
+            cb(Code.GAME.FA_MODIFY_LIMIT);
+        }
+
+    }
+};
+
+Player.prototype.bindCard = function (address, username, cardNO, alipay, wechat, pinCode, cb) {
+    let self = this;
+    async.waterfall([
+        function (callback) {
+            self.daoBank.get(self.id, callback);
+        },
+        function (banks, callback) {
+            if(!banks){
+                self.daoBank.bind(self.id, address, username, cardNO, alipay, wechat,function (err, result) {
+                    if(!err && result){
+                        self.updateBankBindState(address, username, cardNO, alipay, wechat, pinCode);
+                        self.bank = result;
+                        callback();
+                    }
+                    else {
+                        callback(Code.DBFAIL);
+                    }
+                });
+            }
+            else {
+                self.updateBankInfo(address, username, cardNO, alipay, wechat, pinCode, callback);
+            }
+        }
+    ],function (err) {
+        if(err){
+            self.utils.invokeCallback(cb, err, null);
+        }else {
+            self.utils.invokeCallback(cb, null, null);
+            self.save();
+            self.changeNotify();
+        }
+        logger.error('~~~~~~~~~~~~~~~~~~~~bindCard', err);
+
     });
 };
 

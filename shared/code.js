@@ -63,6 +63,8 @@ module.exports = {
         FA_CAST_PINCODE_ERR: {code:5021, desc:"提款密码错误"},
         FA_BET_BALL_INVALID: {code:5022, desc:"投注球无效"},
         FA_BET_INFO_INVALID: {code:5023, desc:"投注信息无效"},
-        FA_PERIOD_INVALID: {code:5024, desc:"开奖期数无效"}
+        FA_PERIOD_INVALID: {code:5024, desc:"开奖期数无效"},
+        FA_CANNOT_REBIND_ALIPAY: {code:5025, desc:"不能重复绑定支付宝"},
+        FA_CANNOT_REBIND_WECHAT: {code:5026, desc:"不能重复绑定微信"}
     }
 };

@@ -9,7 +9,10 @@ const default_role = 0;
 const default_ext = {
     phone:0,
     email:0,
-    pinCode:0
+    pinCode:0,
+    alipay:0,
+    wechat:0,
+    card:0
 }
 
 /**

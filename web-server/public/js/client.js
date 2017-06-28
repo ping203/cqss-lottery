@@ -204,7 +204,10 @@ $(document).ready(function () {
 
     function setPinCode() {
         var pinCode = $('#roleName').val();
-        pomelo.request("game.playerHandler.setPinCode", {pinCode: pinCode}, function (res) {
+        //pomelo.request("game.playerHandler.bindBankCard", {address:'中国银行',username:'张三',cardNO:'6229423424242300088',alipay:'alipay@126.com'}, function (res) {
+        // pomelo.request("game.playerHandler.bindBankCard", {alipay:'alipay@126.com'}, function (res) {
+        // pomelo.request("game.playerHandler.bindBankCard", {wechat:'wechat@126.com'}, function (res) {
+        pomelo.request("game.playerHandler.bindBankCard", {pinCode:'wechat@126.com'}, function (res) {
             if (res.result.code != 200) {
                 alert('修改提取码失败' + res.result.desc);
                 return;

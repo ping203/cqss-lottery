@@ -195,21 +195,16 @@ PlayerHandler.prototype.setPhone = function (msg, session, next) {
 };
 // body":{"cardNO":"","address":"","username":"","pinCode":"123456","wechat":"wechat","alipay":"zhifubao"
 PlayerHandler.prototype.bindBankCard = function (msg, session, next) {
-    if ((!!(msg.address && msg.username && msg.cardNO) || !!msg.wechat || !!msg.alipay) && !!msg.pinCode) {
-        var playerId = session.uid;
-        var player = this.gameService.getPlayer(playerId);
-        player.bindCard(msg.address, msg.username, msg.cardNO, msg.alipay, msg.wechat, msg.pinCode, function (err, result) {
-            if (!!err) {
-                next(null, new Answer.NoDataResponse(err));
-            }
-            else {
-                next(null, new Answer.DataResponse(Code.OK, result));
-            }
-        });
-    }
-    else {
-        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
-    }
+    var playerId = session.uid;
+    var player = this.gameService.getPlayer(playerId);
+    player.bindCard(msg.address, msg.username, msg.cardNO, msg.alipay, msg.wechat, msg.pinCode, function (err, result) {
+        if (!!err) {
+            next(null, new Answer.NoDataResponse(err));
+        }
+        else {
+            next(null, new Answer.NoDataResponse(Code.OK));
+        }
+    });
 };
 
 // 提现请求
