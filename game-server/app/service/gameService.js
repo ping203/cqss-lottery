@@ -58,11 +58,12 @@ GameService.prototype.init = function () {
     this.platformBet.init(this.redisApi);
 
     this.redisApi.sub('openLottery', function (msg) {
-   //     logger.error('~~~~~~~~~~openLottery~~~~~~~~~~~~~`', msg);
+       logger.error('~~~~~~~~~~openLottery~~~~~~~~~~~~~`', msg);
         if(self.openingPeriod === msg.period){
-            logger.error('~~~~~~~~~~openLottery~开奖信息已经获取到啦~~~~~~~~~~~~`', self.openingPeriod);
+            logger.error('~~~~~~~~~~openLottery~开奖信息已经获取到啦~~~~~~~~~~~~`', pomelo.app.getCurServer().gameId);
             return;
         }
+        logger.error('~~~~~~~~~~openLottery~开奖信息已经获取到啦~~~~~~~~~~~~`', pomelo.app.getCurServer().gameId);
         self.openingPeriod = msg.period;
         self.openLottery(msg.period, msg.numbers);
     });
@@ -109,8 +110,6 @@ GameService.prototype.init = function () {
     });
 };
 
-
-
 GameService.prototype.run = function () {
     setInterval(this.tick.bind(this), 100);
 }
@@ -125,7 +124,9 @@ GameService.prototype.updateLatestBets = function (item) {
     this.redisApi.cmd('incr', null, this.consts.BET_ID, null, function (err, betId) {
         let index = betId[0];
         self.redisApi.cmd('hset', self.consts.BET_TABLE, index%self.consts.BET_MAX, JSON.stringify(item), function (err, result) {
-            logger.error('bet hset ', err, result);
+            if(err){
+                logger.error('bet hset ', err, result);
+            }
         });
     });
 };
@@ -164,9 +165,7 @@ GameService.prototype.winnerNotice = function () {
 
 // 系统开奖
 GameService.prototype.openLottery = function (period, numbers) {
-    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~GameService.prototype.openLottery');
     this.winners = [];
-    //numbers = [9,2,9,1,0];
     var openCodeResult = this.calcOpenLottery.calc(numbers);
     var parseResult = [];
     for (let item of openCodeResult) {

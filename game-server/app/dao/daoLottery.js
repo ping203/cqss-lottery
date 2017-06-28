@@ -12,7 +12,7 @@ var DaoLottery = function () {
 
 DaoLottery.prototype.addLottery = function (identify, period, numbers, openTime, parseResult, cb) {
     var sql = 'insert into Lottery (period,identify,numbers,openTime, parseResult) values(?,?,?,?,?)';
-    var args = [period, identify, numbers, openTime, parseResult];
+    var args = [period, identify, numbers, openTime, JSON.stringify(parseResult)];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function(err,res){
         if(err !== null){
@@ -36,8 +36,8 @@ DaoLottery.prototype.getLottery = function (period, cb) {
     var args = [period];
     var self = this;
     pomelo.app.get('dbclient').query(sql,args,function(err, res){
-        if(err !== null){
-            self.utils.invokeCallback(cb, err.message, null);
+        if(err !== null || !res){
+            self.utils.invokeCallback(cb, err, null);
         } else {
             if (!!res && res.length === 1) {
                 var item = bearcat.getBean("lotteryItem", {

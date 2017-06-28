@@ -107,7 +107,7 @@ PlayerHandler.prototype.unBet = function (msg, session, next) {
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
-        self.gameService.updateLatestBets(betItem);
+        self.gameService.updateLatestBets(betItem.strip());
     });
 };
 

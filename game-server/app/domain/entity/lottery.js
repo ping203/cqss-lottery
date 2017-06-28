@@ -93,7 +93,8 @@ Lottery.prototype.publishCurLottery = function (uids) {
 
 //发布开奖分析结果
 Lottery.prototype.publishParseResult = function (parseResult) {
-    let self = this, _lotteryItem;
+    let self = this;
+    let _lotteryItem;
     async.waterfall([
         function (cb) {
             self.daoLottery.getLottery(self.lastLottery.period, cb);
@@ -105,7 +106,7 @@ Lottery.prototype.publishParseResult = function (parseResult) {
             }
             else {
                 self.daoLottery.addLottery(self.identify, self.lastLottery.period, self.lastLottery.numbers,
-                    Date.parse(self.lastLottery.opentime), JSON.stringify(parseResult),
+                    Date.parse(self.lastLottery.opentime), parseResult,
                     function (err, result) {
                         if (!err && !!result) {
                             _lotteryItem = result;
@@ -118,9 +119,9 @@ Lottery.prototype.publishParseResult = function (parseResult) {
             }
         }
     ],function (err) {
-        if(!err){
+        if(!!_lotteryItem){
             self.pubMsg('updateLatestLottery', _lotteryItem.strip());
-            logger.error('@@@@@@@@@@@@@@@@@@@@@@@publishParseResult:', _lotteryItem.strip());
+            logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~publishParseResult:', _lotteryItem.strip());
             self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [_lotteryItem.strip()]});
         }
     });

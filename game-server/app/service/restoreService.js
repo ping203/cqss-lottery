@@ -25,7 +25,7 @@ RestoreService.prototype.init = function () {
     });
 
     this.redisApi.sub('updateLatestLottery', function (msg) {
-        logger.error('~~~~~~~~~~updateLatestLottery~~~~1111111~~~~~~~~~`', msg);
+       // logger.error('~~~~~~~~~~updateLatestLottery~~~~1111111~~~~~~~~~`', msg);
         if(self.updatePeriod === msg.period){
             return;
         }
@@ -45,7 +45,9 @@ RestoreService.prototype.init = function () {
                 //logger.error('~~~~~~@@@@@@@@@@@@@@@@@@~~~~getLatestBets~~~~~~~~~~~~~index:`', index,'item:',JSON.stringify(item.strip()));
 
                 self.redisApi.cmd('hset', self.consts.BET_TABLE, index ===0?'0':index, JSON.stringify(item.strip()), function (err, result) {
-                    logger.error('bet hset ', err, result);
+                    if(err){
+                        logger.error('bet hset ', err, result);
+                    }
                 });
             });
         });
@@ -68,7 +70,9 @@ RestoreService.prototype.updateLatestLottery = function (item) {
 
      //   logger.error('~~~~~~@@@@@@@@@@@@@@@@@@~~~~updateLatestLottery~~~~~~~~~~~~~`', self.consts.LOTTERY_TABLE, 'index:',index,'item:',JSON.stringify(item.strip()));
         self.redisApi.cmd('hset', self.consts.LOTTERY_TABLE, index === 0 ? '0' : index,  JSON.stringify(item), function (err, result) {
-            logger.error('lottery hset ', err, result);
+            if(err){
+                logger.error('lottery hset ', err, result);
+            }
         });
     });
 };
