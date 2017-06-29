@@ -251,6 +251,7 @@ $(document).ready(function () {
     }
 
     function myBets(e) {
+        setInterval(autoChat, 50);
         pomelo.request("game.playerHandler.myBets", {skip: 0, limit: 10}, function (res) {
             if (res.result.code != 200) {
                 console.log('获取我的投注信息失败'+ res.result.desc);
@@ -380,8 +381,6 @@ $(document).ready(function () {
                         $('#playerInfo').html(str);
 
                         rolename = playerInfo.roleName;
-
-              //          setInterval(autoChat, 50);
 
                         setName();
                         setRoom();
