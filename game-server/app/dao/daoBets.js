@@ -78,49 +78,10 @@ DaoBets.prototype.getBets = function (playerId, skip, limit, cb) {
     });
 };
 
-DaoBets.prototype.getRevertBets = function (period) {
+DaoBets.prototype.getPreBets = function (period) {
     return new Promise((resolve)=>{
         var sql = 'select * from Bets where state = ? and period = ? order by betTime DESC';
         var args = [0,period];
-        var self = this;
-        pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-            if (err !== null) {
-                resolve(null);
-            } else {
-                if (!!res && res.length >= 1) {
-                    var items = [];
-                    for (var i = 0; i < res.length; ++i) {
-                        var betItem = bearcat.getBean("betItem", {
-                            id: res[i].id,
-                            playerId: res[i].uid,
-                            period: res[i].period,
-                            identify: res[i].identify,
-                            betInfo: res[i].betInfo,
-                            state: res[i].state,
-                            betCount: res[i].betCount,
-                            winCount: res[i].winCount,
-                            betMoney: res[i].betMoney,
-                            winMoney: res[i].winMoney,
-                            betTime: res[i].betTime,
-                            betTypeInfo:JSON.parse(res[i].betTypeInfo),
-                            betItems:JSON.parse(res[i].betItems)
-                        });
-                        items.push(betItem);
-                    }
-                    resolve(items);
-                } else {
-                    resolve(null);
-                }
-            }
-        });
-    });
-};
-
-
-DaoBets.prototype.getPlayerRevertBets = function (playerId, period) {
-    return new Promise((resolve)=>{
-        var sql = 'select * from Bets where state = ? and period = ? and uid=? order by betTime DESC';
-        var args = [0, period, playerId];
         var self = this;
         pomelo.app.get('dbclient').query(sql, args, function (err, res) {
             if (err !== null) {
@@ -306,8 +267,8 @@ DaoBets.prototype.getPlayerBetsByTime = function (playerId, beginTime, endTime, 
 };
 
 DaoBets.prototype.getBetStatistics = function (playerId, cb) {
-    var sql = 'select sum(betMoney) as betMoney, sum(betCount) as betCount, sum(winCount) as winCount from Bets where uid= ? and state in(?,?)';
-    var args = [playerId, this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
+    var sql = 'select sum(betMoney) as betMoney, sum(betCount) as betCount, sum(winCount) as winCount from Bets where uid= ? and state in(?,?,?)';
+    var args = [playerId, this.consts.BetState.BET_WAIT, this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
@@ -338,8 +299,8 @@ DaoBets.prototype.getPlayerTodayBets = function (playerId, cb) {
     end.setHours(23, 59, 59, 999);
     var endTime = end.getTime();
 
-    var sql = 'select sum(betMoney) as betMoney from Bets where uid= ? and betTime >= ? and betTime <= ? and state in(?,?)';
-    var args = [playerId, beginTime, endTime, this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
+    var sql = 'select sum(betMoney) as betMoney from Bets where uid= ? and betTime >= ? and betTime <= ? and state in(?,?,?)';
+    var args = [playerId, beginTime, endTime, this.consts.BetState.BET_WAIT, this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
 
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {

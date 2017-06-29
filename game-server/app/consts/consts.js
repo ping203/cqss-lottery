@@ -128,6 +128,7 @@ var Consts = function () {
             notice:'onNotice',
             parseLottery:'onParseLottery',
             playerWinner:'onPlayerWinner',
+            playerPreWinner:'onPlayerPreWinner',
             defineNotify:'onDefineNotify',
         }
     };

@@ -67,6 +67,23 @@ PlayerEvent.prototype.addEventForPlayer = function (player){
         }
     });
 
+    player.on(this.consts.Event.area.playerPreWinner, function(args) {
+        var player = args.player;
+        if (player) {
+            if(args.uids){
+                pomelo.app.get('channelService').pushMessageByUids(self.consts.Event.area.playerPreWinner,{
+                    entityId:player.entityId,
+                    itemOK:args.itemOK
+                },args.uids);
+            }else {
+                args.lottery.gameService.getChannel().pushMessage(self.consts.Event.area.playerPreWinner,{
+                    entityId:player.entityId,
+                    itemOK:args.itemOK
+                });
+            }
+        }
+    });
+
     player.on(this.consts.Event.area.defineNotify, function(args) {
         var player = args.player;
         if (player) {

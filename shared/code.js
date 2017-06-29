@@ -65,6 +65,7 @@ module.exports = {
         FA_BET_INFO_INVALID: {code:5023, desc:"投注信息无效"},
         FA_PERIOD_INVALID: {code:5024, desc:"开奖期数无效"},
         FA_CANNOT_REBIND_ALIPAY: {code:5025, desc:"不能重复绑定支付宝"},
-        FA_CANNOT_REBIND_WECHAT: {code:5026, desc:"不能重复绑定微信"}
+        FA_CANNOT_REBIND_WECHAT: {code:5026, desc:"不能重复绑定微信"},
+        FA_BET_CHANNEL_STOP: {code:5027, desc:"已停止下注，无法撤销"},
     }
 };

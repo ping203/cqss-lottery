@@ -66,15 +66,29 @@ GameService.prototype.init = function () {
         self.openLottery(msg.period, msg.numbers);
     });
 
-    this.redisApi.sub('restoreBetMoney', function (msg) {
-     //   logger.error('~~~~~~~~~~restoreBetMoney~~~~~~~~~~~~~`', msg);
+    this.redisApi.sub('restoreBets', function (msg) {
+       logger.error('~~~~~~~~~~restoreBets~~~~~~~~~~~~~`', msg);
         let player = self.getPlayer(msg.playerId);
         if(player){
-            player.restoreBetWinMoney(msg.betWinMoney);
+            player.restoreBets(msg.bets);
+            logger.error('~~~~~~~~~~restoreBets~~~1111~~~~~~~~~~`', msg.bets);
         }
         player = self.getTrusteePlayer(msg.playerId);
         if(player){
-            player.restoreBetWinMoney(msg.betWinMoney);
+            player.restoreBets(msg.bets);
+            logger.error('~~~~~~~~~~restoreBets~~~2222~~~~~~~~~~`', msg.bets);
+        }
+    });
+
+    this.redisApi.sub('revertBets', function (msg) {
+       logger.error('~~~~~~~~~~revertBets~~~~~~~~~~~~~`', msg);
+        let player = self.getPlayer(msg.playerId);
+        if(player){
+            player.revertBets(msg.bets);
+        }
+        player = self.getTrusteePlayer(msg.playerId);
+        if(player){
+            player.revertBets(msg.bets);
         }
     });
 
@@ -83,7 +97,7 @@ GameService.prototype.init = function () {
         //在线用户及时到帐
         let player = self.getPlayer(msg.uid);
         if (!!player) {
-            player.restoreBetWinMoney(msg.money);
+            player.backendRechare(msg.money);
             player.defineNotify(self.consts.MsgNotifyType.RECHARGE, {money:msg.money});
         }
     });
@@ -102,7 +116,7 @@ GameService.prototype.init = function () {
       //  logger.error('~~~~~~~~~~restoreRechargeMoney~~~~~~~~~~~~~`', msg);
         var player = self.getPlayer(msg.uid);
         if (!!player) {
-            player.restoreBetWinMoney(msg.money);
+            player.restoreBet(msg.money);
             player.defineNotify(self.consts.MsgNotifyType.CASHFAIL, {money:msg.money});
         }
     });
@@ -282,17 +296,6 @@ GameService.prototype.addEntity = async function (e) {
             this.trusteePlayers[e.id].transferTask(e);
             delete this.trusteePlayers[e.id];
         }
-
-        // todo 暫時不處理
-        // let period = this.getLottery().getNextPeriod();
-        // let revertBets = await this.daoBets.getPlayerRevertBets(e.id, period);
-        // if(revertBets){
-        //     revertBets.forEach(function (item) {
-        //         logger.error('~~~~~~~~~~~~~~~~~~~~~period:',item.period, ':',item.betInfo);
-        //         e.restoreBet(item);
-        //     });
-        // }
-
 
         this.getLottery().publishCurLottery([{uid: e.id, sid: e.serverId}]);
         this.getLottery().initPublishParseResult([{uid: e.id, sid: e.serverId}]);

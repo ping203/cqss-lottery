@@ -95,7 +95,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
 
 PlayerHandler.prototype.unBet = function (msg, session, next) {
     if (!this.gameService.canBetNow()) {
-        next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
+        next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_STOP));
         return;
     }
 

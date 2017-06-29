@@ -20,6 +20,11 @@ function gameMsgInit() {
         console.log('onPlayerWinner', data);
     })
 
+
+    pomelo.on('onPlayerPreWinner', function (data) {
+        console.log('onPlayerPreWinner', data);
+    })
+
     //update user list
     pomelo.on('onEnterRoom', function(data) {
         console.log('onEnterRoom', data);

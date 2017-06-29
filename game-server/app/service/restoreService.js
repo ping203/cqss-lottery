@@ -11,6 +11,7 @@ const defaultConfigs = require('../../../shared/config/sysParamConfig.json');
 
 function RestoreService() {
     this.updatePeriod = null;
+    this.prePeriod = null;
 };
 
 RestoreService.prototype.init = function () {
@@ -20,9 +21,11 @@ RestoreService.prototype.init = function () {
     this.restore();
 
     var self = this;
-    this.redisApi.sub('revertBet', function (msg) {
-        logger.error('~~~~~~~~~~revertBet~~~~~~~~~~~~~`', msg);
-        self.revert(period);
+
+    // 当官方超过三分钟无法开奖时，则自动退还投注金额
+    this.redisApi.sub('revertLatestBet', function (msg) {
+        logger.error('~~~~~~~~~~revertLatestBet~~~~~~~~~~~~~`', msg);
+        self.revert(msg.period);
     });
 
     this.redisApi.sub('updateLatestLottery', function (msg) {
@@ -37,6 +40,16 @@ RestoreService.prototype.init = function () {
     this.redisApi.sub('setConfigs', function (msg) {
         self.sysConfig.setConfigs(msg.configs);
         logger.info('RestoreService平台参数配置更新');
+    });
+
+    // 监听补开奖
+    this.redisApi.sub('openPreLottery', function (msg) {
+        logger.error('~~~~~~~~~~openPreLottery~~~~~~~~~~~~~`', msg);
+        // if(self.prePeriod === msg.period){
+        //     return;
+        // }
+        self.prePeriod = msg.period;
+        self.openPreLottery(msg.period, msg.numbers);
     });
 
     schedule.scheduleJob('0 0 2 * * *', this.incomeScheduleTask.bind(this));
@@ -106,27 +119,79 @@ RestoreService.prototype.manualOpen = function (period, numbers) {
 
 // 如果官方超过3分钟未开出结果，则退还所有玩家投注金额
 RestoreService.prototype.revert = async function (period) {
-    let revertBets = await this.daoBets.getRevertBets(period);
-    let playerWinMoneys = {};
+    let revertBets = await this.daoBets.getPreBets(period);
+    let betInfos = {};
+    let self = this;
     revertBets.forEach(function (bet) {
         if(bet.getState() === this.consts.BetState.BET_WAIT){
-            this.eventManager.addEvent(item);
-            bet.setState(this.consts.BetState.BET_CANCLE);
-            bet.save();
-            if(!playerWinMoneys[bet.playerId]){
-                playerWinMoneys[bet.playerId] = 0;
+            if(!betInfos[bet.playerId]){
+                betInfos[bet.playerId] ={};
+                betInfos[bet.playerId].money = 0;
+                betInfos[bet.playerId].count = 0;
+                betInfos[bet.playerId].itemOK = [];
             }
-            playerWinMoneys[bet.playerId] += bet.getBetMoney();
+            self.eventManager.addEvent(item);
+            bet.setState(self.consts.BetState.BET_CANCLE);
+            bet.save();
+
+            betInfos[bet.playerId].itemOK.push({id:bet.id, state:self.consts.BetState.BET_CANCLE, money:bet.getBetMoney()});
+            betInfos[bet.playerId].money += bet.getBetMoney();
+            betInfos[bet.playerId].count += bet.getBetCount();
         }
     });
 
-    let self = this;
-    for (let id in playerWinMoneys){
-        this.daoUser.updateAccountAmount(Number(id), playerWinMoneys[id], function (err, result) {
+    for (let id in betInfos){
+        this.daoUser.updateAccountAmount(Number(id), betInfos[id].money, function (err, result) {
             if(err || !result){
                 return;
             }
-            self.pubMsg('restoreBetMoney', {playerId:Number(id), betWinMoney:playerWinMoneys[id]});
+            self.pubMsg('revertBets', {playerId:Number(id), bets:betInfos[id]});
+        });
+    }
+};
+
+// 平台运行过程中自动补开上期未开出结果的投注
+RestoreService.prototype.openPreLottery = async function (period, numbers) {
+    let except_preBets = await this.daoBets.getPreBets(period);
+    if(!except_preBets){
+        return;
+    }
+    let self = this;
+    let openCodeResult = this.calcOpenLottery.calc(numbers);
+    let betInfos = {};
+    except_preBets.forEach(function (bet) {
+        if(bet.getState() === self.consts.BetState.BET_WAIT){
+
+            if(!betInfos[bet.playerId]){
+                betInfos[bet.playerId] ={};
+                betInfos[bet.playerId].money = 0;
+                betInfos[bet.playerId].betmoney = 0;
+                betInfos[bet.playerId].count = 0;
+                betInfos[bet.playerId].itemOK = [];
+            }
+            self.eventManager.addEvent(bet);
+            bet.calcHarvest(openCodeResult);
+            let subMoney = Number((bet.getWinMoney() - bet.getBetMoney()).toFixed(2));
+            if(subMoney > 0){
+                bet.setState(self.consts.BetState.BET_WIN);
+                betInfos[bet.playerId].itemOK.push({id:bet.id,state:self.consts.BetState.BET_WIN,money:subMoney});
+            }
+            else {
+                bet.setState(self.consts.BetState.BET_LOSE);
+                betInfos[bet.playerId].itemOK.push({id:bet.id,state:self.consts.BetState.BET_LOSE,money:subMoney});
+            }
+            bet.save();
+            betInfos[bet.playerId].money += bet.getWinMoney();
+            betInfos[bet.playerId].betmoney += bet.getBetMoney();
+            betInfos[bet.playerId].count += bet.getBetCount();
+        }
+    });
+    for (let id in betInfos){
+        this.daoUser.updateAccountAmount(Number(id), betInfos[id].money, function (err, result) {
+            if(err || !result){
+                return;
+            }
+            self.pubMsg('restoreBets', {playerId:Number(id), bets:betInfos[id]});
         });
     }
 };
@@ -146,7 +211,7 @@ RestoreService.prototype.restore = async function () {
         lotteryMap[item.period] = item;
     });
 
-    let playerWinMoneys = {};
+    let betInfos = {};
     let except_bets = await this.daoBets.getExceptBets(lotteryHistory[0].period);
     if(!except_bets){
         return;
@@ -156,30 +221,37 @@ RestoreService.prototype.restore = async function () {
     except_bets.forEach(function (bet) {
         if(lotteryMap[bet.period] && bet.getState() === self.consts.BetState.BET_WAIT){
             self.eventManager.addEvent(bet);
+            if(!betInfos[bet.playerId]){
+                betInfos[bet.playerId] ={};
+                betInfos[bet.playerId].money = 0;
+                betInfos[bet.playerId].betmoney = 0;
+                betInfos[bet.playerId].count = 0;
+                betInfos[bet.playerId].itemOK = [];
+            }
             bet.calcHarvest(lotteryMap[bet.period].openCodeResult);
             var subMoney = Number((bet.getWinMoney() - bet.getBetMoney()).toFixed(2));
             if(subMoney > 0){
                 bet.setState(self.consts.BetState.BET_WIN);
+                betInfos[bet.playerId].itemOK.push({id:bet.id,state:self.consts.BetState.BET_WIN,money:subMoney});
             }
             else {
                 bet.setState(self.consts.BetState.BET_LOSE);
+                betInfos[bet.playerId].itemOK.push({id:bet.id,state:self.consts.BetState.BET_WIN,money:subMoney});
             }
 
             bet.save();
-            if(!playerWinMoneys[bet.playerId]){
-                playerWinMoneys[bet.playerId] = 0;
-            }
-            playerWinMoneys[bet.playerId] += bet.getWinMoney();
+            betInfos[bet.playerId].money += bet.getWinMoney();
+            betInfos[bet.playerId].betmoney += bet.getBetMoney();
+            betInfos[bet.playerId].count += bet.getBetCount();
         }
     });
 
-    for (let id in playerWinMoneys){
-        if(playerWinMoneys[id] === 0) continue;
-        this.daoUser.updateAccountAmount(Number(id), playerWinMoneys[id], function (err, result) {
+    for (let id in betInfos){
+        this.daoUser.updateAccountAmount(Number(id), betInfos[id].money, function (err, result) {
             if(err || !result){
                 return;
             }
-            self.pubMsg('restoreBetMoney', {playerId:Number(id), betWinMoney:playerWinMoneys[id]});
+            self.pubMsg('restoreBets', {playerId:Number(id), bets:betInfos[id]});
         });
     }
 };

@@ -1,4 +1,4 @@
-const logger = require('pomelo-logger').getLogger('bearcat-lottery');
+const logger = require('pomelo-logger').getLogger(__filename);
 const bearcat = require('bearcat');
 const util = require('util');
 const Code = require('../../../../shared/code');
@@ -56,6 +56,8 @@ Player.prototype.init = function () {
     this.bets = bearcat.getBean("bets", {})
     this.betMoneyMap = new Map(); //每一期个人投注类型总和限制
     this.bank = null;
+    this.serverId = -1;
+    this.gameService = null;
 };
 
 Player.prototype.setBetStatistics = function (betStatistics) {
@@ -66,7 +68,48 @@ Player.prototype.setBank = function (bank) {
     this.bank = bank;
 };
 
-Player.prototype.restoreBetWinMoney = function (money) {
+Player.prototype.setServerId = function (serverId) {
+    this.serverId = serverId;
+};
+
+Player.prototype.setService = function (service) {
+    this.gameService = service;
+};
+
+// 补开投注,中奖money 在补开模块写入数据库，此处只负责更新内存和通知用户
+Player.prototype.restoreBets = function (bets) {
+    this.accountAmount += bets.money;
+    this.betStatistics.betMoney += bets.money;
+    this.betStatistics.betCount += bets.count;
+
+    this.emit(this.consts.Event.area.playerPreWinner, {player: this, itemOK:bets.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
+    logger.error('~~~~~~~~~~Player.prototype.restoreBets~~~~~~~~~~~', {player: this, itemOK:bets.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
+    this.addExperience(bets.betmoney);
+    this.changeNotify();
+};
+
+// 补开投注,中奖money 在补开模块写入数据库，此处只负责更新内存和通知用户
+Player.prototype.revertBets = function (bets) {
+    this.accountAmount += bets.money;
+    this.betStatistics.betMoney -= bets.money;
+    this.betStatistics.betCount -= bets.count;
+
+    this.emit(this.consts.Event.area.playerPreWinner, {player: this, itemOK:bets.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
+
+    bets.itemOK.forEach(function (item) {
+        let betItem = this.bets.getItem(item.id);
+        if(betItem){
+            betItem.setState(item.state);
+        }
+    });
+
+    logger.error('~~~~~~~~~~Player.prototype.revertBets~~~~~~~~~~~', {player: this, itemOK:bets.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
+
+    this.changeNotify();
+};
+
+// 后台充值及时到账
+Player.prototype.backendRechare = function (money) {
     this.accountAmount += money;
     this.changeNotify();
 };
@@ -171,6 +214,7 @@ Player.prototype.updateBankBindState = function (address, username, cardNO, alip
 
     if(!!pinCode && this.ext.pinCode === 0){
         this.ext.pinCode = 1;
+        this.pinCode = this.utils.createSalt(pinCode);
     }
 };
 
@@ -343,7 +387,6 @@ Player.prototype.getFriendIncomes = function (skip, limit, cb) {
 };
 
 Player.prototype.getBaseInfo = function () {
-
     var winRate = 0;
     if (this.betStatistics.betCount > 0) {
         winRate = Number(((this.betStatistics.winCount / this.betStatistics.betCount) * 100).toFixed(2))
@@ -485,10 +528,6 @@ Player.prototype.unBet = function (entityId, cb) {
     }
 };
 
-Player.prototype.restoreBet = function (betItem) {
-    this.bets.addItem(betItem);
-};
-
 Player.prototype.calcExp = function (calcParam) {
     var exp_base = this.sysConfig.getExp();
     var exp = ((calcParam.betCount - calcParam.winCount)*exp_base.lose + calcParam.winCount* exp_base.win + calcParam.betMoney* exp_base.money);
@@ -508,7 +547,6 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
     }
 
     logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.prototype.openCode');
-
 
     var winMoney = Number((calcResult.winMoney - calcResult.betMoney).toFixed(2));
     if(calcResult.betCount  > 0){

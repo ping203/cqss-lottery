@@ -28,8 +28,8 @@ PlayerRemote.prototype.playerJoin = function (playerId, serverId, cb) {
             self.utils.invokeCallback(cb, new Answer.NoDataResponse(Code.GAME.FA_QUERY_PLAYER_INFO_ERROR), null);
             return;
         }
-        player.serverId = serverId;
-        player.gameService = self.gameService;
+        player.setServerId(serverId);
+        player.setService(self.gameService);
 
         var existPlayer = self.gameService.getPlayer(playerId);
         if (existPlayer) {

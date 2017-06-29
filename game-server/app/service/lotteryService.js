@@ -39,11 +39,29 @@ LotteryService.prototype.checkPeriod = function (period) {
     return Number(period) === Number(this.latestPeriod) + 1 ? true : false;
 };
 
+
+// tickTime: '2017-06-29 16:35:40',
+//     next:
+// { period: '20170629064',
+//     opentime: 2017-06-29T08:40:20.000Z,
+//     oriTime: 2017-06-29T08:39:00.000Z },
+// last:
+// { period: '20170629063',
+//     opentime: '2017-06-29 16:30:00',
+//     numbers: '9,7,6,2,7' },
+// pre:
+// { period: '20170629062',
+//     opentime: '2017-06-29 16:20:00',
+//     numbers: '6,9,5,5,1' } }
+
 LotteryService.prototype.manualOpenLottery = function (period, numbers) {
 
-    logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~manualOpenLottery~~~~~~~1111~~~~~~`');
+    logger.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~manualOpenLottery~~~~~~~1111~~~~~~`', this.openResult);
+
     if (this.openResult) {
-        this.openResult.pre = this.openResult.last;
+        this.openResult.pre.period = this.openResult.last.period;
+        this.openResult.pre.opentime = this.openResult.last.opentime;
+        this.openResult.pre.numbers = this.openResult.last.numbers;
     }
     else {
         this.openResult = {};
@@ -52,6 +70,7 @@ LotteryService.prototype.manualOpenLottery = function (period, numbers) {
     this.openResult.last.period = period;
     this.openResult.last.numbers = numbers;
     this.openResult.last.time = new Date();
+
     this.openResult.next.period = Number(period) + 1;
 
 
@@ -62,6 +81,8 @@ LotteryService.prototype.manualOpenLottery = function (period, numbers) {
             period: this.openResult.last.period,
             numbers: this.openResult.last.numbers.split(',')
         });
+        this.pubMsg('openPreLottery', {period: this.openResult.pre.period, numbers: this.openResult.pre.numbers.split(',')});
+
         this.latestPeriod = this.openResult.last.period;
         this.latestOpenTime = this.openResult.next.opentime.getTime();
         this.latestOpenOriTime = this.openResult.next.oriTime.getTime();
@@ -79,7 +100,7 @@ LotteryService.prototype.tick = function () {
             let now = Date.now();
             if (self.openResult) {
                 if ((now - self.openResult.next.opentime.getTime() / 1000 / 60) > 3) {
-                    self.pubMsg('revertBet', {period: result.next.period});
+                    self.pubMsg('revertLatestBet', {period: result.next.period});
                 }
             }
             return;
@@ -88,6 +109,7 @@ LotteryService.prototype.tick = function () {
         if (!self.latestPeriod || (!!self.latestPeriod && self.latestPeriod != result.last.period)) {
             self.pubMsg('publishLottery', result);
             self.pubMsg('openLottery', {period: result.last.period, numbers: result.last.numbers.split(',')});
+            self.pubMsg('openPreLottery', {period: result.pre.period, numbers: result.pre.numbers.split(',')});
             self.latestPeriod = result.last.period;
             self.latestOpenTime = result.next.opentime.getTime();
             self.latestOpenOriTime = result.next.oriTime.getTime();

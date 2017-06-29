@@ -68,7 +68,7 @@ $(document).ready(function () {
     }
 
     function backendOpenCode() {
-        _adminClient.openLottery("20170626043", "8,0,0,0,8", function (err, result) {
+        _adminClient.openLottery("20170629070", "8,0,0,0,8", function (err, result) {
             if (!!err) {
                 console.log('后台开奖失败:', err.desc);
                 return;
