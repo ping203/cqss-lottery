@@ -357,6 +357,9 @@ Player.prototype.recharge = function (money) {
 };
 
 Player.prototype.cash = function (pinCode, money) {
+
+    logger.error('~~~~~~~@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@~~~~~~', pinCode,'this.pinCode:',this.pinCode);
+    logger.error('~~~~~~~@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@~~~~~~', typeof pinCode,'this.pinCode:',typeof this.pinCode);
     if(pinCode !== this.pinCode){
         return Code.GAME.FA_CAST_PINCODE_ERR;
     }

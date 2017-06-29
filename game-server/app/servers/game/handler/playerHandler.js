@@ -222,6 +222,7 @@ PlayerHandler.prototype.cashRequest = function (msg, session, next) {
 
     var playerId = session.uid;
     var player = this.gameService.getPlayer(playerId);
+    logger.error('~~~~~~~@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@~~~~~~', msg.pinCode);
     let ret = player.cash(this.utils.createSalt(msg.pinCode), money);
     if (ret.code !== Code.OK.code) {
         next(null, new Answer.NoDataResponse(ret));
