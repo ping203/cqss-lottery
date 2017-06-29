@@ -100,7 +100,7 @@ daoUser.resetPinCode = function (username, pinCode, cb) {
             !!cb && cb(null);
             daoUser.getUserByName(username, function (err, user) {
                 if(!err && !!user){
-                    _redisApi.pub('pinCodeUpdate', {playerId:user.id, pinCode:pinCode});
+                    _redisApi.pub('pinCodeUpdate', JSON.stringify({playerId:user.id, pinCode:pinCode}));
                 }
             });
 
