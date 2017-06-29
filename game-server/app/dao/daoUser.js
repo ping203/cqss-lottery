@@ -56,7 +56,7 @@ DaoUser.prototype.updateAllOfline = function () {
     });
 };
 
-DaoUser.prototype.updatePinCode = function (playerId, pinCode) {
+DaoUser.prototype.setPinCode = function (playerId, pinCode) {
     var sql = 'update User set pinCode = ? where playerId=?';
     var args = [pinCode, playerId];
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {

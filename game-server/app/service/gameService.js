@@ -125,6 +125,14 @@ GameService.prototype.init = function () {
         self.sysConfig.setConfigs(msg.configs);
         logger.info('GameService平台参数配置更新');
     });
+
+    this.redisApi.sub('pinCodeUpdate', function (msg) {
+        let player = self.getPlayer(msg.playerId);
+        if(player){
+            logger.info('用户支付密码已经更新');
+            player.pinCode = msg.pinCode;
+        }
+    });
 };
 
 GameService.prototype.run = function () {

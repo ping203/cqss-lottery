@@ -1,5 +1,9 @@
 const mysql = require('./mysql/mysql');
 const User = require('../user');
+const RedisApi = require('./redis/redis');
+var configs = require('../../../shared/config/redis.json');
+let _redisApi = new RedisApi();
+_redisApi.init(configs);
 // var random_name = require('node-random-name')
 // roleName = random_name()
 
@@ -94,6 +98,12 @@ daoUser.resetPinCode = function (username, pinCode, cb) {
             !!cb && cb(err);
         } else {
             !!cb && cb(null);
+            daoUser.getUserByName(username, function (err, user) {
+                if(!err && !!user){
+                    _redisApi.pub('pinCodeUpdate', {playerId:user.id, pinCode:pinCode});
+                }
+            });
+
         }
     });
 };
