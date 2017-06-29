@@ -10,6 +10,17 @@ The chat server currently runs on nodejs v7.10.0, and should run fine on the lat
 sudo apt install sysstat
 sudo apt install redis-server
 
+## 数据清理
+truncate table AgentIncome;
+truncate table Bank;
+truncate table Bets;
+truncate table Lottery;
+truncate table PlayerIncome;
+truncate table Record;
+truncate table reset;
+truncate table User;
+
+
 mysql 远程访问权限设置
 update user set host = '%' where user = 'root';
 FLUSH PRIVILEGES;

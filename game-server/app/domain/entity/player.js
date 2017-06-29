@@ -419,6 +419,7 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
             return;
         }
         self.betStatistics.betCount += betParseInfo.betItems.length;
+        self.betStatistics.betMoney += betParseInfo.total;
         self.accountAmount -= betParseInfo.total;
         self.save();
         self.changeNotify();
@@ -449,6 +450,7 @@ Player.prototype.unBet = function (entityId, cb) {
 
         betItem.setState(this.consts.BetState.BET_CANCLE);
         this.accountAmount += betItem.getBetMoney();
+        this.betStatistics.betMoney -= betItem.getBetMoney();
         this.betStatistics.betCount -= betItem.getBetCount();
 
         var betTypeInfo = betItem.getBetTypeInfo();
