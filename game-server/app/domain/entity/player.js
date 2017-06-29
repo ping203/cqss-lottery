@@ -215,6 +215,7 @@ Player.prototype.updateBankBindState = function (address, username, cardNO, alip
     if(!!pinCode && this.ext.pinCode === 0){
         this.ext.pinCode = 1;
         this.pinCode = this.utils.createSalt(pinCode);
+        this.updatePinCode(this.pinCode);
     }
 };
 
@@ -290,6 +291,7 @@ Player.prototype.updateBankInfo = function (address, username, cardNO, alipay, w
             if(!!pinCode){
                 if(self.ext.pinCode === 0){
                     self.pinCode = self.utils.createSalt(pinCode);
+                    self.updatePinCode(self.pinCode);
                     self.ext.pinCode = 1;
                     callback();
 
@@ -303,6 +305,10 @@ Player.prototype.updateBankInfo = function (address, username, cardNO, alipay, w
     ],function (err) {
         cb(err);
     });
+};
+
+Player.prototype.updatePinCode = function (pinCode) {
+    this.daoUser.updatePinCode(this.id, pinCode);
 };
 
 Player.prototype.bindCard = function (address, username, cardNO, alipay, wechat, pinCode, cb) {

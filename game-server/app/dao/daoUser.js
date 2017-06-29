@@ -56,6 +56,18 @@ DaoUser.prototype.updateAllOfline = function () {
     });
 };
 
+DaoUser.prototype.updatePinCode = function (playerId, pinCode) {
+    var sql = 'update User set pinCode = ? where playerId=?';
+    var args = [pinCode, playerId];
+    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+        if (err !== null) {
+            logger.error('设置支付密码失败');
+        } else {
+            logger.error('设置支付密码成功');
+        }
+    });
+};
+
 // 通过名称获取好友
 DaoUser.prototype.getPlayerByName = function (username, cb) {
     var sql = 'select * from User where username = ?';
