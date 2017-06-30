@@ -24,6 +24,7 @@ module.exports = {
         FA_UNSUPPORT_CHAT_MSGTYPE: {code:3005,desc:"不支持的消息类型"},
         FA_CHAT_DATA_ERROR: {code:3006,desc:"聊天数据不完整"},
         FA_CHAT_FORBIDTALK: {code:3007,desc:"已被禁言"},
+        FA_CHAT_HISTORY_EMPTY: {code:3008,desc:"聊天记录为空"}
     },
     USER:{
         FA_USER_AREADY_EXIST:   {code:4001,desc:'用户名已经被使用'},
