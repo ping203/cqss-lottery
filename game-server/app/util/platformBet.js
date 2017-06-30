@@ -18,7 +18,6 @@ PlatformBet.prototype.init = function (redis) {
 };
 
 PlatformBet.prototype.canBet = async function (type, value, cb) {
-
     let self = this;
     let promise = new Promise((resolve, reject) => {
         this._redisApi.cmd('hget', self._table_name, type, null, function (err, num) {

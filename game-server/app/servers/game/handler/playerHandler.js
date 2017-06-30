@@ -11,11 +11,9 @@ var PlayerHandler = function (app) {
     this.gameService = null;
 };
 
-PlayerHandler.prototype.betLimiteCheck = async function (parseBetInfo, callback) {
-    let player = this.gameService.getPlayer(session.uid);
+PlayerHandler.prototype.betLimiteCheck = async function (player, parseBetInfo, callback) {
     for (let type in parseBetInfo.betTypeInfo) {
         let item = parseBetInfo.betTypeInfo[type];
-
         //平台限额检查
         let ret = await this.platformBet.canBet(item.type.code, item.money);
         if(ret.result.code != Code.OK.code){
@@ -32,6 +30,7 @@ PlayerHandler.prototype.betLimiteCheck = async function (parseBetInfo, callback)
         }
         item.priFreeBetValue = pri.data.freeBetValue;
     }
+
     callback(Code.OK);
 };
 
@@ -60,11 +59,12 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
             let period = self.gameService.getLottery().getNextPeriod();
             let identify = self.gameService.getLottery().getIdentify();
             let player = self.gameService.getPlayer(session.uid);
-            self.betLimiteCheck(result, function (result) {
-                if(result.code != Code.OK.code){
-                    cb(result);
+            self.betLimiteCheck(player, result, function (ret) {
+                if(ret.code != Code.OK.code){
+                    cb(ret);
                     return;
                 }
+
                 player.bet(period, identify, msg.betData, result, function (err, betItem) {
                     if (err) {
                         cb(err);

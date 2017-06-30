@@ -140,7 +140,7 @@ GameService.prototype.run = function () {
 }
 
 GameService.prototype.tick = function () {
-    // return;
+    return;
     this.countdown();
     this.notice();
 };
