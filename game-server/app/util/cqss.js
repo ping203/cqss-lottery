@@ -5,6 +5,7 @@
 const http = require('http');
 const urlencode = require('urlencode');
 const cheerio = require('cheerio');
+const logger = require('pomelo-logger').getLogger(__filename);
 
 // POST
 //http://buy.cqcp.net/ajaxHTTP/gamedraw/GetOpenNumber.aspx
@@ -25,7 +26,7 @@ CQSS.prototype.getServerTime = function (callback) {
         method: 'get'
     }, function (res) {
         if (res.statusCode != 200) {
-            console.log('获取服务器时间请求失败', res);
+            logger.error('获取服务器时间请求失败', res);
             self.utils.invokeCallback(callback, res, null);
             return;
         }
@@ -56,7 +57,7 @@ CQSS.prototype.getServerTime = function (callback) {
 
     req.on('error', function (e) {
         self.utils.invokeCallback(callback, e, null);
-        console.log('problem with request: ' + e.message);
+        logger.error('problem with request: ',  e.message);
     });
 
     req.end();
@@ -123,7 +124,7 @@ CQSS.prototype.getPreInfo = function (callback) {
     });
 
     req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
+        logger.error('problem with request: ', e.message);
         self.utils.invokeCallback(callback, e, null);
     });
 
@@ -174,7 +175,7 @@ CQSS.prototype.getLatestInfo = function (callback) {
     });
 
     req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
+        logger.error('problem with request: ' ,e.message);
         self.utils.invokeCallback(callback, e, null);
     });
 
@@ -232,7 +233,7 @@ CQSS.prototype.getNextInfo = function (callback) {
     });
 
     req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
+        logger.error('problem with request: ' , e.message);
         self.utils.invokeCallback(callback, e, null);
     });
 

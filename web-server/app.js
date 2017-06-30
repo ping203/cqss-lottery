@@ -33,6 +33,7 @@ const users = require('./routes/users');
 
 //59.110.237.46
 
+scp -rf root@116.31.99.217:/root/lottery/game-server/logs/node-log-undefined.log .
 
 // error handler
 onerror(app);

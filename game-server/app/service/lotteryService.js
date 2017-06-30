@@ -100,7 +100,7 @@ LotteryService.prototype.tick = function () {
             let now = Date.now();
             if (self.openResult) {
                 if ((now - self.openResult.next.opentime.getTime() / 1000 / 60) > 3) {
-                    self.pubMsg('revertLatestBet', {period: result.next.period});
+                    self.pubMsg('revertLatestBet', {period: self.openResult.next.period});
                 }
             }
             return;

@@ -188,7 +188,7 @@ PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
                     }
                 });
             }
-            return;
+            break;
         case this.consts.PlayerCtrl.active:
             this.daoUser.setPlayerActive(uid, ctrl.operate, function (err, result) {
                 if(result){
@@ -198,7 +198,7 @@ PlayerRemote.prototype.playerCtrl = function (uid, ctrl, cb) {
                     self.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.DBFAIL));
                 }
             });
-            return;
+            break;
         default:
             this.utils.invokeCallback(cb, null, new Answer.NoDataResponse(Code.FAIL));
             break;

@@ -103,6 +103,7 @@ EntryHandler.prototype.playerCtrl = function (msg, session, next) {
         case this.consts.PlayerCtrl.active:
             if(!msg.ctrl.operate){
                 self.app.get('sessionService').kick(Number(msg.uid), '帐号冻结');
+                logger.error('~~~~~~~~~playerCtrl~~~~~~~~~~帐号冻结剔除用户');
             }
             break;
         default:
