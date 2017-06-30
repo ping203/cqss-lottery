@@ -132,6 +132,7 @@ Player.prototype.setRank = function () {
 
 Player.prototype.setNextLevelExp = function () {
     var _exp = this.sysConfig.getUpdate(this.level);
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.setNextLevelExp', _exp);
     if (!!_exp) {
         this.nextLevelExp = _exp;
     } else {
@@ -140,6 +141,7 @@ Player.prototype.setNextLevelExp = function () {
 }
 
 Player.prototype.addExperience = function (exp) {
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.prototype.addExperience', exp, 'nextLevelExp:', this.nextLevelExp, 'curexp:', this.experience);
     if(isNaN(exp)){
         logger.error('经验值无效');
         return;
@@ -164,8 +166,10 @@ Player.prototype.upgrade = function () {
 //Upgrade, update player's state
 Player.prototype._upgrade = function () {
     this.level += 1;
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player._upgrade', this.level);
     this.experience -= this.nextLevelExp;
     this.setNextLevelExp();
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player._upgrade', this.experience, 'nextLevelExp:', this.nextLevelExp);
 };
 
 Player.prototype.setState = function(state){
@@ -485,6 +489,8 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         self.utils.invokeCallback(cb, null, betItem);
 
         betItem.save();
+logger.error('~~~~~~~~~~~~~~~~~~~~addExperience~~~~~~~~~test');
+        self.addExperience(betItem.getBetMoney());
     });
 
 };
@@ -512,16 +518,12 @@ Player.prototype.unBet = function (entityId, cb) {
         let self = this;
         async.map(betTypeInfoArr, function (item, callback) {
             self.platformBet.reduceBet(item.type.code, item.money, function (freeValue) {
-                logger.error('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^freeValue:', freeValue,callback );
                 betItem.setFreeBetValue(item.type.code, freeValue);
                 let priFreeValue = self.reduceBetValue(item.type.code, item.money);
                 betItem.setPriFreeBetValue(item.type.code, priFreeValue);
                 callback(null, item);
             });
         },function(err, result) {
-
-            logger.error('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^result', result);
-            logger.error('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^betItem', betItem);
             betItem.save();
             self.utils.invokeCallback(cb, null, betItem);
             self.save();
@@ -539,12 +541,13 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
+
+        logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.openCode', calcResult.betMoney);
+
         this.addExperience(calcResult.betMoney);
         this.save();
         this.changeNotify();
     }
-
-    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.prototype.openCode');
 
     var winMoney = Number((calcResult.winMoney - calcResult.betMoney).toFixed(2));
     if(calcResult.betCount  > 0){

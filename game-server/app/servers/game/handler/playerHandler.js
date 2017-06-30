@@ -35,10 +35,10 @@ PlayerHandler.prototype.betLimiteCheck = async function (player, parseBetInfo, c
 };
 
 PlayerHandler.prototype.bet = function (msg, session, next) {
-    if (!this.gameService.canBetNow()) {
-        next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
-        return;
-    }
+    // if (!this.gameService.canBetNow()) {
+    //     next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
+    //     return;
+    // }
 
     if (!msg.betData) {
         next(null, new Answer.NoDataResponse(Code.PARAMERROR));

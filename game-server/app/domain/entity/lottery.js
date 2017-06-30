@@ -121,7 +121,7 @@ Lottery.prototype.publishParseResult = function (parseResult) {
     ],function (err) {
         if(!!_lotteryItem){
             self.pubMsg('updateLatestLottery', _lotteryItem.strip());
-            logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~publishParseResult:', _lotteryItem.strip());
+            // logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~publishParseResult:', _lotteryItem.strip());
             self.emit(self.consts.Event.area.parseLottery, {lottery: self, parseResult: [_lotteryItem.strip()]});
         }
     });
