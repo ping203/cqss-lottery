@@ -18,9 +18,9 @@ DaoUser.prototype.getPlayer = function (playerId, cb) {
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
         if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
+            self.utils.invokeCallback(cb, err, null);
         } else if (!res || res.length <= 0) {
-            self.utils.invokeCallback(cb, null, null);
+            self.utils.invokeCallback(cb, '用户不存在', null);
         } else {
             self.utils.invokeCallback(cb, null, bearcat.getBean("player", res[0]));
         }
@@ -107,7 +107,7 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
             function (callback) {
                 self.getPlayer(playerId, function (err, player) {
                     if (!!err || !player) {
-                        logger.error('Get user for daoUser failed! ' + err.stack);
+                        logger.error('Get user for daoUser failed! ' + err);
                     }
                     callback(err, player);
                 });
@@ -129,8 +129,10 @@ DaoUser.prototype.getPlayerAllInfo = function (playerId, cb) {
                 self.utils.invokeCallback(cb, err);
             } else {
                 let player = results[0];
-                player.setBetStatistics(results[1]);
-                player.setBank(results[2]);
+                if(player){
+                    player.setBetStatistics(results[1]);
+                    player.setBank(results[2]);
+                }
                 self.utils.invokeCallback(cb, null, player);
             }
         });

@@ -271,18 +271,15 @@ DaoBets.prototype.getBetStatistics = function (playerId, cb) {
     var args = [playerId, this.consts.BetState.BET_WAIT, this.consts.BetState.BET_WIN,this.consts.BetState.BET_LOSE];
     var self = this;
     pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
+        if (err !== null || res.length === 0) {
+            self.utils.invokeCallback(cb, err || null, null);
         } else {
             if (!!res && res.length === 1) {
                 var r = {};
                 r.betCount = res[0].betCount ? res[0].betCount : 0;
                 r.winCount = res[0].winCount ? res[0].winCount : 0;
                 r.betMoney = res[0].betMoney ? res[0].betMoney : 0;
-
                 self.utils.invokeCallback(cb, null, r);
-            } else {
-                self.utils.invokeCallback(cb, ' Bets not exist ', null);
             }
         }
     });

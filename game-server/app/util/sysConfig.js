@@ -40,14 +40,8 @@ SysConfig.prototype.getRank = function (level) {
     return '终极老司机';
 };
 
-//获取用户经验点数
-SysConfig.prototype.getExp = function () {
-    return this._configs.exp;
-};
-
 //获取用户升级经验上限数
 SysConfig.prototype.getUpdate = function (level) {
-
     if(level > 0 && level <= this._configs.update.length){
         return this._configs.update[level-1];
     }

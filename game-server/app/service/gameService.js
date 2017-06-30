@@ -44,7 +44,7 @@ GameService.prototype.init = function () {
         if(!err && !!result){
             self.sysConfig.setConfigs(result);
             self.run();
-            logger.info('平台参数配置成功');
+            logger.info('平台参数配置成功', result);
             return;
         }
         logger.error('平台参数配置获取失败，系统无法工作');

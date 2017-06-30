@@ -88,7 +88,7 @@ Player.prototype.restoreBets = function (bets) {
     this.changeNotify();
 };
 
-// 补开投注,中奖money 在补开模块写入数据库，此处只负责更新内存和通知用户
+// 退还投注额
 Player.prototype.revertBets = function (bets) {
     this.accountAmount += bets.money;
     this.betStatistics.betMoney -= bets.money;
@@ -534,19 +534,11 @@ Player.prototype.unBet = function (entityId, cb) {
     }
 };
 
-Player.prototype.calcExp = function (calcParam) {
-    var exp_base = this.sysConfig.getExp();
-    var exp = ((calcParam.betCount - calcParam.winCount)*exp_base.lose + calcParam.winCount* exp_base.win + calcParam.betMoney* exp_base.money);
-    return exp;
-};
-
-
 Player.prototype.openCode = function (period, openCodeResult, numbers) {
     var calcResult = this.bets.openCodeCalc(period, openCodeResult);
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
-        // this.addExperience(this.calcExp(calcResult));
         this.addExperience(calcResult.betMoney);
         this.save();
         this.changeNotify();
