@@ -653,6 +653,7 @@ module.exports = {
         {name: "platformBet", ref: "platformBet"},
         {name: "betLimitCfg", ref: "betLimitCfg"},
         {name: "sysConfig", ref: "sysConfig"},
-        {name: "daoBank", ref: "daoBank"}
+        {name: "daoBank", ref: "daoBank"},
+        {name: "daoUser", ref: "daoUser"}
     ]
 }
