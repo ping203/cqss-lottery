@@ -20,7 +20,7 @@ ConnectorService.prototype.init = function () {
     });
 };
 
-ConnectorService.pub = function(event, msg){
+ConnectorService.prototype.pub = function(event, msg){
     this.redisApi.pub(event, JSON.stringify(msg));
 };
 

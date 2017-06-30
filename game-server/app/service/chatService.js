@@ -35,7 +35,7 @@ ChatService.prototype.init = function () {
     });
 };
 
-ChatService.pub = function(event, msg){
+ChatService.prototype.pub = function(event, msg){
     this.redisApi.pub(event, JSON.stringify(msg));
 };
 
