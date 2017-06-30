@@ -24,7 +24,7 @@ ConnectorService.prototype.pub = function(event, msg){
     this.redisApi.pub(event, JSON.stringify(msg));
 };
 
-ConnectorService.prototype.tick = function (uid) {
+ConnectorService.prototype.kick = function (uid) {
     pomelo.app.get('sessionService').kick(Number(uid), '帐号冻结');
 };
 
