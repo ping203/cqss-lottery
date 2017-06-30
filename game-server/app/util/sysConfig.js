@@ -43,7 +43,7 @@ SysConfig.prototype.getRank = function (level) {
 //获取用户升级经验上限数
 SysConfig.prototype.getUpdate = function (level) {
     if(level > 0 && level <= this._configs.update.length){
-        return this._configs.update[level-1];
+        return Number(this._configs.update[level-1]);
     }
     return 0;
 };

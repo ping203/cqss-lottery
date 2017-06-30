@@ -11,6 +11,30 @@ var PlayerHandler = function (app) {
     this.gameService = null;
 };
 
+PlayerHandler.prototype.betLimiteCheck = async function (parseBetInfo, callback) {
+    let player = this.gameService.getPlayer(session.uid);
+    for (let type in parseBetInfo.betTypeInfo) {
+        let item = parseBetInfo.betTypeInfo[type];
+
+        //平台限额检查
+        let ret = await this.platformBet.canBet(item.type.code, item.money);
+        if(ret.result.code != Code.OK.code){
+            callback(ret.result);
+            return;
+        }
+        item.freeBetValue = ret.data.freeBetValue;
+
+        //玩家限额检查
+        let pri = player.canBet(item.type.code, item.money)
+        if (pri.result.code != Code.OK.code) {
+            callback(pri.result);
+            return;
+        }
+        item.priFreeBetValue = pri.data.freeBetValue;
+    }
+    callback(Code.OK);
+};
+
 PlayerHandler.prototype.bet = function (msg, session, next) {
     if (!this.gameService.canBetNow()) {
         next(null, new Answer.NoDataResponse(Code.GAME.FA_BET_CHANNEL_CLOSE));
@@ -27,7 +51,7 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
         function (cb) {
             self.betParser.parse(msg.betData, function (err, result) {
                 if (err) {
-                    cb(new Answer.NoDataResponse(err));
+                    cb(err);
                     return;
                 }
                 cb(null, result);
@@ -36,57 +60,24 @@ PlayerHandler.prototype.bet = function (msg, session, next) {
             let period = self.gameService.getLottery().getNextPeriod();
             let identify = self.gameService.getLottery().getIdentify();
             let player = self.gameService.getPlayer(session.uid);
-            let parseBetInfo = result;
-
-            let betTypeInfoArr = [];
-            for (let type in parseBetInfo.betTypeInfo) {
-                betTypeInfoArr.push(parseBetInfo.betTypeInfo[type]);
-            }
-
-            async.map(betTypeInfoArr, function (item, callback) {
-
-                //平台限额检查
-                self.platformBet.canBet(item.type.code, item.money, function (ret) {
-                    if(ret.result.code != Code.OK.code){
-                        callback(ret.result);
-                        return;
-                    }
-                    item.freeBetValue = ret.data.freeBetValue;
-
-                    //玩家限额检查
-                    let pri = player.canBet(item.type.code, item.money)
-                    if (pri.result.code != Code.OK.code) {
-                        callback(pri.result);
-                        return;
-                    }
-                    item.priFreeBetValue = pri.data.freeBetValue;
-                    callback(null, item);
-                });
-            },function(err, result) {
-                if(err){
-                    cb(new Answer.NoDataResponse(err));
-                    logger.error('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^3333333', err);
+            self.betLimiteCheck(result, function (result) {
+                if(result.code != Code.OK.code){
+                    cb(result);
                     return;
                 }
-
-                for (let type in parseBetInfo.betTypeInfo) {
-                    logger.error('^^^^^^^^result:', parseBetInfo.betTypeInfo[type]);
-                }
-
-                player.bet(period, identify, msg.betData, parseBetInfo, function (err, betItem) {
+                player.bet(period, identify, msg.betData, result, function (err, betItem) {
                     if (err) {
-                        cb(new Answer.NoDataResponse(err));
+                        cb(err);
                         return;
                     }
                     cb();
                     self.gameService.updateLatestBets(betItem.strip());
                 });
-
             });
         }
     ], function (err) {
         if (err) {
-            next(null, err);
+            next(null, new Answer.NoDataResponse(err));
             return;
         }
         next(null, new Answer.NoDataResponse(Code.OK));
