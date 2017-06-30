@@ -123,7 +123,7 @@ RestoreService.prototype.revert = async function (period) {
     let betInfos = {};
     let self = this;
     revertBets.forEach(function (bet) {
-        if(bet.getState() === this.consts.BetState.BET_WAIT){
+        if(bet.getState() === self.consts.BetState.BET_WAIT){
             if(!betInfos[bet.playerId]){
                 betInfos[bet.playerId] ={};
                 betInfos[bet.playerId].money = 0;

@@ -96,7 +96,7 @@ LotteryService.prototype.tick = function () {
     var self = this;
     this.getOfficialLotteryInfo(function (err, result) {
         if (err || !result) {
-            logger.error('获取彩票信息失败', err);
+            logger.error('获取彩票信息失败', err, self.openResult);
             let now = Date.now();
             if (self.openResult) {
                 if ((now - self.openResult.next.opentime.getTime() / 1000 / 60) > 3) {
