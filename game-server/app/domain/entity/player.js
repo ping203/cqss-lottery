@@ -489,8 +489,8 @@ Player.prototype.bet = function (period, identify, betData, betParseInfo, cb) {
         self.utils.invokeCallback(cb, null, betItem);
 
         betItem.save();
-logger.error('~~~~~~~~~~~~~~~~~~~~addExperience~~~~~~~~~test');
-        self.addExperience(betItem.getBetMoney());
+// logger.error('~~~~~~~~~~~~~~~~~~~~addExperience~~~~~~~~~test');
+//         self.addExperience(betItem.getBetMoney());
     });
 
 };

@@ -96,10 +96,13 @@ LotteryService.prototype.tick = function () {
     var self = this;
     this.getOfficialLotteryInfo(function (err, result) {
         if (err || !result) {
-            logger.error('获取彩票信息失败', err, self.openResult);
+
             let now = Date.now();
+
+            logger.error('获取彩票信息失败', err, self.openResult);
+            logger.error('获取彩票信息失败now:', now, 'next:', self.openResult.next.opentime.getTime());
             if (self.openResult) {
-                if ((now - self.openResult.next.opentime.getTime() / 1000 / 60) > 3) {
+                if ((now - self.openResult.next.opentime.getTime()) / 1000 / 60 > 3) {
                     self.pubMsg('revertLatestBet', {period: self.openResult.next.period});
                 }
             }
