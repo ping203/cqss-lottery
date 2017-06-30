@@ -102,7 +102,8 @@ EntryHandler.prototype.playerCtrl = function (msg, session, next) {
             break;
         case this.consts.PlayerCtrl.active:
             if(!msg.ctrl.operate){
-                self.app.get('sessionService').kick(Number(msg.uid), '帐号冻结');
+                this.app.connectorService.pub('kick', {uid:msg.uid});
+                //self.app.get('sessionService').kick(Number(msg.uid), '帐号冻结');
                 logger.error('~~~~~~~~~playerCtrl~~~~~~~~~~帐号冻结剔除用户');
             }
             break;
@@ -229,7 +230,7 @@ module.exports = function (app) {
             {name:"daoUser", ref:"daoUser"},
             {name:"dataApiUtil", ref:"dataApiUtil"},
             {name:"utils", ref:"utils"},
-            {name:"consts", ref:"consts"},
+            {name:"consts", ref:"consts"}
         ]
     });
 };

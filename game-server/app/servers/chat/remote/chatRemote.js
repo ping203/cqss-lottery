@@ -68,7 +68,7 @@ ChatRemote.prototype.get = function(name, flag) {
 
 ChatRemote.prototype.userForbidTalk = function (uid, operate, cb) {
     if(!!uid){
-        this.chatService.forbidTalk(uid, operate);
+        this.chatService.pub('forbidTalk', {uid:uid, operate:operate});
     }
     cb(null, new Answer.NoDataResponse(Code.OK));
 };

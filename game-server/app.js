@@ -111,6 +111,8 @@ const Configure = function () {
             useDict : true,
             useProtobuf : true
         });
+        app.connectorService = bearcat.getBean('connectorService');
+        app.connectorService.init();
     });
 
     // Configure for auth server

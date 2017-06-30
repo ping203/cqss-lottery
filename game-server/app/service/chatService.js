@@ -18,13 +18,29 @@ var ChatService = function () {
  * 初始化聊天服务
  */
 ChatService.prototype.init = function () {
+    //加载禁言用户列表
     this.loadForbidTalkUser();
+
+    //配置聊天数据库
     let configs = this.app.get('redis');
     this.daoChat.init(1, 100, configs);
+
+    //配置消息订阅
+    this.redisApi.init(configs);
+    let self = this;
+    // 踢掉玩家
+    this.redisApi.sub('forbidTalk', function (msg) {
+        logger.error('~~~~~~~~~~ChatService.forbidTalk~~~~~~~~~~`', msg);
+        self.forbidTalk(msg.uid, msg.operate);
+    });
+};
+
+ChatService.pub = function(event, msg){
+    this.redisApi.pub(event, JSON.stringify(msg));
 };
 
 ChatService.prototype.loadForbidTalkUser = function () {
-    var self = this;
+    let self = this;
     this.daoUser.getForbidUserID(function (err, uids) {
         if(err){
             self.forbidTalkSet = new Set();
@@ -61,13 +77,13 @@ ChatService.prototype.add = function (playerId, sid, roleName, roomId) {
         return Code.OK;
     }
 
-    var enterRoomId = this.uidMap.get(playerId);
+    let enterRoomId = this.uidMap.get(playerId);
     if(!!enterRoomId){
         this.leave(playerId, enterRoomId);
     }
 
    // var channel = this.app.get('channelService').getChannel(roomId, true);
-    var channel = this.app.get('globalChannelService');
+    let channel = this.app.get('globalChannelService');
     if (!channel) {
         return Code.CHAT.FA_CHANNEL_CREATE;
     }
@@ -82,9 +98,9 @@ ChatService.prototype.add = function (playerId, sid, roleName, roomId) {
 ChatService.prototype.leave = function (playerId, roomId) {
     logger.error('!!!!!!!!!!!ChatService leave', playerId, roomId);
 
-    var record = this.roomMap.get(roomId).get(playerId);
+    let record = this.roomMap.get(roomId).get(playerId);
   //  var channel = this.app.get('channelService').getChannel(roomId, true);
-    var channel = this.app.get('globalChannelService');
+    let channel = this.app.get('globalChannelService');
 
     logger.error('!!!!!!!!!!!ChatService record', record);
 
@@ -132,8 +148,8 @@ ChatService.prototype.getUsers = function (roomId) {
 };
 
 ChatService.prototype.kick = function (playerId, roomId) {
-    var record = this.roomMap.get(roomId).get(playerId);
-    var channel = this.app.get('channelService').getChannel(roomId, true);
+    let record = this.roomMap.get(roomId).get(playerId);
+    let channel = this.app.get('channelService').getChannel(roomId, true);
 
     if (channel && record) {
         channel.leave(playerId, record.sid);
@@ -144,13 +160,13 @@ ChatService.prototype.kick = function (playerId, roomId) {
 };
 
 ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
-    var channel = this.app.get('globalChannelService');
+    let channel = this.app.get('globalChannelService');
     if (!channel) {
         this.utils.invokeCallback(cb, Code.CHAT.FA_CHANNEL_NOT_EXIST);
         return;
     }
 
-    var self  = this;
+    let self  = this;
     channel.pushMessage('connector',this.consts.Event.chat.chatMessage, msg, roomId, {isPush:true}, function (err, fails) {
         if(err) {
             console.error('send message to all users error: %j, fail ids: %j', err, fails);
@@ -165,7 +181,7 @@ ChatService.prototype.pushByRoomId = function (roomId, msg, cb) {
 };
 
 ChatService.prototype.getHistory = function (roomId, cb) {
-    var self = this;
+    let self = this;
     this.daoChat.gets(function (err, result) {
         if(err){
             self.utils.invokeCallback(cb, Code.DBFAIL);
@@ -190,7 +206,7 @@ ChatService.prototype.recordChat = function (msg) {
 };
 
 ChatService.prototype.pushByUID = function (uid, msg, cb) {
-    var record = this.roomMap.get(msg.roomId).get(uid);
+    let record = this.roomMap.get(msg.roomId).get(uid);
     if (!record) {
         cb(null, this.code.CHAT.FA_USER_NOT_ONLINE);
         return;
@@ -202,11 +218,11 @@ ChatService.prototype.pushByUID = function (uid, msg, cb) {
     }], cb);
 };
 
-var checkDuplicate = function (service, playerId, roomId) {
+let checkDuplicate = function (service, playerId, roomId) {
     return !!service.roomMap.get(roomId) && !!service.roomMap.get(roomId).get(playerId);
 };
 
-var addRecord = function (service, playerId, roleName, sid, roomId) {
+let addRecord = function (service, playerId, roleName, sid, roomId) {
     let record = {uid: playerId, name: roleName, sid: sid};
     let userMap = service.roomMap.get(roomId);
     if(!userMap){
@@ -217,7 +233,7 @@ var addRecord = function (service, playerId, roleName, sid, roomId) {
     service.uidMap.set(playerId, roomId);
 };
 
-var removeRecord = function (service, playerId, roomId) {
+let removeRecord = function (service, playerId, roomId) {
     let userMap = service.roomMap.get(roomId);
     if(!!userMap){
         userMap.delete(playerId);
@@ -243,5 +259,8 @@ module.exports = {
     }, {
         name: "daoChat",
         ref: "daoChat"
+    }, {
+        name: "redisApi",
+        ref: "redisApi"
     }]
 }
