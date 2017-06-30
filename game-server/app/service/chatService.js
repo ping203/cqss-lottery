@@ -184,7 +184,7 @@ ChatService.prototype.getHistory = function (roomId, cb) {
     let self = this;
     this.daoChat.gets(function (err, result) {
         if(err){
-            self.utils.invokeCallback(cb, Code.DBFAIL);
+            self.utils.invokeCallback(cb, Code.CHAT.FA_CHAT_HISTORY_EMPTY);
             return;
         }
 
