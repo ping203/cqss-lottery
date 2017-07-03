@@ -119,50 +119,49 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
             reduce.incomeMoney += item.incomeMoney;
             reduce.defection += item.defection;
             reduce_callback(null, reduce);
-        }, function (err, income) {
+        }, async function (err, income) {
 
             var upperRebateMoney = 0; //分成
             var rate = 0;
             var subRate = 0;
 
-            self.daoUser.getUpperAgent(agent.id, function (err, upper) {
-                if(upper){
-                    if(!!upper.ext && !!upper.ext.divide){
-                        rate = upper.ext.divide;
-                        subRate = upper.ext.divide - agent.ext.divide;
-                    }
+            let upper = await self.daoUser.getUpperAgent(agent.id);
+            if(upper){
+                if(!!upper.ext && !!upper.ext.divide){
+                    rate = upper.ext.divide;
+                    subRate = upper.ext.divide - agent.ext.divide;
                 }
-                else {
-                    if(!!agent.ext && !!agent.ext.divide){
-                        rate = agent.ext.divide;
-                    }
+            }
+            else {
+                if(!!agent.ext && !!agent.ext.divide){
+                    rate = agent.ext.divide;
+                }
+            }
+
+            //盈亏金额
+            var incomeMoney = (-income.incomeMoney) - income.defection;
+            if (incomeMoney > 0) {
+                agentIncomInit.rebateMoney = Math.abs(incomeMoney) * rate/100;
+                if(subRate > 0){
+                    upperRebateMoney = Math.abs(incomeMoney) * subRate/100;
+                    agentIncomInit.rebateMoney -= upperRebateMoney;
+                }
+            }
+
+            agentIncomInit.betMoney = income.betMoney;
+            agentIncomInit.incomeMoney = income.incomeMoney;
+            agentIncomInit.rebateRate = rate;
+            self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
+                if (err) {
+                    logger.error('代理商分成记录失败!' + err.stack);
+                    cb('代理商分成记录失败');
+                    return;
                 }
 
-                //盈亏金额
-                var incomeMoney = (-income.incomeMoney) - income.defection;
-                if (incomeMoney > 0) {
-                    agentIncomInit.rebateMoney = Math.abs(incomeMoney) * rate/100;
-                    if(subRate > 0){
-                        upperRebateMoney = Math.abs(incomeMoney) * subRate/100;
-                        agentIncomInit.rebateMoney -= upperRebateMoney;
-                    }
+                if(upperRebateMoney > 0){
+                    res.upper = {playerId:upper.id, rebateMoney:upperRebateMoney};
                 }
-
-                agentIncomInit.betMoney = income.betMoney;
-                agentIncomInit.incomeMoney = income.incomeMoney;
-                agentIncomInit.rebateRate = rate;
-                self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
-                    if (err) {
-                        logger.error('代理商分成记录失败!' + err.stack);
-                        cb('代理商分成记录失败');
-                        return;
-                    }
-
-                    if(upperRebateMoney > 0){
-                        res.upper = {playerId:upper.id, rebateMoney:upperRebateMoney};
-                    }
-                    self.utils.invokeCallback(callback, null, res);
-                });
+                self.utils.invokeCallback(callback, null, res);
             });
         });
     });
