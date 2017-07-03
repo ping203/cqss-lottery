@@ -35,19 +35,25 @@ DaoIncome.prototype.addPlayerIncome = function (income, cb) {
 };
 
 DaoIncome.prototype.getPlayerIncomeByTime = function (playerId, incomeTime, cb) {
-    var sql = 'select * from PlayerIncome where uid = ? and incomeTime = ?';
-    var args = [playerId, incomeTime];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
-        } else {
-            if (!!res && res.length >= 1) {
-                self.utils.invokeCallback(cb, null, res[0]);
+    let sql = 'select * from PlayerIncome where uid = ? and incomeTime = ?';
+    let args = [playerId, incomeTime];
+    let self = this;
+
+    return new Promise((resolve, reject)=>{
+        pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+            if (err !== null) {
+                self.utils.invokeCallback(cb, err, null);
+                reject(err);
             } else {
-                self.utils.invokeCallback(cb, ' user not exist ', null);
+                if (!!res && res.length >= 1) {
+                    self.utils.invokeCallback(cb, null, res[0]);
+                    resolve(res[0]);
+                } else {
+                    self.utils.invokeCallback(cb, ' user not exist ', null);
+                    resolve(null);
+                }
             }
-        }
+        });
     });
 };
 

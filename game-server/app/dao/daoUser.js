@@ -86,17 +86,22 @@ DaoUser.prototype.getPlayerByName = function (username, cb) {
 
 // 获取我的好友
 DaoUser.prototype.getMyFriends = function (playerId, cb) {
-    var sql = 'select friends from User where id = ?';
-    var args = [playerId];
-    var self = this;
-    pomelo.app.get('dbclient').query(sql, args, function (err, res) {
-        if (err !== null) {
-            self.utils.invokeCallback(cb, err.message, null);
-        } else if (!res || res.length <= 0) {
-            self.utils.invokeCallback(cb, null, []);
-        } else {
-            self.utils.invokeCallback(cb, null, res[0].friends);
-        }
+    let sql = 'select friends from User where id = ?';
+    let args = [playerId];
+    let self = this;
+    return new Promise((resolve, reject)=>{
+        pomelo.app.get('dbclient').query(sql, args, function (err, res) {
+            if (err !== null) {
+                self.utils.invokeCallback(cb, err, null);
+                reject(err);
+            } else if (!res || res.length <= 0) {
+                self.utils.invokeCallback(cb, null, null);
+                resolve(null);
+            } else {
+                self.utils.invokeCallback(cb, null, res[0].friends);
+                resolve(res[0].friends);
+            }
+        });
     });
 };
 
@@ -275,6 +280,8 @@ DaoUser.prototype.getAgents = function (cb) {
 DaoUser.prototype.getUpperAgent = function (playerId, cb) {
     var self = this;
     var upperAgentId = {};
+
+    return new Promise((resolve, reject)=>{
         async.waterfall([
                 function (callback) {
                     self.getPlayer(playerId, callback);
@@ -284,24 +291,26 @@ DaoUser.prototype.getUpperAgent = function (playerId, cb) {
                         if(!!err || !agent || !agent.active || (agent.role != self.consts.RoleType.AGENT1 && agent.role
                             != self.consts.RoleType.AGENT2)){
                             self.utils.invokeCallback(cb, '上级代理不存在', null);
+                            resolve(null, null);
                             return;
                         }
                         upperAgentId = {
                             id: agent.id,
                             ext: JSON.parse(agent.ext)
                         };
-
                     });
                 }
             ],
             function (err) {
                 if (!!err) {
                     self.utils.invokeCallback(cb, err, null);
+                    resolve(null, null);
                 } else {
                     self.utils.invokeCallback(cb, null, upperAgentId);
+                    resolve(null, upperAgentId);
                 }
             });
-
+    });
 };
 
 // 获取所以被禁言的用户ID
