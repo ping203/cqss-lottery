@@ -10,6 +10,10 @@ var CalcIncome = function () {
     this.incomeTime = 0;
 };
 
+CalcIncome.prototype.init = function (_redis) {
+    this.redisApi = _redis;
+};
+
 //玩家反水
 CalcIncome.prototype.playerDefection = function (playerId, callback) {
     var self = this;
@@ -79,6 +83,9 @@ CalcIncome.prototype.getPlayerTodayIncome = function (playerId, callback) {
 };
 
 CalcIncome.prototype.agentRebate = async function (agent, callback) {
+
+    logger.error('~~~~~agentRebate:',agent);
+
     // id, userId, level
     let self = this;
     let agentIncomInit = {
@@ -122,7 +129,7 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
         }, async function (err, income) {
 
             var upperRebateMoney = 0; //分成
-            var rate = 0;
+            var rate = 30;
             var subRate = 0;
 
             let upper = await self.daoUser.getUpperAgent(agent.id);
@@ -169,8 +176,14 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
 
 //玩家反水入账
 CalcIncome.prototype.playerIncomeInsertAccount = function (income, callback) {
+    let self = this;
     if (!!income && income.defection > 0) {
-        this.daoUser.updateAccountAmount(income.playerId, income.defection, callback);
+        this.daoUser.updateAccountAmount(income.playerId, income.defection, function (err, ret) {
+            if(ret){
+                self.pubMsg('recharge', {uid:income.playerId, money:income.defection});
+            }
+            callback(null,null);
+        });
     }
     else {
         callback(null,null);
@@ -180,10 +193,20 @@ CalcIncome.prototype.playerIncomeInsertAccount = function (income, callback) {
 //代理商分成入账
 CalcIncome.prototype.agentsRebateInsertAccount = function (income, callback) {
     if (!!income && income.rebateMoney > 0) {
+        let self = this;
         logger.error('~~~~~~~~~~~~玩家id:', income.playerId, '获得反水金额：', income.rebateMoney);
         this.daoUser.updateAccountAmount(income.playerId, income.rebateMoney, function (err, result) {
+            if(result){
+                self.pubMsg('recharge', {uid:income.playerId, money:income.rebateMoney});
+            }
+
             if(!!income.upper && income.upper.rebateMoney > 0){
-                this.daoUser.updateAccountAmount(income.upper.playerId, income.upper.rebateMoney, callback);
+                self.daoUser.updateAccountAmount(income.upper.playerId, income.upper.rebateMoney, function (err, ret) {
+                    if(ret){
+                        self.pubMsg('recharge', {uid:income.upper.playerId, money:income.upper.rebateMoney});
+                    }
+                    callback(null,null);
+                });
                 logger.error('~~~~~~~~~~~~玩家id:', income.playerId,'上级代理id:',income.upper.playerId, '获得反水金额：', income.upper.rebateMoney);
             }
             else {
@@ -211,6 +234,8 @@ CalcIncome.prototype.playersCalc = function () {
         if (err) {
             logger.error('玩家今日反水存在异常!' + err);
         }
+
+        logger.error('~~~~~~~~~~~~~~~CalcIncome.playersCalc 44444', err);
         logger.info('玩家今日反水计算完成');
         self.agentsCalc();
     });
@@ -239,11 +264,16 @@ CalcIncome.prototype.agentsCalc = function () {
 
 };
 
+CalcIncome.prototype.pubMsg = function (event, msg) {
+    this.redisApi.pub(event, JSON.stringify(msg));
+};
+
 CalcIncome.prototype.calc = function () {
+    logger.error('~~~~~~~~~~~~~~~CalcIncome.prototype.calc');
     var now = new Date();
     var begin = new Date(now);
-    begin.setHours(1, 55, 0, 0);
     begin.setDate(begin.getDate()-1);
+    begin.setHours(1, 55, 0, 0);
     this.beginTime = begin.getTime();
 
 

@@ -20,6 +20,8 @@ RestoreService.prototype.init = function () {
     this.redisApi.init(configs);
     this.restore();
 
+    this.calcIncome.init(this.redisApi);
+
     var self = this;
 
     // 当官方超过三分钟无法开奖时，则自动退还投注金额
@@ -52,7 +54,7 @@ RestoreService.prototype.init = function () {
         self.openPreLottery(msg.period, msg.numbers);
     });
 
-    schedule.scheduleJob('0 30 14 * * *', this.incomeScheduleTask.bind(this));
+    schedule.scheduleJob('0 0 2 * * *', this.incomeScheduleTask.bind(this));
 
     this.daoBets.getLatestBets(0, this.consts.BET_MAX, function (err, results) {
         if(err){
@@ -106,6 +108,8 @@ RestoreService.prototype.updateLatestLottery = function (item) {
 };
 
 RestoreService.prototype.incomeScheduleTask = function () {
+
+    logger.error('~~~~~~~~~~~~~~~RestoreService.incomeScheduleTask');
     this.calcIncome.calc();
 };
 
