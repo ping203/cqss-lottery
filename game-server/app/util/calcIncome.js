@@ -259,7 +259,7 @@ CalcIncome.prototype.calc = function () {
     var begin = new Date(now);
     begin.setHours(1, 55, 0, 0);
     begin.setDate(begin.getDate()-1);
-    begin.setMonth(6);
+    begin.setMonth(5);
     begin.setDate(30);
 
     this.beginTime = begin.getTime();
@@ -267,7 +267,7 @@ CalcIncome.prototype.calc = function () {
 
     var end = new Date(now);
     end.setHours(1, 55, 0, 0);
-    begin.setMonth(6);
+    begin.setMonth(5);
     begin.setDate(30);
 
     this.endTime = end.getTime();
@@ -275,8 +275,8 @@ CalcIncome.prototype.calc = function () {
     var calcTime = new Date(now);
     calcTime.setDate(calcTime.getDate()-1);
     calcTime.setHours(0,0,0,0);
-    // begin.setMonth(6);
-    // begin.setDate(30);
+    begin.setMonth(5);
+    begin.setDate(30);
 
     this.incomeTime = calcTime.getTime();
 

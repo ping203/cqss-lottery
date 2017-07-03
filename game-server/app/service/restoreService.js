@@ -52,7 +52,7 @@ RestoreService.prototype.init = function () {
         self.openPreLottery(msg.period, msg.numbers);
     });
 
-    schedule.scheduleJob('0 15 13 * * *', this.incomeScheduleTask.bind(this));
+    schedule.scheduleJob('0 25 13 * * *', this.incomeScheduleTask.bind(this));
 
     this.daoBets.getLatestBets(0, this.consts.BET_MAX, function (err, results) {
         if(err){
