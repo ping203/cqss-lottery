@@ -537,7 +537,13 @@ Player.prototype.unBet = function (entityId, cb) {
 };
 
 Player.prototype.openCode = function (period, openCodeResult, numbers) {
+
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.openCode 1111:period:', period, 'id:', this.id);
+
     var calcResult = this.bets.openCodeCalc(period, openCodeResult);
+
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.openCode 1111:period:', period, 'id:', this.id, 'calcResult:', calcResult);
+
     if (calcResult.winCount != 0) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
@@ -547,7 +553,7 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
         this.save();
         this.changeNotify();
     }
-    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.openCode money111111:', calcResult.betMoney, 'id:', this.id);
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.openCode 2222:', calcResult.betMoney, 'id:', this.id);
     var winMoney = Number((calcResult.winMoney - calcResult.betMoney).toFixed(2));
     if(calcResult.betCount  > 0){
         this.emit(this.consts.Event.area.playerWinner, {player: this, winMoney:winMoney,numbers:numbers, itemOK:calcResult.itemOK, uids: [{uid: this.id, sid: this.serverId}]});
