@@ -194,9 +194,11 @@ CalcIncome.prototype.playerIncomeInsertAccount = function (income, callback) {
 //代理商分成入账
 CalcIncome.prototype.agentsRebateInsertAccount = function (income, callback) {
     if (!!income && income.rebateMoney > 0) {
+        logger.error('~~~~~~~~~~~~玩家id:', income.playerId, '获得反水金额：', income.rebateMoney);
         this.daoUser.updateAccountAmount(income.playerId, income.rebateMoney, function (err, result) {
             if(!!income.upper && income.upper.rebateMoney > 0){
                 this.daoUser.updateAccountAmount(income.upper.playerId, income.upper.rebateMoney, callback);
+                logger.error('~~~~~~~~~~~~玩家id:', income.playerId,'上级代理id:',income.upper.playerId, '获得反水金额：', income.upper.rebateMoney);
             }
             else {
                 callback(null,null);
@@ -257,15 +259,25 @@ CalcIncome.prototype.calc = function () {
     var begin = new Date(now);
     begin.setHours(1, 55, 0, 0);
     begin.setDate(begin.getDate()-1);
+    begin.setMonth(6);
+    begin.setDate(30);
+
     this.beginTime = begin.getTime();
+
 
     var end = new Date(now);
     end.setHours(1, 55, 0, 0);
+    begin.setMonth(6);
+    begin.setDate(30);
+
     this.endTime = end.getTime();
 
     var calcTime = new Date(now);
     calcTime.setDate(calcTime.getDate()-1);
     calcTime.setHours(0,0,0,0);
+    // begin.setMonth(6);
+    // begin.setDate(30);
+
     this.incomeTime = calcTime.getTime();
 
     this.playersCalc();

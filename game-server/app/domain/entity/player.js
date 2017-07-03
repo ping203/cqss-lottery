@@ -392,10 +392,6 @@ Player.prototype.getMyIncomes = function (skip, limit, cb) {
     this.daoIncome.getPlayerIncomes(this.id, skip, limit, cb);
 };
 
-Player.prototype.getFriendIncomes = function (skip, limit, cb) {
-    this.daoIncome.getMyFriendIncomes(this.id, skip, limit, cb);
-};
-
 Player.prototype.getBaseInfo = function () {
     var winRate = 0;
     if (this.betStatistics.betCount > 0) {

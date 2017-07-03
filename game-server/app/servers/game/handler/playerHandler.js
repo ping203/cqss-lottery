@@ -136,23 +136,6 @@ PlayerHandler.prototype.myIncome = function (msg, session, next) {
     });
 };
 
-PlayerHandler.prototype.friendIncome = function (msg, session, next) {
-    var player = this.gameService.getPlayer(session.uid);
-    let skip = Number(msg.skip);
-    let limit = Number(msg.limit);
-    if(isNaN(skip) || isNaN(limit)){
-        next(null, new Answer.NoDataResponse(Code.PARAMERROR));
-        return;
-    }
-    player.getFriendIncomes(skip, limit, function (err, result) {
-        if (err) {
-            next(null, new Answer.NoDataResponse(Code.GAME.FA_QUERY_INFO_IS_EMPTY));
-            return;
-        }
-        next(null, new Answer.DataResponse(Code.OK, result));
-    });
-};
-
 PlayerHandler.prototype.setRoleName = function (msg, session, next) {
     var self = this;
     this.daoUser.checkRoleName(msg.roleName).then(used => {
