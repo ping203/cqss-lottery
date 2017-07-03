@@ -141,11 +141,15 @@ Player.prototype.setNextLevelExp = function () {
 }
 
 Player.prototype.addExperience = function (exp) {
-    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.prototype.addExperience', exp, 'nextLevelExp:', this.nextLevelExp, 'curexp:', this.experience);
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.prototype.addExperience:', exp,
+        'nextLevelExp:', this.nextLevelExp, 'curexp:', this.experience,'id:',this.id);
+
     if(isNaN(exp)){
         logger.error('经验值无效');
         return;
     }
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.prototype.addExperience1111:', exp,
+        'nextLevelExp:', this.nextLevelExp, 'curexp:', this.experience,'id:',this.id);
 
     this.experience += exp;
     if (this.experience >= this.nextLevelExp) {
@@ -166,10 +170,10 @@ Player.prototype.upgrade = function () {
 //Upgrade, update player's state
 Player.prototype._upgrade = function () {
     this.level += 1;
-    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player._upgrade', this.level);
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player._upgrade', this.level,'nextLevelExp:', this.nextLevelExp,'id:', this.id);
     this.experience -= this.nextLevelExp;
     this.setNextLevelExp();
-    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player._upgrade', this.experience, 'nextLevelExp:', this.nextLevelExp);
+    logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player._upgrade', this.experience, 'nextLevelExp:', this.nextLevelExp,'id:',this.id);
 };
 
 Player.prototype.setState = function(state){
@@ -538,9 +542,8 @@ Player.prototype.openCode = function (period, openCodeResult, numbers) {
         this.betStatistics.winCount += calcResult.winCount;
         this.accountAmount += calcResult.winMoney;
 
-        logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.openCode', calcResult.betMoney);
-
-        this.addExperience(calcResult.betMoney);
+        logger.error('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Player.openCode money:', calcResult.betMoney, 'id:', this.id);
+        this.addExperience(Number(calcResult.betMoney));
         this.save();
         this.changeNotify();
     }
