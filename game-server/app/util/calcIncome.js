@@ -118,7 +118,7 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
             return;
         }
     }
-
+    logger.error('~~~~~friendIds:',friendIds);
     async.map(friendIds, self.getPlayerTodayIncome.bind(self), function (err, incomes) {
 
         async.reduce(incomes, {betMoney: 0, incomeMoney: 0, defection:0}, function (reduce, item, reduce_callback) {

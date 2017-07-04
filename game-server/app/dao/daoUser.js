@@ -290,19 +290,27 @@ DaoUser.prototype.getUpperAgent = function (playerId, cb) {
                     self.getPlayerByName(player.inviter, function (err, agent) {
                         if(!!err || !agent || !agent.active || (agent.role != self.consts.RoleType.AGENT1 && agent.role
                             != self.consts.RoleType.AGENT2)){
-                            self.utils.invokeCallback(cb, '上级代理不存在', null);
+                            self.utils.invokeCallback(callback, '上级代理不存在', null);
                             resolve(null, null);
                             return;
                         }
-                        upperAgentId = {
-                            id: agent.id,
-                            ext: JSON.parse(agent.ext)
-                        };
+                        logger.error('~~~~~DaoUser.getUpperAgent:',playerId, 'agent:', agent);
+                        try {
+                            upperAgentId = {
+                                id: agent.id,
+                                ext: JSON.parse(agent.ext)
+                            };
+                        }catch (err){
+                            callback(err);
+                            return;
+                        }
+                        callback();
                     });
                 }
             ],
             function (err) {
                 if (!!err) {
+                    logger.error('~~~~~DaoUser.getUpperAgent err:', err, 'playerId:',playerId);
                     self.utils.invokeCallback(cb, err, null);
                     resolve(null, null);
                 } else {
