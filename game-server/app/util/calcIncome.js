@@ -133,9 +133,10 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
             var subRate = 0;
 
             let upper = await self.daoUser.getUpperAgent(agent.id);
-            logger.error('~~~~~upper:',upper.ext);
+
             logger.error('~~~~~agent:',agent.ext);
             if(upper){
+                logger.error('~~~~~upper:',upper.ext);
                 if(!!upper.ext && !!upper.ext.divide){
                     rate = upper.ext.divide;
                     subRate = upper.ext.divide - agent.ext.divide;
