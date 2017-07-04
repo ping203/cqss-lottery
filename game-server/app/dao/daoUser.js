@@ -294,7 +294,7 @@ DaoUser.prototype.getUpperAgent = function (playerId, cb) {
                             resolve(null, null);
                             return;
                         }
-                        logger.error('~~~~~DaoUser.getUpperAgent:',playerId, 'agent:', agent);
+                        logger.error('~~~~~DaoUser.getUpperAgent:',playerId, 'agent:', typeof agent.ext);
                         try {
                             upperAgentId = {
                                 id: agent.id,
