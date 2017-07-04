@@ -126,60 +126,62 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
             reduce.incomeMoney += item.incomeMoney;
             reduce.defection += item.defection;
             reduce_callback(null, reduce);
-        }, async function (err, income) {
+        }, function (err, income) {
 
-            var upperRebateMoney = 0; //分成
-            var rate = 0;
-            var subRate = 0;
+            let upperRebateMoney = 0; //分成
+            let rate = 0;
+            let subRate = 0;
 
-            let upper = await self.daoUser.getUpperAgent(agent.id);
-
-            logger.error('~~~~~agent:',agent.ext);
-            if(upper){
-                logger.error('~~~~~upper:',upper.ext);
-                if(!!upper.ext && !!upper.ext.divide){
-                    rate = upper.ext.divide;
-                    subRate = upper.ext.divide - agent.ext.divide;
+            self.daoUser.getUpperAgent(agent.id, function (err, upper) {
+                logger.error('~~~~~agent:',agent.ext);
+                if(upper){
+                    logger.error('~~~~~upper:',upper.ext);
+                    if(!!upper.ext && !!upper.ext.divide){
+                        rate = upper.ext.divide;
+                        subRate = upper.ext.divide - agent.ext.divide;
+                    }
                 }
-            }
-            else {
-                if(!!agent.ext && !!agent.ext.divide){
-                    rate = agent.ext.divide;
-                }
-            }
-
-            logger.error('~~~~~rate:',rate, 'subRate',subRate);
-
-            //盈亏金额
-            var incomeMoney = (-income.incomeMoney) - income.defection;
-            if (incomeMoney > 0) {
-                agentIncomInit.rebateMoney = Math.abs(incomeMoney) * rate/100;
-                if(subRate > 0){
-                    upperRebateMoney = Math.abs(incomeMoney) * subRate/100;
-                    agentIncomInit.rebateMoney -= upperRebateMoney;
-                }
-            }
-            logger.error('~~~~~upperRebateMoney:',upperRebateMoney);
-            logger.error('~~~~~agentIncomInit.rebateMoney:',agentIncomInit.rebateMoney);
-
-            agentIncomInit.betMoney = income.betMoney;
-            agentIncomInit.incomeMoney = income.incomeMoney;
-            agentIncomInit.rebateRate = rate;
-            self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
-                if (err) {
-                    logger.error('代理商分成记录失败!' + err.stack);
-                    cb('代理商分成记录失败');
-                    return;
-                }
-                logger.error('~~~~~res:',res);
-                if(upperRebateMoney > 0){
-                    res.upper = {playerId:upper.id, rebateMoney:upperRebateMoney};
+                else {
+                    if(!!agent.ext && !!agent.ext.divide){
+                        rate = agent.ext.divide;
+                    }
                 }
 
-                logger.error('~~~~~res1111:',res);
+                logger.error('~~~~~rate:',rate, 'subRate',subRate);
 
-                self.utils.invokeCallback(callback, null, res);
+                //盈亏金额
+                var incomeMoney = (-income.incomeMoney) - income.defection;
+                if (incomeMoney > 0) {
+                    agentIncomInit.rebateMoney = Math.abs(incomeMoney) * rate/100;
+                    if(subRate > 0){
+                        upperRebateMoney = Math.abs(incomeMoney) * subRate/100;
+                        agentIncomInit.rebateMoney -= upperRebateMoney;
+                    }
+                }
+                logger.error('~~~~~upperRebateMoney:',upperRebateMoney);
+                logger.error('~~~~~agentIncomInit.rebateMoney:',agentIncomInit.rebateMoney);
+
+                agentIncomInit.betMoney = income.betMoney;
+                agentIncomInit.incomeMoney = income.incomeMoney;
+                agentIncomInit.rebateRate = rate;
+                self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
+                    if (err) {
+                        logger.error('代理商分成记录失败!' + err.stack);
+                        cb('代理商分成记录失败');
+                        return;
+                    }
+                    logger.error('~~~~~res:',res);
+                    if(upperRebateMoney > 0){
+                        res.upper = {playerId:upper.id, rebateMoney:upperRebateMoney};
+                    }
+
+                    logger.error('~~~~~res1111:',res);
+
+                    self.utils.invokeCallback(callback, null, res);
+                });
             });
+
+
         });
     });
 };
