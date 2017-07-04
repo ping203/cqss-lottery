@@ -252,6 +252,7 @@ DaoUser.prototype.setPlayerCanTalk = function (playerId, bTalk, cb) {
 
 // 获取平台所有代理商
 DaoUser.prototype.getAgents = function (cb) {
+    logger.error('^^^^^^^^^^^^^^^^^^^^^DaoUser.getAgents 111111');
     var sql = 'select id, ext from User where role in(?,?) and active =?';
     var args = [this.consts.RoleType.AGENT1, this.consts.RoleType.AGENT2, 1];
     var self = this;
