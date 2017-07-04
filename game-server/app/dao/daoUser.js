@@ -263,6 +263,7 @@ DaoUser.prototype.getAgents = function (cb) {
 
                 var agents = [];
                 for (let i = 0; i < res.length; i++) {
+                    logger.error('^^^^^^^^^^^^^^^^^^^^^DaoUser.getAgents:', res[i].ext, typeof res[i].ext);
                     agents.push({
                         id: res[i].id,
                         ext: JSON.parse(res[i].ext)
@@ -298,7 +299,8 @@ DaoUser.prototype.getUpperAgent = function (playerId, cb) {
                         try {
                             upperAgentId = {
                                 id: agent.id,
-                                ext: JSON.parse(agent.ext)
+                                ext:agent.ext
+                                // ext: JSON.parse(agent.ext)
                             };
                         }catch (err){
                             callback(err);
