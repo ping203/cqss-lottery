@@ -133,6 +133,8 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
             var subRate = 0;
 
             let upper = await self.daoUser.getUpperAgent(agent.id);
+            logger.error('~~~~~upper:',upper.ext);
+            logger.error('~~~~~agent:',agent.ext);
             if(upper){
                 if(!!upper.ext && !!upper.ext.divide){
                     rate = upper.ext.divide;
@@ -145,6 +147,8 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                 }
             }
 
+            logger.error('~~~~~rate:',rate, 'subRate',subRate);
+
             //盈亏金额
             var incomeMoney = (-income.incomeMoney) - income.defection;
             if (incomeMoney > 0) {
@@ -154,6 +158,8 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                     agentIncomInit.rebateMoney -= upperRebateMoney;
                 }
             }
+            logger.error('~~~~~upperRebateMoney:',upperRebateMoney);
+            logger.error('~~~~~agentIncomInit.rebateMoney:',agentIncomInit.rebateMoney);
 
             agentIncomInit.betMoney = income.betMoney;
             agentIncomInit.incomeMoney = income.incomeMoney;
@@ -164,10 +170,13 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                     cb('代理商分成记录失败');
                     return;
                 }
-
+                logger.error('~~~~~res:',res);
                 if(upperRebateMoney > 0){
                     res.upper = {playerId:upper.id, rebateMoney:upperRebateMoney};
                 }
+
+                logger.error('~~~~~res1111:',res);
+
                 self.utils.invokeCallback(callback, null, res);
             });
         });
@@ -194,7 +203,7 @@ CalcIncome.prototype.playerIncomeInsertAccount = function (income, callback) {
 CalcIncome.prototype.agentsRebateInsertAccount = function (income, callback) {
     if (!!income && income.rebateMoney > 0) {
         let self = this;
-        logger.error('~~~~~~~~~~~~玩家id:', income.playerId, '获得反水金额：', income.rebateMoney);
+        logger.error('~~~~~~~~~~~~玩家id:', income.playerId, '获得反水金额：', income.rebateMoney, 'income:', income);
         this.daoUser.updateAccountAmount(income.playerId, income.rebateMoney, function (err, result) {
             if(result){
                 self.pubMsg('recharge', {uid:income.playerId, money:income.rebateMoney});
