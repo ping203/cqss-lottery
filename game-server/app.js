@@ -14,6 +14,10 @@ const logger = require('pomelo-logger').getLogger(__filename);
  */
 const app = pomelo.createApp();
 
+logger.error(env);
+
+env=production
+logger.error('set:', env);
 const Configure = function () {
     app.set('name', 'lottery');
 
