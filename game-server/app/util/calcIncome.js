@@ -159,7 +159,7 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                         agentIncomInit.rebateMoney -= agentIncomInit.upperRebateMoney;
                     }
                 }
-                logger.error('~~~~~upperRebateMoney:',upperRebateMoney);
+                logger.error('~~~~~upperRebateMoney:',agentIncomInit.upperRebateMoney, 'incomeMoney:', incomeMoney);
                 logger.error('~~~~~agentIncomInit.rebateMoney:',agentIncomInit.rebateMoney);
 
                 agentIncomInit.betMoney = income.betMoney;
