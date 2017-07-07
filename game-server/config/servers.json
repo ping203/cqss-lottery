@@ -112,9 +112,24 @@
     "connector": [
       {
         "id": "connector-server-1",
-        "host": "127.0.0.1",
+        "host": "116.31.99.217",
         "port": 3150,
         "clientPort": 3010,
+        "frontend": true,
+        "max-connections":1000
+      },
+      {
+        "id": "connector-server-2",
+        "host": "116.31.99.217",
+        "port": 3151,
+        "clientPort": 3011,
+        "frontend": true
+      },
+      {
+        "id": "connector-server-3",
+        "host": "116.31.99.217",
+        "port": 3152,
+        "clientPort": 3012,
         "frontend": true
       }
     ],
@@ -123,19 +138,14 @@
         "id": "game-server-1",
         "host": "127.0.0.1",
         "port": 3250,
-        "gameId": 1
+        "gameId": 1,
+        "args": "--inspect=10012"
       },
       {
         "id": "game-server-2",
         "host": "127.0.0.1",
         "port": 3251,
         "gameId": 2
-      },
-      {
-        "id": "game-server-3",
-        "host": "127.0.0.1",
-        "port": 3252,
-        "gameId": 3
       }
     ],
     "auth": [
@@ -149,7 +159,8 @@
       {
         "id": "chat-server-1",
         "host": "127.0.0.1",
-        "port": 3450
+        "port": 3450,
+        "args":"--inspect=10014"
       },
       {
         "id": "chat-server-2",
@@ -166,16 +177,21 @@
       {
         "id": "rank-server-1",
         "host": "127.0.0.1",
-        "port": 3550,
-        "args":"--inspect=10015"
+        "port": 3550
       }
     ],
     "lottery": [
       {
         "id": "lottery-server-1",
         "host": "127.0.0.1",
-        "port": 3650,
-        "args":"--inspect=10016"
+        "port": 3650
+      }
+    ],
+    "restore": [
+      {
+        "id": "restore-server-1",
+        "host": "127.0.0.1",
+        "port": 3750
       }
     ]
   }
