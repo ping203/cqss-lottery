@@ -94,6 +94,8 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
         incomeMoney: 0,
         rebateRate: 0,
         rebateMoney: 0,
+        upperRebateRate:0,
+        upperRebateMoney:0,
         incomeTime: self.incomeTime
     };
     let friendIds = null;
@@ -128,9 +130,8 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
             reduce_callback(null, reduce);
         }, function (err, income) {
 
-            let upperRebateMoney = 0; //分成
-            let rate = 0;
-            let subRate = 0;
+            let rate = 0; //上级分成比例
+            let subRate = 0; //下级分成比例
 
             self.daoUser.getUpperAgent(agent.id, function (err, upper) {
                 logger.error('~~~~~agent:',agent.ext);
@@ -143,7 +144,7 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                 }
                 else {
                     if(!!agent.ext && !!agent.ext.divide){
-                        rate = agent.ext.divide;
+                        subRate = agent.ext.divide;
                     }
                 }
 
@@ -154,8 +155,8 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                 if (incomeMoney > 0) {
                     agentIncomInit.rebateMoney = Math.abs(incomeMoney) * rate/100;
                     if(subRate > 0){
-                        upperRebateMoney = Math.abs(incomeMoney) * subRate/100;
-                        agentIncomInit.rebateMoney -= upperRebateMoney;
+                        agentIncomInit.upperRebateMoney = Math.abs(incomeMoney) * subRate/100;
+                        agentIncomInit.rebateMoney -= agentIncomInit.upperRebateMoney;
                     }
                 }
                 logger.error('~~~~~upperRebateMoney:',upperRebateMoney);
@@ -163,7 +164,8 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
 
                 agentIncomInit.betMoney = income.betMoney;
                 agentIncomInit.incomeMoney = income.incomeMoney;
-                agentIncomInit.rebateRate = rate;
+                agentIncomInit.rebateRate = subRate;
+                agentIncomInit.upperRebateRate = rate - subRate;
                 self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
                     if (err) {
                         logger.error('代理商分成记录失败!' + err.stack);
@@ -171,8 +173,8 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                         return;
                     }
                     logger.error('~~~~~res:',res);
-                    if(upperRebateMoney > 0){
-                        res.upper = {playerId:upper.id, rebateMoney:upperRebateMoney};
+                    if(agentIncomInit.upperRebateMoney > 0){
+                        res.upper = {playerId:upper.id, rebateMoney:agentIncomInit.upperRebateMoney};
                     }
 
                     logger.error('~~~~~res1111:',res);

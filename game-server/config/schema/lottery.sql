@@ -109,6 +109,10 @@ CREATE TABLE IF NOT EXISTS `PlayerIncome`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+
+# alter table AgentIncome add upperRebateRate FLOAT(6,2) NOT NULL COMMENT '上级分成比例';
+# alter table AgentIncome add upperRebateMoney DECIMAL(20,2) NOT NULL COMMENT '上级分成金额';
+
 # ------------------------------------------------------------
 # Dump of table AgentIncome(代理投注盈亏表)
 # ------------------------------------------------------------
@@ -119,6 +123,8 @@ CREATE TABLE IF NOT EXISTS `AgentIncome`(
   `incomeMoney` bigint(20) NOT NULL COMMENT '盈亏金额',
   `rebateRate` FLOAT(6,2) NOT NULL COMMENT '分成比例',
   `rebateMoney` DECIMAL(20,2) NOT NULL COMMENT '分成金额',
+  `upperRebateRate` FLOAT(6,2) NOT NULL COMMENT '上级分成比例',
+  `upperRebateMoney` DECIMAL(20,2) NOT NULL COMMENT '上级分成金额',
   `incomeTime` bigint(20) unsigned NOT NULL COMMENT '分成日期',
    PRIMARY KEY (`id`),
    FOREIGN KEY(`uid`) REFERENCES User(`id`)
