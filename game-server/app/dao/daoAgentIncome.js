@@ -12,7 +12,7 @@ var DaoAgentIncome = function () {
 
 //代理商今日分成信息
 DaoAgentIncome.prototype.agentAddIncome = function (income, cb) {
-    var sql = 'insert into AgentIncome (uid, betMoney, incomeMoney, rebateRate, rebateMoney, incomeTime) values(?,?,?,?,?,?,?,?)';
+    var sql = 'insert into AgentIncome (uid, betMoney, incomeMoney, rebateRate, rebateMoney, upperRebateRate, upperRebateMoney, incomeTime) values(?,?,?,?,?,?,?,?)';
     var args = [income.playerId, income.betMoney, income.incomeMoney, income.rebateRate, income.rebateMoney, , income.upperRebateRate, income.upperRebateMoney, income.incomeTime];
     var self = this;
     pomelo.app.get('dbclient').insert(sql, args, function (err, res) {

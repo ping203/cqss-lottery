@@ -169,7 +169,7 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                 self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
                     if (err) {
                         logger.error('代理商分成记录失败!' + err.stack);
-                        cb('代理商分成记录失败');
+                        self.utils.invokeCallback(callback, null, null);
                         return;
                     }
                     logger.error('~~~~~res:',res);
