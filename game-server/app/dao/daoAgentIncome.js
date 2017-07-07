@@ -19,6 +19,7 @@ DaoAgentIncome.prototype.agentAddIncome = function (income, cb) {
         if (err !== null) {
             self.utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
         } else {
+            logger.error('DaoAgentIncome.prototype.agentAddIncome:', res);
             self.utils.invokeCallback(cb, null, {
                 id: res.insertId,
                 playerId: income.playerId,
