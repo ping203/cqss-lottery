@@ -6,6 +6,9 @@ const RouteUtil = require('./app/util/routeUtil');
 const globalChannel = require('pomelo-globalchannel-plugin');
 const status = require('pomelo-status-plugin');
 const scale = require('pomelo-scale-plugin');
+const path = require('path');
+const logConfig = require('./config/log4js.json');
+
 const logger = require('pomelo-logger').getLogger(__filename);
 
 // Cannot enqueue Query after fatal error
@@ -14,11 +17,15 @@ const logger = require('pomelo-logger').getLogger(__filename);
  */
 const app = pomelo.createApp();
 
+// app.configureLogger(logger);
+
 const Configure = function () {
     app.set('name', 'lottery');
 
-    app.loadConfig('mysql', app.getBase() + '/../shared/config/mysql.json');
-    app.loadConfig('redis', app.getBase() + '/../shared/config/redis.json');
+    require('pomelo-logger').configure(path.join(app.getBase(),'/config/log4js.json'),{base : app.getBase()});
+
+    app.loadConfig('mysql', path.join(app.getBase() , '/../shared/config/mysql.json'));
+    app.loadConfig('redis', path.join(app.getBase() , '/../shared/config/redis.json'));
 
     // configure for global
     app.configure('production|development', function () {
@@ -156,7 +163,10 @@ const Configure = function () {
 }
 
 const contextPath = require.resolve('./context.json');
-bearcat.createApp([contextPath]);
+bearcat.createApp([contextPath],{
+    BEARCAT_LOGGER:'off',
+    BEARCAT_HOT:'off'
+});
 
 bearcat.start(function () {
     Configure();
