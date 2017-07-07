@@ -163,7 +163,7 @@ CalcIncome.prototype.agentRebate = async function (agent, callback) {
                 logger.error('~~~~~agentIncomInit.rebateMoney:',agentIncomInit.rebateMoney);
 
                 agentIncomInit.betMoney = income.betMoney;
-                agentIncomInit.incomeMoney = income.incomeMoney;
+                agentIncomInit.incomeMoney = incomeMoney;
                 agentIncomInit.rebateRate = rate - upperRate;
                 agentIncomInit.upperRebateRate = upperRate;
                 self.daoAgentIncome.agentAddIncome(agentIncomInit, function (err, res) {
