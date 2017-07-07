@@ -286,17 +286,18 @@ CalcIncome.prototype.calc = function () {
     logger.error('~~~~~~~~~~~~~~~CalcIncome.prototype.calc');
     var now = new Date();
     var begin = new Date(now);
-    begin.setDate(begin.getDate()-1);
+    begin.setDate(begin.getDate()-2);
     begin.setHours(1, 55, 0, 0);
     this.beginTime = begin.getTime();
 
 
     var end = new Date(now);
+    end.setDate(end.getDate()-1);
     end.setHours(1, 55, 0, 0);
     this.endTime = end.getTime();
 
     var calcTime = new Date(now);
-    calcTime.setDate(calcTime.getDate()-1);
+    calcTime.setDate(calcTime.getDate()-2);
     calcTime.setHours(0,0,0,0);
 
     this.incomeTime = calcTime.getTime();
