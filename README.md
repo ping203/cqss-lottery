@@ -20,6 +20,7 @@ truncate table Record;
 truncate table reset;
 truncate table User;
 
+pomelo start -e production --daemon
 
 mysql 远程访问权限设置
 update user set host = '%' where user = 'root';
